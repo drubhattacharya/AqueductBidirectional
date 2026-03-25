@@ -497,6 +497,90 @@ button.export-docx{background:linear-gradient(135deg,#1D4ED8,#1e40af);color:#fff
   border-radius:7px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;
   font-family:var(--sans);display:flex;align-items:center;gap:6px;}
 
+
+/* ── DOCUMENT UPLOAD SYSTEM ─────────────────────────────────── */
+.upload-zone{border:2px dashed var(--border2);border-radius:12px;padding:24px;
+  text-align:center;transition:all .2s;cursor:pointer;background:#fff;position:relative;}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--gold);background:rgba(201,162,39,.03);}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upload-zone-icon{font-size:28px;margin-bottom:8px;}
+.upload-zone-label{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px;}
+.upload-zone-hint{font-size:11.5px;color:var(--muted);}
+
+.doc-queue{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+.doc-item{display:flex;align-items:center;gap:10px;padding:10px 13px;
+  background:var(--bg-warm);border-radius:9px;border:1px solid var(--border);
+  transition:border-color .2s;}
+.doc-item.parsing{border-color:rgba(201,162,39,.4);background:rgba(201,162,39,.04);}
+.doc-item.done{border-color:var(--green-border);background:rgba(4,120,87,.03);}
+.doc-item.err{border-color:var(--red-border);background:var(--red-soft);}
+.di-icon{font-size:18px;flex-shrink:0;}
+.di-info{flex:1;min-width:0;}
+.di-name{font-size:12.5px;font-weight:700;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.di-meta{font-size:11px;color:var(--muted);margin-top:1px;}
+.di-status{font-size:11px;font-weight:700;flex-shrink:0;}
+.di-status.parsing{color:var(--amber);}
+.di-status.done{color:var(--green);}
+.di-status.err{color:var(--red);}
+.di-remove{background:none;border:none;font-size:14px;color:var(--muted);cursor:pointer;
+  padding:2px 5px;border-radius:4px;flex-shrink:0;}
+.di-remove:hover{color:var(--red);}
+
+/* ── PARSED RESULTS DISPLAY ──────────────────────────────────── */
+.parsed-results{margin-top:16px;display:flex;flex-direction:column;gap:12px;}
+.pr-card{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.pr-hdr{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;background:var(--navy);color:#fff;cursor:pointer;}
+.pr-hdr-title{font-size:13px;font-weight:800;}
+.pr-hdr-meta{font-size:11px;color:rgba(255,255,255,.5);}
+.pr-body{padding:14px;display:none;}
+.pr-body.open{display:block;}
+.pr-field{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:12.5px;}
+.pr-field-label{font-weight:700;color:var(--navy);min-width:130px;flex-shrink:0;}
+.pr-field-val{color:#1a2332;flex:1;}
+.pr-priority{display:flex;align-items:flex-start;gap:8px;padding:6px 9px;
+  background:var(--bg-warm);border-radius:6px;font-size:12px;margin-bottom:5px;}
+.pr-priority-n{width:18px;height:18px;border-radius:50%;background:var(--navy);color:#fff;
+  font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pr-transport-hit{background:rgba(201,162,39,.1);border:1px solid rgba(201,162,39,.3);
+  border-radius:7px;padding:8px 11px;font-size:12px;font-style:italic;color:#5a4000;margin-top:6px;}
+.pr-apply-btn{background:linear-gradient(135deg,var(--gold),#a07810);color:var(--navy);
+  border:none;border-radius:7px;padding:6px 14px;font-size:11.5px;font-weight:700;
+  cursor:pointer;font-family:var(--sans);margin-top:10px;}
+
+/* ── TREND ANALYSIS ──────────────────────────────────────────── */
+.trend-panel{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:16px;}
+.trend-hdr{padding:12px 16px;background:linear-gradient(135deg,var(--navy),#002050);color:#fff;
+  display:flex;align-items:center;justify-content:space-between;}
+.trend-hdr-title{font-size:13px;font-weight:800;}
+.trend-grid{display:grid;gap:0;}
+.trend-row{display:flex;align-items:stretch;border-bottom:1px solid var(--border);}
+.trend-row:last-child{border-bottom:none;}
+.trend-year{width:70px;flex-shrink:0;padding:9px 10px;font-size:12px;font-weight:800;
+  color:var(--navy);border-right:1px solid var(--border);background:var(--bg-warm);
+  display:flex;align-items:center;}
+.trend-priorities{flex:1;padding:9px 12px;font-size:12px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
+.trend-tag{padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;}
+.trend-tag-transport{background:rgba(201,162,39,.15);color:#7a5c00;border:1px solid rgba(201,162,39,.3);}
+.trend-tag-access{background:var(--blue-soft);color:#1D4ED8;border:1px solid var(--blue-border);}
+.trend-tag-mental{background:var(--purple-soft);color:var(--purple);border:1px solid var(--purple-border);}
+.trend-tag-chronic{background:var(--amber-soft);color:var(--amber);border:1px solid var(--amber-border);}
+.trend-tag-other{background:var(--bg);color:var(--muted);border:1px solid var(--border);}
+.trend-nemt-score{width:80px;flex-shrink:0;padding:9px 10px;font-size:12px;font-weight:800;
+  color:var(--teal);border-left:1px solid var(--border);background:rgba(10,107,98,.03);
+  display:flex;align-items:center;justify-content:center;}
+
+/* ── INITIATIVE IDENTIFIER ───────────────────────────────────── */
+.initiative-card{border:1px solid var(--border);border-radius:var(--radius);padding:14px;
+  background:#fff;transition:border-color .15s;}
+.initiative-card:hover{border-color:rgba(201,162,39,.4);}
+.init-match{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.init-match-bar{flex:1;height:6px;border-radius:3px;background:var(--bg);overflow:hidden;}
+.init-match-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--teal),var(--gold));}
+.init-funder-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
+.init-funder-chip{padding:2px 8px;border-radius:99px;font-size:10.5px;font-weight:700;
+  border:1px solid;cursor:pointer;}
+
 </style>
 </head>
 <body class="view-hospital">
@@ -770,6 +854,60 @@ button.export-docx{background:linear-gradient(135deg,#1D4ED8,#1e40af);color:#fff
     <div id="chna_panel" style="border:1px solid var(--border);border-radius:var(--radius);padding:13px;margin-bottom:16px;">
       <p class="small text-muted">Searching for publicly filed CHNA for <span id="chna_org_label">your organization</span>…</p>
     </div>
+
+
+  <!-- ── DOCUMENT UPLOAD PANEL ── -->
+  <div class="tool-body" id="upload_panel_section">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+      <div>
+        <div class="section-title">Upload organizational documents</div>
+        <p class="small mt-4">Upload your CHNA, IRS Form 990 (Schedule H), prior grant applications, or any organizational health reports. Claude will parse each document, extract relevant data, and populate the community need and initiative fields automatically.</p>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <span class="badge b-info">CHNA</span>
+        <span class="badge b-gold">Form 990 / Schedule H</span>
+        <span class="badge b-purple">Grant Applications</span>
+        <span class="badge b-mod">Health Reports</span>
+      </div>
+    </div>
+
+    <!-- Upload zone -->
+    <div class="upload-zone" id="upload_zone" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleDrop(event)">
+      <input type="file" id="doc_upload_input" multiple accept=".pdf,.docx,.doc,.html,.htm,.txt" onchange="handleFileSelect(event)"/>
+      <div class="upload-zone-icon">📄</div>
+      <div class="upload-zone-label">Drop files here or click to browse</div>
+      <div class="upload-zone-hint">PDF, Word (.docx), HTML, or plain text · Multiple files accepted · One document per year for trend analysis</div>
+    </div>
+
+    <!-- Document queue -->
+    <div class="doc-queue" id="doc_queue"></div>
+
+    <!-- Parsed results -->
+    <div class="parsed-results" id="parsed_results" style="display:none;">
+
+      <!-- Trend panel (shows when 2+ years parsed) -->
+      <div class="trend-panel" id="trend_panel" style="display:none;">
+        <div class="trend-hdr">
+          <div class="trend-hdr-title">📈 Multi-year trend analysis</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.4);">Priorities evolving across your uploaded CHNAs</div>
+        </div>
+        <div class="trend-grid" id="trend_grid"></div>
+      </div>
+
+      <!-- Extracted data summary -->
+      <div id="extracted_cards"></div>
+
+      <!-- Initiative identifier -->
+      <div id="initiative_panel" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <strong style="font-size:14px;font-weight:800;color:var(--navy);">🎯 NEMT-aligned initiatives identified</strong>
+          <span class="badge b-info">Based on your documents</span>
+        </div>
+        <p class="small mb-12">These specific program opportunities emerge from the intersection of your CHNA priorities, community data, and the funder landscape. Click any funder chip to jump directly to that strategy.</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;" id="initiative_cards"></div>
+      </div>
+    </div>
+  </div>
 
     <!-- Manual override -->
     <div style="padding:11px 14px;background:var(--bg);border-radius:9px;border:1px solid var(--border);">
@@ -3198,6 +3336,357 @@ window.exportROIdocx=function(){
   var a=document.createElement('a');
   a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(txt);
   a.download='Aqueduct_Summary_'+Date.now()+'.txt';a.click();
+};
+
+
+// ═══════════════════════════════════════════════════════
+// DOCUMENT UPLOAD & PARSING SYSTEM
+// ═══════════════════════════════════════════════════════
+var DOCS = [];  // {id, name, type, year, status, raw, parsed}
+var DOC_ID = 0;
+
+function docTypeIcon(name){
+  name=name.toLowerCase();
+  if(name.includes('chna')||name.includes('community health'))return '📋';
+  if(name.includes('990')||name.includes('schedule'))return '📊';
+  if(name.includes('grant')||name.includes('proposal'))return '📝';
+  if(name.endsWith('.pdf'))return '📄';
+  if(name.endsWith('.docx')||name.endsWith('.doc'))return '📃';
+  return '📄';
+}
+
+window.handleDrop = function(e){
+  e.preventDefault();
+  document.getElementById('upload_zone').classList.remove('drag-over');
+  var files=Array.from(e.dataTransfer.files);
+  processFiles(files);
+};
+
+window.handleFileSelect = function(e){
+  processFiles(Array.from(e.target.files));
+  e.target.value=''; // reset so same file can be re-uploaded
+};
+
+function processFiles(files){
+  files.forEach(f=>queueDoc(f));
+}
+
+function queueDoc(file){
+  var id=++DOC_ID;
+  var doc={id,name:file.name,size:file.size,status:'queued',raw:null,parsed:null};
+  DOCS.push(doc);
+  renderQueue();
+  // Read file
+  var reader=new FileReader();
+  reader.onload=async function(e){
+    doc.raw=e.target.result;
+    await parseDoc(doc);
+  };
+  // For PDFs use ArrayBuffer, others use text
+  if(file.name.toLowerCase().endsWith('.pdf')){
+    reader.readAsDataURL(file); // base64 for Claude
+  }else{
+    reader.readAsText(file);
+  }
+}
+
+async function parseDoc(doc){
+  doc.status='parsing';
+  renderQueue();
+  var isPDF=doc.name.toLowerCase().endsWith('.pdf');
+  try{
+    var msgContent;
+    if(isPDF){
+      // Send as base64 PDF to Claude
+      var b64=doc.raw.split(',')[1]||doc.raw;
+      msgContent=[
+        {type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},
+        {type:'text',text:PARSE_PROMPT}
+      ];
+    }else{
+      // Send as text — truncate if very long
+      var text=doc.raw||'';
+      if(text.length>80000)text=text.slice(0,80000)+'\n[DOCUMENT TRUNCATED FOR LENGTH]';
+      msgContent=[{type:'text',text:'DOCUMENT CONTENT:\n\n'+text+'\n\n'+PARSE_PROMPT}];
+    }
+    var resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:2000,
+        messages:[{role:'user',content:msgContent}]
+      })
+    });
+    var data=await resp.json();
+    var txt=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    var m=txt.match(/\{[\s\S]*\}/);
+    if(!m)throw new Error('No JSON returned');
+    doc.parsed=JSON.parse(m[0]);
+    doc.status='done';
+  }catch(e){
+    console.error('Parse error',e);
+    doc.parsed=null;
+    doc.status='err';
+    doc.err=e.message;
+  }
+  renderQueue();
+  renderParsedResults();
+}
+
+var PARSE_PROMPT=`You are analyzing a healthcare organization document (CHNA, Form 990, Schedule H, grant application, or health report).
+
+Extract ALL of the following fields if present. Return ONLY valid JSON (no markdown, no code fences):
+
+{
+  "doc_type": "CHNA|Form990|ScheduleH|GrantApplication|HealthReport|Other",
+  "org_name": null,
+  "year": null,
+  "report_period": null,
+  "priorities": [],
+  "transportation_text": null,
+  "transport_mentioned": false,
+  "transport_as_barrier": false,
+  "sdoh_mentioned": [],
+  "no_show_data": null,
+  "schedule_h": {
+    "line_7e_chis": null,
+    "line_7i_contributions": null,
+    "line_7_total_cb": null,
+    "cb_as_pct_expenses": null,
+    "nemt_specific_amount": null,
+    "transportation_in_chis": false
+  },
+  "community_stats": {
+    "uninsured_pct": null,
+    "poverty_pct": null,
+    "no_vehicle_pct": null,
+    "disability_pct": null,
+    "service_area_pop": null
+  },
+  "nemt_opportunities": [],
+  "key_quotes": [],
+  "summary": null
+}
+
+For nemt_opportunities: list specific program opportunities explicitly or implicitly suggested by the document that NEMT could address.
+For key_quotes: extract up to 3 direct quotes most relevant to transportation access or community health need.
+For priorities: list exactly as stated in the document, in priority order.`;
+
+function renderQueue(){
+  var el=document.getElementById('doc_queue');
+  if(!el||DOCS.length===0){if(el)el.innerHTML='';return;}
+  el.innerHTML=DOCS.map(d=>`
+    <div class="doc-item ${d.status}" id="di_${d.id}">
+      <span class="di-icon">${docTypeIcon(d.name)}</span>
+      <div class="di-info">
+        <div class="di-name">${d.name}</div>
+        <div class="di-meta">${d.size?(Math.round(d.size/1024)+'KB · '):''}${d.parsed?.doc_type||'Parsing…'}${d.parsed?.year?' · '+d.parsed.year:''}</div>
+      </div>
+      <span class="di-status ${d.status}">${d.status==='queued'?'⏳ Queued':d.status==='parsing'?'⏳ Parsing…':d.status==='done'?'✓ Done':'✗ Error'}</span>
+      <button class="di-remove" onclick="removeDoc(${d.id})" title="Remove">✕</button>
+    </div>`).join('');
+}
+
+window.removeDoc=function(id){
+  DOCS=DOCS.filter(d=>d.id!==id);
+  renderQueue();
+  renderParsedResults();
+};
+
+function renderParsedResults(){
+  var done=DOCS.filter(d=>d.status==='done'&&d.parsed);
+  var resultsEl=document.getElementById('parsed_results');
+  var cardsEl=document.getElementById('extracted_cards');
+  var trendEl=document.getElementById('trend_panel');
+  var trendGrid=document.getElementById('trend_grid');
+  var initPanel=document.getElementById('initiative_panel');
+  var initCards=document.getElementById('initiative_cards');
+  if(!resultsEl||!cardsEl)return;
+  if(done.length===0){resultsEl.style.display='none';return;}
+  resultsEl.style.display='block';
+
+  // ── Render individual parsed document cards ──────────────────
+  cardsEl.innerHTML=done.map(d=>{
+    var p=d.parsed;
+    var priorities=(p.priorities||[]).map((pr,i)=>`<div class="pr-priority"><span class="pr-priority-n">${i+1}</span><span>${pr}</span></div>`).join('');
+    var tHit=p.transportation_text?`<div class="pr-transport-hit">🚗 "${p.transportation_text.slice(0,220)}${p.transportation_text.length>220?'…':''}"</div>`:'';
+    var stats=[
+      p.community_stats?.uninsured_pct!=null?['Uninsured',p.community_stats.uninsured_pct+'%']:'',
+      p.community_stats?.poverty_pct!=null?['Below poverty',p.community_stats.poverty_pct+'%']:'',
+      p.community_stats?.no_vehicle_pct!=null?['No vehicle',p.community_stats.no_vehicle_pct+'%']:'',
+      p.community_stats?.disability_pct!=null?['Disability',p.community_stats.disability_pct+'%']:'',
+    ].filter(Boolean).map(([l,v])=>`<div class="pr-field"><span class="pr-field-label">${l}</span><span class="pr-field-val">${v}</span></div>`).join('');
+    var schH=p.schedule_h;
+    var schHBlock=schH&&(schH.line_7e_chis||schH.line_7_total_cb)?`
+      <div style="margin-top:12px;padding:10px 12px;background:linear-gradient(135deg,rgba(0,21,51,.03),rgba(10,107,98,.03));border-radius:8px;border:1px solid var(--border);">
+        <strong style="font-size:11.5px;color:var(--navy);">📊 Schedule H / Community Benefit data:</strong>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px;">
+          ${schH.line_7_total_cb!=null?`<div><div class="text-xs text-muted">Total CB (counts toward exemption)</div><div style="font-size:16px;font-weight:800;color:var(--teal);">$${Number(schH.line_7_total_cb).toLocaleString()}</div></div>`:''}
+          ${schH.line_7e_chis!=null?`<div><div class="text-xs text-muted">Part I Line 7e — CHIS</div><div style="font-size:16px;font-weight:800;color:var(--navy);">$${Number(schH.line_7e_chis).toLocaleString()}</div></div>`:''}
+          ${schH.cb_as_pct_expenses!=null?`<div><div class="text-xs text-muted">CB as % of expenses</div><div style="font-size:16px;font-weight:800;color:var(--navy);">${schH.cb_as_pct_expenses}%</div></div>`:''}
+          ${schH.nemt_specific_amount!=null?`<div><div class="text-xs text-muted">NEMT-specific spend</div><div style="font-size:16px;font-weight:800;color:var(--gold);">$${Number(schH.nemt_specific_amount).toLocaleString()}</div></div>`:''}
+        </div>
+        ${schH.transportation_in_chis?'<div class="badge b-strong mt-8" style="margin-top:7px;">Transportation listed in CHIS</div>':''}
+      </div>`:''
+    ;
+    var applyBtn=p.community_stats&&Object.values(p.community_stats).some(v=>v!=null)
+      ?`<button class="pr-apply-btn" onclick="applyParsedData(${d.id})">← Apply this data to Community Need</button>`:'';
+    return `<div class="pr-card" id="prc_${d.id}">
+      <div class="pr-hdr" onclick="togglePRC(${d.id})">
+        <div>
+          <div class="pr-hdr-title">${docTypeIcon(d.name)} ${p.doc_type||'Document'} — ${p.org_name||S.orgName}${p.year?' ('+p.year+')':''}</div>
+          <div class="pr-hdr-meta">${d.name}${p.report_period?' · '+p.report_period:''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          ${p.transport_as_barrier?'<span class="badge b-gold" style="font-size:10px;">Transport Barrier Found</span>':''}
+          ${p.transport_mentioned&&!p.transport_as_barrier?'<span class="badge b-info" style="font-size:10px;">Transport Mentioned</span>':''}
+          <span style="color:rgba(255,255,255,.4);font-size:14px;">▸</span>
+        </div>
+      </div>
+      <div class="pr-body" id="prb_${d.id}">
+        ${p.summary?`<p class="small mb-12" style="font-style:italic;color:var(--muted);">${p.summary}</p>`:''}
+        ${p.priorities&&p.priorities.length?`<strong class="text-sm">Stated priorities:</strong><div style="margin:8px 0;">${priorities}</div>`:''}
+        ${tHit}
+        ${stats?`<div style="margin-top:10px;">${stats}</div>`:''}
+        ${schHBlock}
+        ${p.nemt_opportunities&&p.nemt_opportunities.length?`<div style="margin-top:10px;"><strong class="text-sm">NEMT opportunities identified by document:</strong><div style="margin-top:6px;display:flex;flex-direction:column;gap:4px;">${p.nemt_opportunities.map(o=>`<div style="padding:5px 9px;background:rgba(201,162,39,.07);border-radius:6px;font-size:12px;border:1px solid rgba(201,162,39,.2);">→ ${o}</div>`).join('')}</div></div>`:''}
+        ${p.key_quotes&&p.key_quotes.length?`<div style="margin-top:10px;"><strong class="text-sm">Key quotes:</strong><div style="display:flex;flex-direction:column;gap:5px;margin-top:6px;">${p.key_quotes.map(q=>`<div style="font-style:italic;font-size:12px;padding:7px 10px;background:var(--bg-warm);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;">"${q}"</div>`).join('')}</div></div>`:''}
+        ${applyBtn}
+      </div>
+    </div>`;
+  }).join('');
+
+  // ── Trend analysis (2+ documents with years) ─────────────────
+  var withYears=done.filter(d=>d.parsed?.year).sort((a,b)=>(a.parsed.year||0)-(b.parsed.year||0));
+  if(withYears.length>=2&&trendEl&&trendGrid){
+    trendEl.style.display='block';
+    trendGrid.innerHTML=withYears.map(d=>{
+      var p=d.parsed;
+      var tags=(p.priorities||[]).slice(0,4).map(pr=>{
+        var pl=pr.toLowerCase();
+        var cls=pl.includes('transport')||pl.includes('access to care')?'trend-tag-transport':
+                pl.includes('mental')||pl.includes('behav')?'trend-tag-mental':
+                pl.includes('diabetes')||pl.includes('chronic')||pl.includes('hypert')?'trend-tag-chronic':
+                pl.includes('access')||pl.includes('primary care')?'trend-tag-access':'trend-tag-other';
+        return `<span class="trend-tag ${cls}">${pr.slice(0,35)}${pr.length>35?'…':''}</span>`;
+      }).join('');
+      var score=p.transport_as_barrier?'HIGH':p.transport_mentioned?'MOD':'LOW';
+      var scoreColor=score==='HIGH'?'var(--teal)':score==='MOD'?'var(--amber)':'var(--muted)';
+      return `<div class="trend-row">
+        <div class="trend-year">${p.year}</div>
+        <div class="trend-priorities">${tags||'<span class="text-xs text-muted">No priorities extracted</span>'}</div>
+        <div class="trend-nemt-score" style="color:${scoreColor};" title="Transport barrier signal: ${score}">${score}</div>
+      </div>`;
+    }).join('');
+  }else if(trendEl){trendEl.style.display='none';}
+
+  // ── Initiative identifier ────────────────────────────────────
+  var allOpps=[...new Set(done.flatMap(d=>d.parsed?.nemt_opportunities||[]))].filter(Boolean);
+  var allPriorities=[...new Set(done.flatMap(d=>d.parsed?.priorities||[]))];
+  if((allOpps.length||allPriorities.length)&&initPanel&&initCards){
+    initPanel.style.display='block';
+    // Generate initiative cards from opportunities + priorities
+    var initiatives=buildInitiatives(allOpps,allPriorities,done);
+    initCards.innerHTML=initiatives.map(ini=>`
+      <div class="initiative-card">
+        <div style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:5px;">${ini.title}</div>
+        <div class="init-match">
+          <span style="font-size:11px;color:var(--muted);min-width:65px;">${ini.matchPct}% match</span>
+          <div class="init-match-bar"><div class="init-match-fill" style="width:${ini.matchPct}%"></div></div>
+        </div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:8px;">${ini.why}</p>
+        <div class="init-funder-chips">
+          ${ini.funders.map(f=>`<span class="init-funder-chip ${f.cls}" onclick="go('funders');setTimeout(()=>{var b=document.querySelector('[onclick*=\"showFunder(\'${f.id}\',this)\"]');if(b)b.click();},200);">${f.label}</span>`).join('')}
+        </div>
+      </div>`).join('');
+  }else if(initPanel){initPanel.style.display='none';}
+}
+
+function buildInitiatives(opps,priorities,docs){
+  var hasTransport=docs.some(d=>d.parsed?.transport_as_barrier);
+  var hasAccess=priorities.some(p=>/access|primary care|pcp/i.test(p));
+  var hasChronic=priorities.some(p=>/diabetes|chronic|hypert|cardiov/i.test(p));
+  var hasMental=priorities.some(p=>/mental|behav|substanc/i.test(p));
+  var hasDisch=opps.some(o=>/discharg|readmiss|hospital/i.test(o));
+  var funderChips={
+    cra:{id:'cra',label:'🏦 Bank/CRA',cls:'b-info'},
+    priv:{id:'priv',label:'🏛️ Foundation',cls:'b-purple'},
+    comm:{id:'comm',label:'🌱 Comm. Foundation',cls:'b-strong'},
+    esg:{id:'corp_esg',label:'📊 Corporate ESG',cls:'b-gold'}
+  };
+  var inits=[];
+  if(hasTransport||hasAccess){
+    inits.push({title:'Targeted No-Show Reduction Program',matchPct:95,
+      why:'Your CHNA explicitly documents transportation as a barrier to care. A targeted NEMT program using prior no-show history (Hennepin/Lyft model) directly addresses your stated priorities.',
+      funders:[funderChips.cra,funderChips.priv,funderChips.comm]});
+  }
+  if(hasChronic){
+    inits.push({title:'CCM/TCM Linkage — Chronic Disease Management',matchPct:88,
+      why:'Your chronic disease priorities (diabetes, hypertension) align directly with MIPS Measure 001 and 236 — both require in-person visits that NEMT enables. CCM billing at $62/mo creates self-sustaining revenue.',
+      funders:[funderChips.priv,funderChips.esg]});
+  }
+  if(hasDisch){
+    inits.push({title:'Post-Discharge NEMT — Readmission Reduction',matchPct:82,
+      why:'Discharge transportation has no AKS distance limits (2020 exception). Balasubramanian 2025 (83 studies) shows 32% readmission reduction with timely follow-up — your discharge data makes this fundable.',
+      funders:[funderChips.cra,funderChips.priv]});
+  }
+  if(hasMental){
+    inits.push({title:'Behavioral Health Access Rides',matchPct:78,
+      why:'Behavioral health appointments have the highest no-show rate of any service line. Transportation barrier + NEMT = fastest quality metric improvement for this priority.',
+      funders:[funderChips.comm,funderChips.priv,funderChips.esg]});
+  }
+  // Add any unique opps not covered
+  opps.slice(0,3).forEach(opp=>{
+    if(!inits.some(i=>i.title.toLowerCase().includes(opp.toLowerCase().slice(0,15)))){
+      inits.push({title:opp.slice(0,60)+(opp.length>60?'…':''),matchPct:70,
+        why:'Identified directly from your uploaded document as a potential NEMT opportunity.',
+        funders:[funderChips.cra,funderChips.comm]});
+    }
+  });
+  return inits.slice(0,6);
+}
+
+window.togglePRC=function(id){
+  var el=document.getElementById('prb_'+id);
+  if(el)el.classList.toggle('open');
+};
+
+window.applyParsedData=function(id){
+  var doc=DOCS.find(d=>d.id===id);
+  if(!doc||!doc.parsed)return;
+  var p=doc.parsed;
+  // Apply community stats to D.census / D.cdc overrides
+  if(p.community_stats){
+    if(p.community_stats.uninsured_pct!=null) D.cdc.uninsured=p.community_stats.uninsured_pct;
+    if(p.community_stats.poverty_pct!=null) D.census.povPct=p.community_stats.poverty_pct;
+    if(p.community_stats.no_vehicle_pct!=null) D.census.noVehiclePct=p.community_stats.no_vehicle_pct;
+    if(p.community_stats.disability_pct!=null) D.census.disabPct=p.community_stats.disability_pct;
+  }
+  // Apply CHNA priorities to the existing CHNA panel
+  if(p.priorities&&p.priorities.length){
+    D.chna.found=true;
+    D.chna.priorities=p.priorities;
+    if(p.transportation_text)D.chna.transport=p.transportation_text;
+    if(p.year)D.chna.yr=p.year;
+    if(p.org_name)S.orgName=S.orgName||p.org_name;
+  }
+  // Apply Schedule H data
+  if(p.schedule_h&&p.schedule_h.line_7_total_cb){
+    var sh=p.schedule_h;
+    if(sh.line_7e_chis!=null&&document.getElementById('sh_rides'))
+      document.getElementById('sh_rides').value=Math.round(sh.line_7e_chis*0.75)||'';
+    if(sh.line_7_total_cb!=null)
+      console.log('Schedule H total CB: $'+sh.line_7_total_cb);
+    calcScheduleH();
+  }
+  // Re-render community need
+  renderCommunityData();
+  // Show confirmation
+  var btn=event.target;
+  btn.textContent='✓ Applied';
+  btn.style.background='var(--green)';
+  setTimeout(()=>{btn.textContent='← Apply this data';btn.style.background='';},2500);
 };
 
 </script>
