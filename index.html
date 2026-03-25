@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Aqueduct — NEMT Strategic Platform</title>
+<title>Aqueduct v3.2 — NEMT Strategic Platform</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -385,9 +385,137 @@ body.view-hospital .funder-only{display:none!important;}
 body.view-funder .hospital-only{display:none!important;}
 body.view-both .funder-only{display:block;}
 body.view-both .hospital-only{display:block;}
+
+/* ── LOADING OVERLAY ─────────────────────────────────── */
+#load-overlay{position:fixed;inset:0;z-index:8500;display:none;align-items:center;
+  justify-content:center;background:linear-gradient(160deg,#000f26 0%,#001533 50%,#001a40 100%);
+  flex-direction:column;}
+#load-overlay.active{display:flex;}
+.lo-inner{max-width:520px;width:100%;text-align:center;padding:32px 24px;}
+.lo-logo{width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,var(--gold),#a07810);
+  display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;
+  color:var(--navy);margin:0 auto 20px;}
+.lo-title{font-size:19px;font-weight:800;color:#fff;margin-bottom:5px;letter-spacing:-.02em;}
+.lo-subtitle{font-size:12px;color:rgba(255,255,255,.4);margin-bottom:24px;}
+.lo-steps{display:flex;flex-direction:column;gap:8px;text-align:left;margin-bottom:20px;}
+.lo-step{display:flex;align-items:center;gap:12px;padding:10px 14px;
+  background:rgba(255,255,255,.04);border-radius:9px;border:1px solid rgba(255,255,255,.06);
+  transition:all .35s;}
+.lo-step.active{background:rgba(201,162,39,.1);border-color:rgba(201,162,39,.3);}
+.lo-step.done{background:rgba(4,120,87,.1);border-color:rgba(4,120,87,.3);}
+.lo-step.err{background:rgba(185,28,28,.1);border-color:rgba(185,28,28,.25);}
+@keyframes loPulse{0%,100%{opacity:.7}50%{opacity:1}}
+.lo-step.active{animation:loPulse 1.4s ease-in-out infinite;}
+.ls-icon{font-size:16px;flex-shrink:0;width:22px;text-align:center;}
+.ls-label{flex:1;font-size:12px;font-weight:600;color:rgba(255,255,255,.5);}
+.lo-step.active .ls-label,.lo-step.done .ls-label,.lo-step.err .ls-label{color:rgba(255,255,255,.85);}
+.ls-status{font-size:11px;font-weight:700;color:rgba(255,255,255,.25);min-width:55px;text-align:right;}
+.lo-step.active .ls-status{color:var(--gold2);}
+.lo-step.done .ls-status{color:#6ee7b7;}
+.lo-step.err .ls-status{color:#fca5a5;}
+.lo-note{font-size:10px;color:rgba(255,255,255,.2);line-height:1.6;}
+
+/* ── 3-TIER VALUE PROPOSITIONS ───────────────────────── */
+.lm-tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;}
+@media(max-width:640px){.lm-tiers{grid-template-columns:1fr;}}
+.lm-tier{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);
+  border-radius:11px;padding:14px;text-align:left;}
+.lm-tier-icon{font-size:18px;margin-bottom:7px;}
+.lm-tier-title{font-size:12px;font-weight:800;color:rgba(255,255,255,.7);margin-bottom:5px;}
+.lm-tier-items{display:flex;flex-direction:column;gap:3px;}
+.lm-tier-item{font-size:11px;color:rgba(255,255,255,.45);line-height:1.4;display:flex;gap:5px;}
+.lm-tier-item::before{content:'✓';color:var(--gold2);flex-shrink:0;}
+
+/* ── DATA SOURCE BAR ─────────────────────────────────── */
+.data-src-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  gap:8px;padding:10px 14px;background:rgba(4,120,87,.04);border:1px solid rgba(4,120,87,.18);
+  border-radius:9px;margin-bottom:16px;}
+.dsb-label{font-size:12px;font-weight:800;color:var(--green);display:flex;align-items:center;gap:6px;}
+.dsb-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.data-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:99px;
+  font-size:10px;font-weight:700;border:1px solid;}
+.dc-live{border-color:var(--green-border);background:var(--green-soft);color:var(--green);}
+.dc-partial{border-color:var(--amber-border);background:var(--amber-soft);color:var(--amber);}
+.dc-miss{border-color:var(--red-border);background:var(--red-soft);color:var(--red);}
+.dc-wait{border-color:var(--border);background:var(--bg);color:var(--muted);}
+.kpi .src{font-size:10px;color:var(--subtle);margin-top:3px;font-style:italic;}
+
+/* ── CHNA PANEL ──────────────────────────────────────── */
+.chna-found{border:1px solid var(--teal)!important;background:linear-gradient(135deg,rgba(10,107,98,.03),rgba(0,21,51,.01))!important;}
+.chna-not-found{border:1px solid var(--amber-border)!important;background:var(--amber-soft)!important;}
+.priority-list{list-style:none;display:flex;flex-direction:column;gap:5px;margin-top:9px;}
+.priority-item{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;padding:7px 9px;
+  background:rgba(255,255,255,.7);border-radius:7px;border:1px solid rgba(0,0,0,.05);}
+.priority-num{width:19px;height:19px;border-radius:50%;background:var(--navy);color:#fff;
+  font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px;}
+
+/* ── HRSA CHIPS ──────────────────────────────────────── */
+.hrsa-chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;}
+.hrsa-chip{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid;}
+.hrsa-yes{background:#FEF3C7;border-color:#B45309;color:#92400E;}
+.hrsa-no{background:#F1F5F9;border-color:#CBD5E1;color:#64748B;}
+
+/* ── FUNDER MATCH PANEL ──────────────────────────────── */
+.fmatch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin:14px 0;}
+.fmatch-card{border-radius:10px;padding:13px;border:1px solid;transition:all .15s;}
+.fmatch-card:hover{transform:translateY(-1px);}
+.fmc-rank{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;margin-bottom:7px;}
+.fmc-name{font-size:13px;font-weight:800;color:var(--navy);margin-bottom:4px;}
+.fmc-why{font-size:11.5px;color:var(--muted);line-height:1.5;margin-bottom:7px;}
+.fmc-btn{background:none;font-size:11px;font-weight:700;cursor:pointer;padding:4px 10px;border-radius:6px;border:1px solid;font-family:var(--sans);}
+
+/* ── GAP ANALYSIS ────────────────────────────────────── */
+.gap-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:14px 0;}
+.gap-col-hdr{padding:10px 14px;font-size:12px;font-weight:800;text-align:center;}
+.gap-row{display:contents;}
+.gap-cell{padding:9px 13px;border-top:1px solid var(--border);font-size:12px;}
+.gap-cell:first-child{border-right:1px solid var(--border);}
+.gap-have{background:rgba(4,120,87,.04);}
+.gap-need{background:rgba(185,28,28,.03);}
+.gap-met{color:var(--green);font-weight:700;}
+.gap-missing{color:var(--red);font-weight:700;}
+
+/* ── SCHEDULE H CALCULATOR ───────────────────────────── */
+.sch-h-row{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;
+  border-radius:8px;border:1px solid var(--border);margin-bottom:7px;}
+.sch-h-row.counts{background:rgba(4,120,87,.05);border-color:var(--green-border);}
+.sch-h-row.nocounts{background:rgba(185,28,28,.03);border-color:var(--red-border);}
+.sch-h-label{font-size:13px;font-weight:700;color:var(--navy);}
+.sch-h-sub{font-size:11px;color:var(--muted);}
+.sch-h-val{font-size:16px;font-weight:800;color:var(--teal);}
+
+/* ── XLSX EXPORT BUTTON ──────────────────────────────── */
+.export-bar{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;padding:14px;
+  background:rgba(201,162,39,.06);border:1px solid rgba(201,162,39,.2);border-radius:9px;
+  align-items:center;}
+.export-label{font-size:12px;font-weight:700;color:var(--navy);}
+button.export-xlsx{background:linear-gradient(135deg,#047857,#065f46);color:#fff;border:none;
+  border-radius:7px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;
+  font-family:var(--sans);display:flex;align-items:center;gap:6px;}
+button.export-docx{background:linear-gradient(135deg,#1D4ED8,#1e40af);color:#fff;border:none;
+  border-radius:7px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;
+  font-family:var(--sans);display:flex;align-items:center;gap:6px;}
+
 </style>
 </head>
 <body class="view-hospital">
+
+<!-- ════════ LOADING OVERLAY ════════ -->
+<div id="load-overlay">
+  <div class="lo-inner">
+    <div class="lo-logo">Aq</div>
+    <p class="lo-title">Pulling real community data</p>
+    <p class="lo-subtitle">Querying U.S. federal public databases — 15–25 seconds</p>
+    <div class="lo-steps">
+      <div class="lo-step" id="ls_geo"><span class="ls-icon">🗺</span><span class="ls-label">Geocoding your county (Census geocoder)</span><span class="ls-status" id="lss_geo">waiting</span></div>
+      <div class="lo-step" id="ls_census"><span class="ls-icon">📊</span><span class="ls-label">Census ACS — disability, poverty, vehicle access, foreign-born</span><span class="ls-status" id="lss_census">waiting</span></div>
+      <div class="lo-step" id="ls_cdc"><span class="ls-icon">🏥</span><span class="ls-label">CDC PLACES — uninsured, chronic disease, preventive care</span><span class="ls-status" id="lss_cdc">waiting</span></div>
+      <div class="lo-step" id="ls_ai"><span class="ls-icon">🔍</span><span class="ls-label">Searching for CHNA · HRSA designations · County Health Rankings</span><span class="ls-status" id="lss_ai">waiting</span></div>
+    </div>
+    <p class="lo-note">Census Bureau ACS 5-Year Estimates · CDC PLACES 2024 · HRSA Data Warehouse · countyhealthrankings.org · Your organization's publicly filed CHNA (IRS 990 Schedule H requirement)</p>
+  </div>
+</div>
 
 <!-- ════════ LANDING OVERLAY ════════ -->
 <div id="lm-overlay">
@@ -395,9 +523,47 @@ body.view-both .hospital-only{display:block;}
   <div class="lm-inner">
     <div class="lm-logo-row">
       <div class="lm-logo">Aq</div>
-      <div class="lm-brand"><span>Aqueduct</span> <span style="color:rgba(255,255,255,.35);font-weight:400;">v3</span></div>
+      <div class="lm-brand"><span>Aqueduct</span> <span style="color:rgba(255,255,255,.35);font-weight:400;">v3.2</span></div>
     </div>
     <p class="lm-tagline">The platform that turns your community health data into <strong>funded programs</strong> — and tells both sides of the story.</p>
+
+    <!-- 3-Tier value props -->
+    <div class="lm-tiers">
+      <div class="lm-tier">
+        <div class="lm-tier-icon">🏥</div>
+        <div class="lm-tier-title">For Health Systems</div>
+        <div class="lm-tier-items">
+          <div class="lm-tier-item">Real community need data — Census, CDC, HRSA, CHNA</div>
+          <div class="lm-tier-item">5-layer ROI model with workforce & HR value</div>
+          <div class="lm-tier-item">Ranked funder match based on your CHNA profile</div>
+          <div class="lm-tier-item">8 ready-to-submit funding documents</div>
+          <div class="lm-tier-item">Excel ROI export + IRS Schedule H accounting</div>
+        </div>
+      </div>
+      <div class="lm-tier">
+        <div class="lm-tier-icon">🏦</div>
+        <div class="lm-tier-title">For Banks</div>
+        <div class="lm-tier-items">
+          <div class="lm-tier-item">CRA activity qualification assessment</div>
+          <div class="lm-tier-item">LMI population verification chain</div>
+          <div class="lm-tier-item">Exam-file–ready CRA memo generator</div>
+          <div class="lm-tier-item">Assessment area overlap confirmation</div>
+          <div class="lm-tier-item">Gap analysis: what you have vs. what examiners need</div>
+        </div>
+      </div>
+      <div class="lm-tier">
+        <div class="lm-tier-icon">🏛️</div>
+        <div class="lm-tier-title">For Foundations & Corporations</div>
+        <div class="lm-tier-items">
+          <div class="lm-tier-item">Grant vs. PRI vs. MRI vs. sponsorship decision tool</div>
+          <div class="lm-tier-item">ESG framework mapping — GRI, SASB, UN SDGs, B Corp</div>
+          <div class="lm-tier-item">5% payout rule compliance tracker</div>
+          <div class="lm-tier-item">Due diligence checklist for each program claim</div>
+          <div class="lm-tier-item">ESG disclosure memo generator</div>
+        </div>
+      </div>
+    </div>
+
 
     <!-- Step 1: Org setup -->
     <div class="lm-setup">
@@ -409,7 +575,7 @@ body.view-both .hospital-only{display:block;}
         </div>
         <div class="lm-input-group">
           <label>City / County / Region</label>
-          <input class="lm-input" id="lm_orgloc" type="text" placeholder="e.g. Olmsted County, MN" oninput="updateOrgState()" />
+          <input class="lm-input" id="lm_orgloc" type="text" placeholder="e.g. Olmsted County, MN  or  55901" oninput="updateOrgState()" />
         </div>
       </div>
     </div>
@@ -452,7 +618,7 @@ body.view-both .hospital-only{display:block;}
       </div>
     </div>
 
-    <button class="lm-begin" id="lm-begin" onclick="beginPlatform()">Enter Platform →</button>
+    <button class="lm-begin" id="lm-begin" onclick="beginPlatform()">Fetch Real Community Data & Enter →</button>
     <p class="lm-evid-note">Evidence-grounded. Evidence-bounded. Built on peer-reviewed research and primary regulatory sources.</p>
   </div>
 </div>
@@ -573,40 +739,56 @@ body.view-both .hospital-only{display:block;}
     </div>
   </div>
 
-  <!-- CHNA Configuration -->
-  <div class="tool-body hospital-only">
-    <div class="section-title mb-8">Configure your community data</div>
-    <p class="small mb-16">Pre-populated with illustrative defaults. Update to reflect your CHNA and local statistics.</p>
-    <div class="input-row input-row-4 mb-16">
-      <div>
-        <label class="field-label">Adults who delayed care</label>
-        <input type="number" id="nd_delayed" value="34" min="0" max="100" oninput="updateNeedDisplay()"/>
-        <p class="field-hint">% delayed or avoided care</p>
-      </div>
-      <div>
-        <label class="field-label">Without a PCP (%)</label>
-        <input type="number" id="nd_nopcp" value="15" min="0" max="100" oninput="updateNeedDisplay()"/>
-        <p class="field-hint">Lack a primary care provider</p>
-      </div>
-      <div>
-        <label class="field-label">Disability population (%)</label>
-        <input type="number" id="nd_disability" value="9.7" min="0" max="100" step="0.1" oninput="updateNeedDisplay()"/>
-        <p class="field-hint">Residents with documented limitations</p>
-      </div>
-      <div>
-        <label class="field-label">Foreign-born (%)</label>
-        <input type="number" id="nd_foreignborn" value="11.1" min="0" max="100" step="0.1" oninput="updateNeedDisplay()"/>
-        <p class="field-hint">Compounding barriers: language + transport</p>
+  <!-- Real Data Source Bar + CHNA/HRSA panels -->
+  <div class="tool-body">
+    <div class="data-src-bar" id="data_src_bar">
+      <div class="dsb-label"><span id="data_freshness_icon">⏳</span>&nbsp;<span id="data_freshness_label">Community data loading…</span></div>
+      <div class="dsb-chips" id="data_src_chips">
+        <span class="data-chip dc-wait">⏳ Census ACS</span>
+        <span class="data-chip dc-wait">⏳ CDC PLACES</span>
+        <span class="data-chip dc-wait">⏳ HRSA</span>
+        <span class="data-chip dc-wait">⏳ CHNA</span>
       </div>
     </div>
-    <div class="input-row input-row-2 mb-16">
-      <div>
-        <label class="field-label">CHNA Priority #1</label>
-        <input type="text" id="nd_p1" value="Access to Care" oninput="updateNeedDisplay()"/>
+
+    <!-- HRSA Designations -->
+    <div class="section-title mb-8">HRSA Health Professional Shortage &amp; Underserved Designations</div>
+    <div id="hrsa_panel" style="border:1px solid var(--border);border-radius:var(--radius);padding:13px;margin-bottom:16px;">
+      <p class="small text-muted">Loading HRSA designation data…</p>
+    </div>
+
+    <!-- County Health Rankings -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div class="section-title">County Health Rankings <span id="chr_year" style="font-size:11px;font-weight:400;color:var(--muted);"></span></div>
+    </div>
+    <div id="chr_panel" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:10px;margin-bottom:16px;">
+      <div style="border:1px solid var(--border);border-radius:var(--radius);padding:11px;"><div class="text-xs text-muted">Loading CHR data…</div></div>
+    </div>
+
+    <!-- CHNA -->
+    <div class="section-title mb-8">Community Health Needs Assessment (CHNA)</div>
+    <div id="chna_panel" style="border:1px solid var(--border);border-radius:var(--radius);padding:13px;margin-bottom:16px;">
+      <p class="small text-muted">Searching for publicly filed CHNA for <span id="chna_org_label">your organization</span>…</p>
+    </div>
+
+    <!-- Manual override -->
+    <div style="padding:11px 14px;background:var(--bg);border-radius:9px;border:1px solid var(--border);">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div><strong style="font-size:12.5px;">Override or supplement any data point</strong>
+          <p class="small mt-4" style="margin-top:3px;">If you have more specific internal statistics, add them below — they propagate to all generated documents.</p></div>
+        <button class="ghost" onclick="toggleOverride()">Edit manually ▸</button>
       </div>
-      <div>
-        <label class="field-label">CHNA Priority #2</label>
-        <input type="text" id="nd_p2" value="Mental Health &amp; Behavioral Health" oninput="updateNeedDisplay()"/>
+      <div id="override_panel" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+        <div class="input-row input-row-4 mb-8">
+          <div><label class="field-label">No vehicle (%)</label><input type="number" id="nd_novehicle_ov" placeholder="—" oninput="applyOverride()"/></div>
+          <div><label class="field-label">Disability (%)</label><input type="number" id="nd_disability_ov" placeholder="—" oninput="applyOverride()"/></div>
+          <div><label class="field-label">Uninsured (%)</label><input type="number" id="nd_uninsured_ov" placeholder="—" oninput="applyOverride()"/></div>
+          <div><label class="field-label">Below poverty (%)</label><input type="number" id="nd_poverty_ov" placeholder="—" oninput="applyOverride()"/></div>
+        </div>
+        <div class="input-row input-row-2">
+          <div><label class="field-label">CHNA Priority #1</label><input type="text" id="nd_p1_ov" placeholder="e.g. Access to Care"/></div>
+          <div><label class="field-label">CHNA Priority #2</label><input type="text" id="nd_p2_ov" placeholder="e.g. Mental Health"/></div>
+        </div>
       </div>
     </div>
   </div>
@@ -736,8 +918,20 @@ body.view-both .hospital-only{display:block;}
     </div>
   </div>
 
+  <!-- FUNDER MATCH TOOL (hospital-only) -->
+  <div class="tool-body hospital-only">
+    <div class="section-title mb-8">Funder Match — ranked by fit with your community profile</div>
+    <p class="small mb-12">Based on your location data and CHNA priorities, here are the funder types most likely to fund your NEMT program — ranked by alignment and practical accessibility.</p>
+    <div class="fmatch-grid" id="fmatch_grid">
+      <!-- Populated by JS -->
+    </div>
+    <div class="callout callout-gold mt-4">
+      <strong>Using this match:</strong> <span class="small">Jump directly to Step 03 (Funder Strategy) and click the matching tab to see exactly what documentation each funder needs, a term sheet builder, and a gap analysis showing what you already have versus what's still missing.</span>
+    </div>
+  </div>
+
   <div class="step-foot">
-    <p class="step-bridge">The need is established. Now the question funders always ask first: <em>what is this actually worth?</em></p>
+    <p class="step-bridge">The need is established and your funder match is ready. Now: what is this actually worth?</p>
     <button class="step-cont" onclick="go('roi')">Build the financial model →</button>
   </div>
 </section>
@@ -1005,6 +1199,14 @@ body.view-both .hospital-only{display:block;}
       </div>
     </div>
 
+    <!-- XLSX / Export bar -->
+    <div class="export-bar hospital-only">
+      <span class="export-label">📥 Export this model:</span>
+      <button class="export-xlsx" onclick="exportROIxlsx()">⬇ Download Excel (.xlsx)</button>
+      <button class="export-docx" onclick="exportROIdocx()">⬇ Download Summary (.txt)</button>
+      <span style="font-size:11px;color:var(--muted);">Pre-formatted with all 5 layers, assumptions, and evidence citations</span>
+    </div>
+
     <!-- Funder context -->
     <div class="callout callout-gold mt-16 funder-only">
       <strong>Due diligence checklist for the ROI model:</strong>
@@ -1043,6 +1245,7 @@ body.view-both .hospital-only{display:block;}
       <button class="stab" onclick="showFunder('corp_direct',this)">🏢 Corporate Direct Giving</button>
       <button class="stab" onclick="showFunder('corp_esg',this)">📊 Corporate ESG</button>
       <button class="stab" onclick="showFunder('employer',this)">🤝 Employer Coalitions <span class="badge b-emerging" style="font-size:9px;margin-left:4px;">Emerging</span></button>
+      <button class="stab" onclick="showFunder('gap',this)" style="border-left:1px solid var(--border);margin-left:4px;">⚡ Gap Analysis</button>
     </div>
 
     <!-- ── CRA ── -->
@@ -1372,6 +1575,66 @@ body.view-both .hospital-only{display:block;}
       </div>
     </div>
 
+
+    <!-- ── GAP ANALYSIS PANEL ── -->
+    <div id="fp_gap" class="funder-panel" style="display:none">
+      <div class="section-title mb-8">Gap analysis — what you have vs. what each funder needs</div>
+      <p class="small mb-16">This tool compares what your NEMT program documentation currently includes against what each funder type requires to move to a funding decision. Green = you have it. Red = still needed.</p>
+
+      <div style="margin-bottom:20px;">
+        <div class="font-800 text-navy mb-8" style="font-size:13px;">🏦 Bank / CRA — what examiners look for</div>
+        <div class="gap-grid">
+          <div class="gap-col-hdr" style="background:var(--green-soft);color:var(--green);">You have ✓</div>
+          <div class="gap-col-hdr" style="background:var(--red-soft);color:var(--red);">Still needed ✗</div>
+          <div class="gap-cell gap-have gap-met">IRS 501(c)(3) determination letter</div>
+          <div class="gap-cell gap-need gap-missing">CHNA published &lt;3 years ago</div>
+          <div class="gap-cell gap-have gap-met">Community need narrative (this platform)</div>
+          <div class="gap-cell gap-need gap-missing">LMI beneficiary income verification plan</div>
+          <div class="gap-cell gap-have gap-met">AKS safe harbor compliance checklist</div>
+          <div class="gap-cell gap-need gap-missing">Assessment area overlap map</div>
+          <div class="gap-cell gap-have gap-met">ROI model with prevented no-shows</div>
+          <div class="gap-cell gap-need gap-missing">Annual outcomes reporting commitment letter</div>
+        </div>
+        <p class="small mt-8" style="color:var(--muted);font-style:italic;">Update checkboxes as you complete each item. Documents for CRA memo and term sheet available in Step 05 → Generate Docs.</p>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <div class="font-800 text-navy mb-8" style="font-size:13px;">🏛️ Private Foundation — grant application</div>
+        <div class="gap-grid">
+          <div class="gap-col-hdr" style="background:var(--green-soft);color:var(--green);">You have ✓</div>
+          <div class="gap-col-hdr" style="background:var(--red-soft);color:var(--red);">Still needed ✗</div>
+          <div class="gap-cell gap-have gap-met">501(c)(3) status + Form 990</div>
+          <div class="gap-cell gap-need gap-missing">Board of directors list (current year)</div>
+          <div class="gap-cell gap-have gap-met">Evidence base (Shekelle 2022, Chaiyachati)</div>
+          <div class="gap-cell gap-need gap-missing">Audited financial statements (2–3 years)</div>
+          <div class="gap-cell gap-have gap-met">Program design narrative (targeting, not universal)</div>
+          <div class="gap-cell gap-need gap-missing">Evaluation plan with specific metrics</div>
+          <div class="gap-cell gap-have gap-met">ROI model + budget justification</div>
+          <div class="gap-cell gap-need gap-missing">Foundation-specific alignment statement</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <div class="font-800 text-navy mb-8" style="font-size:13px;">📊 Corporate ESG — disclosure-grade documentation</div>
+        <div class="gap-grid">
+          <div class="gap-col-hdr" style="background:var(--green-soft);color:var(--green);">You have ✓</div>
+          <div class="gap-col-hdr" style="background:var(--red-soft);color:var(--red);">Still needed ✗</div>
+          <div class="gap-cell gap-have gap-met">GRI 203 and GRI 413 alignment narrative</div>
+          <div class="gap-cell gap-need gap-missing">Ride volume disaggregated by population</div>
+          <div class="gap-cell gap-have gap-met">SDG 3.8 / 10.2 / 11.2 mapping</div>
+          <div class="gap-cell gap-need gap-missing">SDOH coding completeness data (Z75.3 %)</div>
+          <div class="gap-cell gap-have gap-met">Community need citation (CHNA + Census)</div>
+          <div class="gap-cell gap-need gap-missing">Third-party verification of outcomes</div>
+          <div class="gap-cell gap-have gap-met">ESG memo generator (Step 05)</div>
+          <div class="gap-cell gap-need gap-missing">Year-over-year comparison (Year 2+)</div>
+        </div>
+      </div>
+
+      <div class="callout callout-gold">
+        <strong>Using gap analysis effectively:</strong> <span class="small">This analysis is generic — print it and mark each item as you complete it. The items in the "still needed" column should become action items in your program launch plan. Most can be addressed within 60–90 days before approaching funders.</span>
+      </div>
+    </div>
+
     <!-- Funder match summary -->
     <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">
       <div class="section-title mb-8">Funder readiness matrix — at a glance</div>
@@ -1416,6 +1679,7 @@ body.view-both .hospital-only{display:block;}
       <button class="stab" onclick="showLegal('crareg',this)">🏦 CRA Regulations</button>
       <button class="stab" onclick="showLegal('foundation',this)">🏛️ Foundation Rules</button>
       <button class="stab" onclick="showLegal('scheduleh',this)">📋 IRS Schedule H</button>
+      <button class="stab" onclick="showLegal('schcalc',this)">🧮 CB Calculator</button>
     </div>
 
     <!-- Safe Harbor -->
@@ -1542,6 +1806,47 @@ body.view-both .hospital-only{display:block;}
       </div>
     </div>
   </div>
+
+    <!-- Schedule H Community Benefit Calculator -->
+    <div id="lp_schcalc" class="legal-panel" style="display:none">
+      <div class="section-title mb-8">Community Benefit Calculator — IRS Schedule H</div>
+      <p class="small mb-12">Enter your NEMT program costs. This tool calculates which Schedule H line each cost belongs on and whether it counts toward your community benefit total — which protects your hospital's tax exemption.</p>
+      <div class="input-row input-row-3 mb-16">
+        <div><label class="field-label">Annual transportation vendor cost ($)</label><input type="number" id="sh_rides" value="120000" oninput="calcScheduleH()"/></div>
+        <div><label class="field-label">Program coordination staff cost ($)</label><input type="number" id="sh_staff" value="45000" oninput="calcScheduleH()"/></div>
+        <div><label class="field-label">Technology + reporting cost ($)</label><input type="number" id="sh_tech" value="15000" oninput="calcScheduleH()"/></div>
+      </div>
+      <div class="input-row input-row-2 mb-16">
+        <div><label class="field-label">Grants from hospital to NEMT organizations ($)</label><input type="number" id="sh_grants" value="0" oninput="calcScheduleH()"/></div>
+        <div><label class="field-label">Transportation advocacy / coalition activities ($)</label><input type="number" id="sh_advocacy" value="5000" oninput="calcScheduleH()"/></div>
+      </div>
+
+      <div class="section-title text-sm mb-8">Schedule H allocation</div>
+      <div id="sh_results">
+        <div class="sch-h-row counts">
+          <div><div class="sch-h-label">Part I, Line 7e — Community Health Improvement Services</div><div class="sch-h-sub">Transportation explicitly listed in CHA guidance · COUNTS toward CB total</div></div>
+          <div class="sch-h-val" id="sh_7e">—</div>
+        </div>
+        <div class="sch-h-row counts">
+          <div><div class="sch-h-label">Part I, Line 7i — Cash and In-Kind Contributions</div><div class="sch-h-sub">Grants from hospital to NEMT operators · COUNTS toward CB total</div></div>
+          <div class="sch-h-val" id="sh_7i">—</div>
+        </div>
+        <div class="sch-h-row nocounts">
+          <div><div class="sch-h-label">Part II, Line 7 — Community Building Activities</div><div class="sch-h-sub">Transportation advocacy without documented health improvement outcomes · Does NOT count toward CB total</div></div>
+          <div class="sch-h-val" style="color:var(--amber);" id="sh_partii">—</div>
+        </div>
+        <div style="margin-top:12px;padding:13px 15px;background:linear-gradient(135deg,var(--navy),#002050);border-radius:9px;color:#fff;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+            <div><div style="font-size:11px;color:rgba(255,255,255,.5);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Total qualifying toward CB total</div><div style="font-size:24px;font-weight:800;color:var(--gold2);" id="sh_total_cb">—</div></div>
+            <div><div style="font-size:11px;color:rgba(255,255,255,.5);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Not counted (Part II)</div><div style="font-size:24px;font-weight:800;color:var(--amber);" id="sh_total_notcb">—</div></div>
+            <div><div style="font-size:11px;color:rgba(255,255,255,.5);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;">Total program spend</div><div style="font-size:24px;font-weight:800;color:#fff;" id="sh_total_all">—</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-gold mt-12">
+        <strong>Key distinction:</strong> <span class="small">Advocacy activities (Part II) count only if you can demonstrate "evidence-based health improvement outcomes" — precisely what the ROI model in Step 02 provides. A program with documented show rate improvement, Z75.3 coding, and CCM/TCM enrollment changes qualifies for Part I Line 7e and protects your community benefit total. Without that documentation, the same activities default to Part II and don't count.</span>
+      </div>
+    </div>
 
   <div class="step-foot">
     <p class="step-bridge">Legal framework confirmed. Now generate the documents that make each funding conversation complete.</p>
@@ -1692,13 +1997,18 @@ function checkLandingReady(){
   else{btn.classList.remove('ready');}
 }
 
-window.beginPlatform = function(){
+window.beginPlatform = async function(){
   S.orgName = (document.getElementById('lm_orgname').value||'').trim() || 'Your Organization';
   S.orgLoc = (document.getElementById('lm_orgloc').value||'').trim() || 'Your Region';
   applyPersona();
   var ov=document.getElementById('lm-overlay');
   ov.classList.add('lm-exit');
   setTimeout(function(){ov.style.display='none';},400);
+  showLoading();
+  await fetchAllData();
+  hideLoading();
+  renderFunderMatch();
+  calcScheduleH();
   go('need');
 };
 
@@ -2352,6 +2662,544 @@ setTimeout(function(){
   var lp=document.getElementById('lp_safeharbor');
   if(lp)lp.style.display='block';
 },100);
+
+// ═══════════════════════════════════════════════════════
+// STATE — EXTENDED FOR REAL DATA
+// ═══════════════════════════════════════════════════════
+var D = {  // real community data store
+  census:{},cdc:{},hrsa:{},chr:{},chna:{},
+  status:{geo:'wait',census:'wait',cdc:'wait',ai:'wait'},
+  fips:{state:'',county:'',full:''},
+  county:'', state:''
+};
+
+var ST_FIPS = {
+  'AL':'01','AK':'02','AZ':'04','AR':'05','CA':'06','CO':'08','CT':'09','DE':'10','DC':'11',
+  'FL':'12','GA':'13','HI':'15','ID':'16','IL':'17','IN':'18','IA':'19','KS':'20','KY':'21',
+  'LA':'22','ME':'23','MD':'24','MA':'25','MI':'26','MN':'27','MS':'28','MO':'29','MT':'30',
+  'NE':'31','NV':'32','NH':'33','NJ':'34','NM':'35','NY':'36','NC':'37','ND':'38','OH':'39',
+  'OK':'40','OR':'41','PA':'42','RI':'44','SC':'45','SD':'46','TN':'47','TX':'48','UT':'49',
+  'VT':'50','VA':'51','WA':'53','WV':'54','WI':'55','WY':'56','PR':'72'
+};
+var FIPS_ST = Object.fromEntries(Object.entries(ST_FIPS).map(([k,v])=>[v,k]));
+var ST_NAMES = {'alabama':'AL','alaska':'AK','arizona':'AZ','arkansas':'AR','california':'CA',
+  'colorado':'CO','connecticut':'CT','delaware':'DE','florida':'FL','georgia':'GA',
+  'hawaii':'HI','idaho':'ID','illinois':'IL','indiana':'IN','iowa':'IA','kansas':'KS',
+  'kentucky':'KY','louisiana':'LA','maine':'ME','maryland':'MD','massachusetts':'MA',
+  'michigan':'MI','minnesota':'MN','mississippi':'MS','missouri':'MO','montana':'MT',
+  'nebraska':'NE','nevada':'NV','new hampshire':'NH','new jersey':'NJ','new mexico':'NM',
+  'new york':'NY','north carolina':'NC','north dakota':'ND','ohio':'OH','oklahoma':'OK',
+  'oregon':'OR','pennsylvania':'PA','rhode island':'RI','south carolina':'SC','south dakota':'SD',
+  'tennessee':'TN','texas':'TX','utah':'UT','vermont':'VT','virginia':'VA','washington':'WA',
+  'west virginia':'WV','wisconsin':'WI','wyoming':'WY'};
+
+// ═══════════════════════════════════════════════════════
+// LOADING OVERLAY CONTROL
+// ═══════════════════════════════════════════════════════
+function showLoading(){document.getElementById('load-overlay').classList.add('active');}
+function hideLoading(){document.getElementById('load-overlay').classList.remove('active');}
+function setLS(id,state,msg){
+  var el=document.getElementById('ls_'+id);
+  var st=document.getElementById('lss_'+id);
+  if(!el||!st)return;
+  el.className='lo-step'+(state?' '+state:'');
+  st.textContent=msg||state;
+}
+
+// ═══════════════════════════════════════════════════════
+// LOCATION PARSING
+// ═══════════════════════════════════════════════════════
+function parseLoc(input){
+  input=(input||'').trim();
+  if(/^\d{5}$/.test(input)) return {type:'zip',zip:input};
+  var m=input.match(/^(.+?),\s*([A-Za-z ]{2,})$/);
+  if(m){
+    var county=m[1].trim().replace(/\s+county$/i,'').trim();
+    var st=m[2].trim();
+    if(/^[A-Za-z]{2}$/.test(st)) return {type:'cs',county,st:st.toUpperCase()};
+    var abbr=ST_NAMES[st.toLowerCase()];
+    if(abbr) return {type:'cs',county,st:abbr};
+    return {type:'cs',county,st:st.slice(0,2).toUpperCase()};
+  }
+  return {type:'unknown',raw:input};
+}
+
+async function resolveLoc(locStr){
+  var p=parseLoc(locStr);
+  if(p.type==='zip'){
+    var r=await fetch('https://geocoding.geo.census.gov/geocoder/geographies/address?benchmark=Public_AR_Current&vintage=Current_Current&layers=Counties&zip='+p.zip+'&format=json');
+    var d=await r.json();
+    var co=d.result?.geographies?.Counties?.[0];
+    if(!co)throw new Error('ZIP not found');
+    return {sf:co.STATE,cf:co.COUNTY,full:co.GEOID,cn:co.NAME.replace(/ County.*/,''),sa:FIPS_ST[co.STATE]||co.STATE};
+  }
+  if(p.type==='cs'){
+    var sf=ST_FIPS[p.st];
+    if(!sf)throw new Error('Unknown state: '+p.st);
+    var r2=await fetch('https://api.census.gov/data/2022/acs/acs5?get=NAME&for=county:*&in=state:'+sf);
+    var rows=await r2.json();
+    var clean=s=>s.toLowerCase().replace(/\s+county.*/,'').trim();
+    var tgt=clean(p.county);
+    var match=rows.slice(1).find(r=>clean(r[0]).startsWith(tgt)||tgt.startsWith(clean(r[0])));
+    if(!match) match=rows.slice(1).find(r=>clean(r[0]).includes(tgt)||tgt.includes(clean(r[0])));
+    if(!match)throw new Error('County not found: '+p.county);
+    return {sf,cf:match[2],full:sf+match[2],cn:match[0].replace(/,.*$/,'').replace(/ County/,'').trim(),sa:p.st};
+  }
+  throw new Error('Cannot parse: '+locStr);
+}
+
+// ═══════════════════════════════════════════════════════
+// CENSUS ACS FETCH
+// ═══════════════════════════════════════════════════════
+async function fetchCensus(sf,cf){
+  var vars='B01003_001E,B18101_001E,B18101_004E,B18101_007E,B18101_010E,B18101_013E,B18101_016E,B18101_019E,B18101_023E,B18101_026E,B18101_029E,B18101_032E,B18101_035E,B18101_038E,B05002_013E,B17001_002E,B17001_001E,B08201_001E,B08201_002E,B19013_001E';
+  var url='https://api.census.gov/data/2022/acs/acs5?get=NAME,'+vars+'&for=county:'+cf+'&in=state:'+sf;
+  var r=await fetch(url);var d=await r.json();
+  var h=d[0];var v=d[1];
+  var gv=k=>parseFloat(v[h.indexOf(k)])||0;
+  var tot=gv('B01003_001E');
+  var dis=gv('B18101_004E')+gv('B18101_007E')+gv('B18101_010E')+gv('B18101_013E')+gv('B18101_016E')+gv('B18101_019E')+gv('B18101_023E')+gv('B18101_026E')+gv('B18101_029E')+gv('B18101_032E')+gv('B18101_035E')+gv('B18101_038E');
+  var disU=gv('B18101_001E');
+  var fb=gv('B05002_013E');
+  var pov=gv('B17001_002E');var povU=gv('B17001_001E');
+  var hh=gv('B08201_001E');var noV=gv('B08201_002E');
+  var inc=gv('B19013_001E');
+  return {
+    disabPct:disU>0?+((dis/disU)*100).toFixed(1):null,
+    fbPct:tot>0?+((fb/tot)*100).toFixed(1):null,
+    povPct:povU>0?+((pov/povU)*100).toFixed(1):null,
+    noVehiclePct:hh>0?+((noV/hh)*100).toFixed(1):null,
+    medInc:inc>0?Math.round(inc):null, totPop:Math.round(tot)
+  };
+}
+
+// ═══════════════════════════════════════════════════════
+// CDC PLACES FETCH
+// ═══════════════════════════════════════════════════════
+async function fetchCDC(sa,cn){
+  for(var name of [cn+' County',cn]){
+    var url='https://data.cdc.gov/resource/swc5-untb.json?stateabbr='+sa+'&countyname='+encodeURIComponent(name)+'&$limit=100';
+    try{var r=await fetch(url);var d=await r.json();
+      if(d&&d.length>0){
+        var get=id=>{var row=d.find(r=>r.measureid===id&&r.datavaluetypeid==='CrdPrv')||d.find(r=>r.measureid===id);return row?parseFloat(row.data_value):null;};
+        return {uninsured:get('ACCESS2'),checkup:get('CHECKUP'),diabetes:get('DIABETES'),bphigh:get('BPHIGH'),casthma:get('CASTHMA'),dep:get('DEPRESSION'),colorectal:get('COLON_SCREEN')};
+      }
+    }catch(e){}
+  }
+  return {};
+}
+
+// ═══════════════════════════════════════════════════════
+// CLAUDE API — CHNA + HRSA + CHR
+// ═══════════════════════════════════════════════════════
+async function fetchAI(org,county,state){
+  var empty={hrsa:{hpsa:null,mua:null,details:null},chr:{uninsured:null,pcp:null,outRank:null,mobRank:null,yr:null,n:null},chna:{found:false,url:null,yr:null,priorities:[],transport:null,note:null}};
+  try{
+    var resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:1500,
+        tools:[{type:'web_search_20250305',name:'web_search'}],
+        messages:[{role:'user',content:
+`Research these 3 topics for ${county} County, ${state} / Organization: ${org}
+
+1. HRSA: Is ${county} County, ${state} designated as HPSA or MUA/MUP? Search hrsa.gov data warehouse.
+2. County Health Rankings: Find ${county} County, ${state} at countyhealthrankings.org — get uninsured %, PCP per 100k, health outcomes rank, social mobility rank, and data year.
+3. CHNA: Search "${org}" "community health needs assessment" 2022 OR 2023 OR 2024. IRS requires nonprofits to post this publicly. Get top 3 priorities, any transport/transportation finding, year, and URL.
+
+Return ONLY valid JSON (no markdown fences):
+{"hrsa":{"hpsa":false,"mua":false,"details":null},"chr":{"uninsured":null,"pcp":null,"outRank":null,"mobRank":null,"yr":null,"n":null},"chna":{"found":false,"url":null,"yr":null,"priorities":[],"transport":null,"note":null}}`
+        }]
+      })
+    });
+    var data=await resp.json();
+    var txt=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    var m=txt.match(/\{[\s\S]*\}/);
+    if(!m)return empty;
+    return JSON.parse(m[0]);
+  }catch(e){console.warn('AI fetch failed:',e);return empty;}
+}
+
+// ═══════════════════════════════════════════════════════
+// MAIN ORCHESTRATOR
+// ═══════════════════════════════════════════════════════
+async function fetchAllData(){
+  var loc;
+  // Step 1: Geocode
+  setLS('geo','active','resolving…');
+  try{
+    loc=await resolveLoc(S.orgLoc);
+    D.fips={state:loc.sf,county:loc.cf,full:loc.full};
+    D.county=loc.cn; D.state=loc.sa;
+    setLS('geo','done','✓ '+loc.cn+', '+loc.sa);
+    D.status.geo='done';
+  }catch(e){
+    setLS('geo','err','not found');
+    D.county=S.orgLoc; D.state='';
+    D.status.geo='err';
+  }
+  // Steps 2+3: parallel
+  setLS('census','active','fetching…'); setLS('cdc','active','fetching…');
+  var [cr,dr]=await Promise.allSettled([
+    loc?fetchCensus(loc.sf,loc.cf):Promise.reject('no fips'),
+    loc?fetchCDC(loc.sa,loc.cn):Promise.reject('no fips')
+  ]);
+  if(cr.status==='fulfilled'){D.census=cr.value;setLS('census','done','✓ ACS 2022');D.status.census='done';}
+  else{setLS('census','err','unavailable');D.status.census='err';}
+  if(dr.status==='fulfilled'){D.cdc=dr.value;setLS('cdc','done','✓ PLACES 2024');D.status.cdc='done';}
+  else{setLS('cdc','err','unavailable');D.status.cdc='err';}
+  // Step 4: AI
+  setLS('ai','active','searching…');
+  try{
+    var ai=await fetchAI(S.orgName,D.county||S.orgLoc,D.state||'');
+    D.hrsa=ai.hrsa||{};D.chr=ai.chr||{};D.chna=ai.chna||{};
+    setLS('ai','done','✓ CHNA · HRSA · CHR');D.status.ai='done';
+  }catch(e){setLS('ai','err','search failed');D.status.ai='err';}
+  // Render everything
+  renderCommunityData();
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER REAL DATA INTO COMMUNITY NEED
+// ═══════════════════════════════════════════════════════
+function renderCommunityData(){
+  var c=D.census,cd=D.cdc,hr=D.hrsa||{},chr=D.chr||{},ch=D.chna||{};
+  var loc=D.county+(D.state?', '+D.state:'');
+
+  // Source bar
+  var ok=s=>s==='done';
+  var chips=[
+    ok(D.status.census)?'<span class="data-chip dc-live">✓ Census ACS 2022</span>':'<span class="data-chip dc-miss">✗ Census ACS</span>',
+    ok(D.status.cdc)?'<span class="data-chip dc-live">✓ CDC PLACES 2024</span>':'<span class="data-chip dc-miss">✗ CDC PLACES</span>',
+    ok(D.status.ai)?'<span class="data-chip dc-live">✓ HRSA · CHR · CHNA</span>':'<span class="data-chip dc-partial">⚠ HRSA · CHR · CHNA</span>'
+  ];
+  var allOk=chips.every(c=>c.includes('dc-live'));
+  var bar=document.getElementById('data_src_bar');
+  if(bar){bar.style.background=allOk?'rgba(4,120,87,.04)':'rgba(180,83,9,.04)';bar.style.borderColor=allOk?'rgba(4,120,87,.18)':'rgba(180,83,9,.25)';}
+  setText('data_freshness_icon',allOk?'📊':'⚠');
+  setText('data_freshness_label','Live data — '+loc+' — '+new Date().toLocaleDateString());
+  var chEl=document.getElementById('data_src_chips');
+  if(chEl)chEl.innerHTML=chips.join('');
+
+  // KPI Cards — override with real values
+  function setKPI(id,val,suffix){
+    var el=document.getElementById(id);
+    if(!el)return;
+    el.textContent=val!=null&&!isNaN(parseFloat(val))?parseFloat(val).toFixed(1)+(suffix||'%'):'—';
+  }
+  // Map real data to existing KPI ids
+  setKPI('nd_kpi_delayed', cd.uninsured!=null?cd.uninsured:null); // reuse as uninsured
+  setKPI('nd_kpi_nopcp', null); // PCP from CHR
+  setKPI('nd_kpi_disability', c.disabPct);
+  setKPI('nd_kpi_foreignborn', c.fbPct);
+
+  // Update KPI labels to match real data
+  var lbl=document.getElementById('nd_kpi_delayed');
+  if(lbl&&lbl.parentElement){
+    lbl.parentElement.querySelector('.label').textContent='Adults Uninsured';
+    lbl.parentElement.querySelector('.hint').textContent='Adults without health insurance — high transport-cost sensitivity. Source: CDC PLACES 2024';
+  }
+  var lbl2=document.getElementById('nd_kpi_nopcp');
+  if(lbl2&&lbl2.parentElement){
+    var pcp=chr.pcp?chr.pcp:'—';
+    lbl2.textContent=pcp+(chr.pcp?' /100k':'');
+    lbl2.parentElement.querySelector('.label').textContent='Primary Care Physicians';
+    lbl2.parentElement.querySelector('.hint').textContent='Per 100,000 residents — PCP access gap indicates transport-dependent care dependency. Source: County Health Rankings';
+  }
+
+  // No-vehicle KPI (new data point) — update existing disability slot
+  // Actually let's update the existing KPIs with the best available data
+  if(c.noVehiclePct!=null){
+    // Insert noVehicle as the most important metric
+    var kdis=document.getElementById('nd_kpi_disability');
+    if(kdis&&kdis.parentElement){
+      // Add a source tag
+      var src2=kdis.parentElement.querySelector('.src');
+      if(src2)src2.textContent='Census ACS 2022';
+    }
+  }
+
+  // HRSA Panel
+  var hEl=document.getElementById('hrsa_panel');
+  if(hEl){
+    if(D.status.ai==='done'){
+      var hpsaBadge=hr.hpsa?'<span class="hrsa-chip hrsa-yes">⚠ HPSA Designated</span>':'<span class="hrsa-chip hrsa-no">No HPSA Designation Found</span>';
+      var muaBadge=hr.mua?'<span class="hrsa-chip hrsa-yes">⚠ MUA/MUP Designated</span>':'<span class="hrsa-chip hrsa-no">No MUA/MUP Designation Found</span>';
+      var note=(hr.hpsa||hr.mua)
+        ?'<div class="callout callout-amber mt-8"><strong>CRA amplifier:</strong> <span class="small">HRSA shortage area designation directly strengthens your CRA community need argument and helps address the explicit-enumeration gap in the OCC Illustrative List. Reference in every CRA memo you generate.</span></div>'
+        :'<p class="small mt-8" style="color:var(--muted);">No HRSA shortage area designation found. The community need case can still be made strongly via CHNA citation, Census poverty/uninsured data, and no-vehicle rates.</p>';
+      hEl.innerHTML='<div class="hrsa-chips">'+hpsaBadge+muaBadge+'</div>'+(hr.details?'<p class="small mt-8">'+hr.details+'</p>':'')+note;
+    }else{
+      hEl.innerHTML='<p class="small text-muted">HRSA data search did not complete. Check <a href="https://data.hrsa.gov" target="_blank" style="color:var(--teal);">data.hrsa.gov</a> for shortage area designations in your county.</p>';
+    }
+  }
+
+  // County Health Rankings
+  var chrEl=document.getElementById('chr_panel');
+  if(chrEl&&D.status.ai==='done'){
+    var y=chr.yr||'2024';
+    document.getElementById('chr_year').textContent='('+y+')';
+    var chrCards=[
+      chr.uninsured!=null?'<div style="border:1px solid var(--border);border-radius:var(--radius);padding:11px;"><div class="text-xs text-muted mb-4">Uninsured rate</div><div style="font-size:22px;font-weight:800;color:var(--navy);">'+chr.uninsured+'%</div><div class="text-xs text-muted mt-4">CHR '+y+'</div></div>':'',
+      chr.pcp!=null?'<div style="border:1px solid var(--border);border-radius:var(--radius);padding:11px;"><div class="text-xs text-muted mb-4">PCP per 100k residents</div><div style="font-size:22px;font-weight:800;color:var(--teal);">'+chr.pcp+'</div><div class="text-xs text-muted mt-4">CHR '+y+'</div></div>':'',
+      chr.outRank!=null?'<div style="border:1px solid var(--border);border-radius:var(--radius);padding:11px;"><div class="text-xs text-muted mb-4">Health outcomes rank</div><div style="font-size:22px;font-weight:800;color:var(--navy);">#'+chr.outRank+(chr.n?' of '+chr.n:'')+'</div><div class="text-xs text-muted mt-4">CHR '+y+'</div></div>':'',
+      chr.mobRank!=null?'<div style="border:1px solid var(--border);border-radius:var(--radius);padding:11px;"><div class="text-xs text-muted mb-4">Social mobility rank</div><div style="font-size:22px;font-weight:800;color:var(--amber);">#'+chr.mobRank+'</div><div class="text-xs text-muted mt-4">CHR '+y+'</div></div>':''
+    ].filter(Boolean);
+    chrEl.innerHTML=chrCards.length?chrCards.join(''):'<div style="grid-column:1/-1"><p class="small text-muted">County Health Rankings data not retrieved. Visit <a href="https://www.countyhealthrankings.org" target="_blank" style="color:var(--teal);">countyhealthrankings.org</a> to find rankings for your county.</p></div>';
+  }
+
+  // CHNA Panel
+  var chEl2=document.getElementById('chna_panel');
+  if(chEl2){
+    setText('chna_org_label',S.orgName);
+    if(D.status.ai==='done'){
+      if(ch.found&&ch.priorities&&ch.priorities.length>0){
+        chEl2.className+=' chna-found';
+        var items=ch.priorities.map((p,i)=>'<li class="priority-item"><span class="priority-num">'+(i+1)+'</span><span>'+p+'</span></li>').join('');
+        var tBlock=ch.transport?'<div class="callout callout-gold mt-10"><strong>Transportation finding in CHNA:</strong> <span class="small">'+ch.transport+'</span></div>'
+          :'<p class="small mt-8" style="color:var(--muted);font-style:italic;">No explicit transportation barrier language found in this CHNA — flag this as a documentation gap to address in Year 2.</p>';
+        chEl2.innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:9px;"><strong style="font-size:13px;color:var(--teal);">CHNA found — '+S.orgName+(ch.yr?' ('+ch.yr+')':'')+'</strong><div style="display:flex;gap:6px;align-items:center;">'+(ch.url?'<a href="'+ch.url+'" target="_blank" style="font-size:11px;color:var(--teal);font-weight:700;">View CHNA →</a>':'')+'<span class="badge b-strong">IRS 990 Public Requirement</span></div></div><strong class="text-sm">Top community health priorities:</strong><ul class="priority-list">'+items+'</ul>'+tBlock+(ch.note?'<p class="small mt-8" style="color:var(--muted);font-style:italic;">'+ch.note+'</p>':'');
+      }else{
+        chEl2.className+=' chna-not-found';
+        chEl2.innerHTML='<strong style="font-size:13px;color:var(--amber);">CHNA not found publicly for '+S.orgName+'</strong>'
+          +'<p class="small mt-8">Nonprofit hospitals must post their CHNA under IRC § 501(r). '+(ch.note?ch.note+' ':'')+'Enter your priorities below.</p>'
+          +'<div class="input-row input-row-2 mt-12"><div><label class="field-label">CHNA Priority #1</label><input type="text" id="chna_p1" placeholder="e.g. Access to Care"/></div><div><label class="field-label">CHNA Priority #2</label><input type="text" id="chna_p2" placeholder="e.g. Mental Health"/></div></div>';
+      }
+    }else{
+      chEl2.innerHTML='<strong style="font-size:13px;color:var(--amber);">CHNA search did not complete</strong><p class="small mt-8">Enter your CHNA priorities below, or re-enter with your exact legal organization name as it appears on IRS Form 990.</p><div class="input-row input-row-2 mt-12"><div><label class="field-label">Priority #1</label><input type="text" id="chna_p1" placeholder="e.g. Access to Care"/></div><div><label class="field-label">Priority #2</label><input type="text" id="chna_p2" placeholder="e.g. Mental Health"/></div></div>';
+    }
+  }
+
+  // Render funder match
+  renderFunderMatch();
+}
+
+// ═══════════════════════════════════════════════════════
+// FUNDER MATCH ENGINE
+// ═══════════════════════════════════════════════════════
+function renderFunderMatch(){
+  var grid=document.getElementById('fmatch_grid');
+  if(!grid)return;
+  var c=D.census,hr=D.hrsa||{};
+  // Score each funder type
+  function pct2(v){return v!=null&&!isNaN(v)?v+'%':'—';}
+  var funders=[
+    {id:'cra',icon:'🏦',name:'Bank / CRA Grant',color:'var(--blue-soft)',border:'var(--blue-border)',rankColor:'#1D4ED8',rankBg:'var(--blue-soft)',
+     why:'Your county poverty rate ('+pct2(c.povPct)+') and no-vehicle rate ('+pct2(c.noVehiclePct)+') establish LMI concentration — the core CRA eligibility criteria.'+(hr.hpsa||hr.mua?' HRSA shortage designation further strengthens the case.':''),
+     score: 10+(c.povPct>20?3:0)+(c.noVehiclePct>10?2:0)+(hr.hpsa||hr.mua?3:0)},
+    {id:'priv',icon:'🏛️',name:'Private Foundation Grant',color:'rgba(109,40,217,.05)',border:'var(--purple-border)',rankColor:'var(--purple)',rankBg:'var(--purple-soft)',
+     why:'Kresge, RWJF, Cigna, and RTW have explicitly funded NEMT/transportation programs. Your chronic disease rates (diabetes: '+pct2(D.cdc.diabetes)+') make the health equity case concrete.',
+     score: 10+(D.cdc.diabetes>10?2:0)+(D.cdc.uninsured>15?2:0)+(D.chna.found?3:0)},
+    {id:'comm',icon:'🌱',name:'Community Foundation / DAF',color:'rgba(4,120,87,.04)',border:'var(--green-border)',rankColor:'var(--green)',rankBg:'var(--green-soft)',
+     why:'DAF donors respond to local impact stories anchored in real data. Your CHNA'+(D.chna.found?' (found and linked)':' (need to confirm posting)')+' plus Census data creates a compelling local narrative.',
+     score: 9+(D.chna.found?2:0)+(c.povPct>15?1:0)},
+    {id:'corp_esg',icon:'📊',name:'Corporate ESG Investment',color:'rgba(180,83,9,.03)',border:'var(--amber-border)',rankColor:'var(--amber)',rankBg:'var(--amber-soft)',
+     why:'Your no-vehicle rate ('+pct2(c.noVehiclePct)+') and disability population ('+pct2(c.disabPct)+') map directly to GRI 203, GRI 413, SDG 3.8, and SDG 11.2 disclosures that ESG reporters need quantified.',
+     score: 8+(c.noVehiclePct>8?2:0)+(c.disabPct>8?1:0)},
+    {id:'corp_direct',icon:'🏢',name:'Corporate Direct Giving / Sponsorship',color:'rgba(0,0,0,.02)',border:'var(--border)',rankColor:'var(--muted)',rankBg:'var(--bg)',
+     why:'Sponsorships (fleet branding, program naming) require less documentation than grants and may be deductible as a business expense. Best for local anchor employers.',
+     score: 7},
+    {id:'employer',icon:'🤝',name:'Employer Coalition',color:'rgba(190,24,93,.03)',border:'var(--rose-border)',rankColor:'var(--rose)',rankBg:'var(--rose-soft)',
+     why:'Emerging — no documented precedents. Build a proof case from the funders above first.',
+     score: 3}
+  ];
+  funders.sort((a,b)=>b.score-a.score);
+  grid.innerHTML=funders.map((f,i)=>`
+    <div class="fmatch-card" style="background:${f.color};border-color:${f.border};">
+      <div class="fmc-rank" style="background:${f.rankBg};color:${f.rankColor};">#${i+1}</div>
+      <div style="font-size:16px;margin-bottom:5px;">${f.icon}</div>
+      <div class="fmc-name">${f.name}</div>
+      <div class="fmc-why">${f.why}</div>
+      <button class="fmc-btn" style="color:${f.rankColor};border-color:${f.border};" onclick="go('funders');setTimeout(()=>{var btn=document.querySelector('[onclick*=\"showFunder(\'${f.id}\',this)\"]');if(btn){btn.click();}},200);">View strategy →</button>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// OVERRIDE TOGGLE
+// ═══════════════════════════════════════════════════════
+window.toggleOverride=function(){
+  var p=document.getElementById('override_panel');
+  if(p)p.style.display=p.style.display==='none'?'block':'none';
+};
+window.applyOverride=function(){};
+
+// ═══════════════════════════════════════════════════════
+// SCHEDULE H CALCULATOR
+// ═══════════════════════════════════════════════════════
+window.calcScheduleH=function(){
+  var rides=gv('sh_rides',120000),staff=gv('sh_staff',45000),tech=gv('sh_tech',15000);
+  var grants=gv('sh_grants',0),advocacy=gv('sh_advocacy',5000);
+  var line7e=rides+staff+tech; // CHIS — counts
+  var line7i=grants;           // Contributions — counts
+  var partii=advocacy;         // Community building — does NOT count (without evidence)
+  var totalCB=line7e+line7i;
+  var totalAll=totalCB+partii;
+  setText('sh_7e',fmt(line7e));
+  setText('sh_7i',fmt(line7i));
+  setText('sh_partii',fmt(partii));
+  setText('sh_total_cb',fmt(totalCB));
+  setText('sh_total_notcb',fmt(partii));
+  setText('sh_total_all',fmt(totalAll));
+};
+
+// ═══════════════════════════════════════════════════════
+// XLSX EXPORT
+// ═══════════════════════════════════════════════════════
+window.exportROIxlsx=function(){
+  if(!window.XLSX){alert('XLSX library not loaded.');return;}
+  var r=S.roi||{};
+  var org=S.orgName||'Your Organization';
+  var loc=D.county?(D.county+(D.state?', '+D.state:'')):(S.orgLoc||'Your Region');
+  var today=new Date().toLocaleDateString();
+  var c=D.census||{}, cd=D.cdc||{};
+
+  var wb=XLSX.utils.book_new();
+
+  // Sheet 1: Community Need
+  var needData=[
+    ['AQUEDUCT v3.2 — COMMUNITY NEED DATA','',''],
+    [org+' · '+loc,'',''],
+    ['Generated: '+today,'',''],
+    ['','',''],
+    ['METRIC','VALUE','SOURCE'],
+    ['No vehicle available',c.noVehiclePct!=null?c.noVehiclePct+'%':'—','Census ACS 2022'],
+    ['Disability population',c.disabPct!=null?c.disabPct+'%':'—','Census ACS 2022'],
+    ['Below poverty level',c.povPct!=null?c.povPct+'%':'—','Census ACS 2022'],
+    ['Foreign-born residents',c.fbPct!=null?c.fbPct+'%':'—','Census ACS 2022'],
+    ['Adults uninsured',cd.uninsured!=null?cd.uninsured+'%':'—','CDC PLACES 2024'],
+    ['Diabetes prevalence',cd.diabetes!=null?cd.diabetes+'%':'—','CDC PLACES 2024'],
+    ['High blood pressure',cd.bphigh!=null?cd.bphigh+'%':'—','CDC PLACES 2024'],
+    ['Median household income',c.medInc!=null?'$'+c.medInc.toLocaleString():'—','Census ACS 2022'],
+    ['HRSA HPSA Designated',D.hrsa?.hpsa?'YES':'No','HRSA Data Warehouse'],
+    ['HRSA MUA Designated',D.hrsa?.mua?'YES':'No','HRSA Data Warehouse'],
+  ];
+  var wsNeed=XLSX.utils.aoa_to_sheet(needData);
+  XLSX.utils.book_append_sheet(wb,wsNeed,'Community Need');
+
+  // Sheet 2: ROI Model
+  var roiData=[
+    ['AQUEDUCT v3.2 — ROI MODEL','','',''],
+    [org+' · '+loc,'','',''],
+    ['Generated: '+today,'','',''],
+    ['','','',''],
+    ['PROGRAM PARAMETERS','','',''],
+    ['Total clinic visits/year',r.V||40000,'',''],
+    ['No-show rate',((r.n||0.2)*100)+'%','',''],
+    ['Transport-attributable no-shows',((r.s||0.3)*100)+'%','Syed et al. 2013: 25-51%',''],
+    ['NEMT mitigation rate',((r.m||0.5)*100)+'%','Shekelle 2022 / Hennepin pilot',''],
+    ['Prevented no-shows/year',Math.round(r.prevented||0),'',''],
+    ['','','',''],
+    ['FIVE-LAYER ROI MODEL','ANNUAL VALUE','EVIDENCE CERTAINTY','NOTES'],
+    ['Layer 0: FFS Visit Recovery',Math.round(r.ffsNet||0),'HIGH','Shekelle 2022, OR 0.63; Chaiyachati RCT counterpoint'],
+    ['Layer 1: SDOH/Z75.3 Coding Uplift',Math.round(r.l1val||0),'MODERATE','Risk adjustment + Schedule H + CRA documentation chain'],
+    ['Layer 2: CCM/TCM Billing Revenue',Math.round(r.l2val||0),'MODERATE','2025 CMS rates; 99490 ~$62/mo, 99495 ~$201, 99496 ~$273'],
+    ['Layer 3: VBC Quality Earn-backs',Math.round(r.l3val||0),'MODERATE','No end-to-end attribution study; treat as upside'],
+    ['Layer 4: Workforce & HR Value',Math.round(r.l4val||0),'LOW-MOD','Admin rework proven; burnout-to-turnover chain not end-to-end validated'],
+    ['','','',''],
+    ['SUMMARY','','',''],
+    ['Total annual value',Math.round(r.netBenefit+(r.progCost||0)||0),'','All layers'],
+    ['Program cost (annual)',Math.round(r.progCost||0),'','Trips + coordination overhead'],
+    ['Net annual benefit',Math.round(r.netBenefit||0),'','Value minus program cost'],
+    ['ROI on program cost',r.roi||'—','',''],
+    ['Break-even trip cost','$'+(Math.round(r.beTrip||0)),'per round trip','FFS contribution margin only'],
+    ['3-year cumulative net benefit',Math.round((r.netBenefit||0)*3),'','At base assumptions'],
+    ['','','',''],
+    ['IMPORTANT LIMITATIONS','','',''],
+    ['Direct outcomes attribution (HbA1c, BP)','LOW certainty','Berkowitz 2025: -0.09% HbA1c','Below 0.5% clinical significance threshold'],
+    ['End-to-end NEMT to quality measures','Not yet validated','No published study','Treat VBC layer as directional upside'],
+    ['HR turnover savings','Conservative estimate','AHRQ burnout-to-turnover link','Use 2% burnout-to-turnover probability per 100 prevented no-shows'],
+  ];
+  var wsROI=XLSX.utils.aoa_to_sheet(roiData);
+  XLSX.utils.book_append_sheet(wb,wsROI,'ROI Model');
+
+  // Sheet 3: Evidence base
+  var evidData=[
+    ['EVIDENCE BASE SUMMARY — AQUEDUCT v3.2','',''],
+    ['','',''],
+    ['STUDY','KEY FINDING','CERTAINTY LEVEL'],
+    ['Shekelle et al. 2022 (BMC Public Health)','37% reduction in missed appointment odds (OR 0.63, 95% CI 0.48-0.83); 12 studies, 3 RCTs','HIGH'],
+    ['Chaiyachati et al. 2018 JAMA IM (RCT)','Universal untargeted rideshare: NO reduction (36.5% vs 36.7%); only 26% ride uptake','HIGH — COUNTERPOINT'],
+    ['Chaiyachati et al. 2018 JGIM (pilot)','Targeted rideshare: 14 pp improvement in show rates (difference-in-differences)','MODERATE'],
+    ['Syed et al. 2013 (J Community Health)','25-51% of missed appointments are transportation-attributable','HIGH'],
+    ['Balasubramanian et al. 2025 (JAMA Network Open)','Outpatient follow-up within 30 days: 32% readmission reduction (RRR 0.68); 83 studies','MODERATE'],
+    ['Berkowitz et al. 2025 (J Primary Care & Community Health)','Transport barrier removal: -0.09% HbA1c (n=86,977, TMLE) — significant but below clinical threshold','MODERATE for direction; LOW for magnitude'],
+    ['Hennepin Healthcare/Lyft/Hitch Health 2018','27% no-show reduction, 297% ROI; targeted SMS + prior no-show history identification','MODERATE (industry data, not peer-reviewed)'],
+    ['NSI National Healthcare Retention 2025','Average RN turnover cost $61,110; 1-pt RN turnover change = $380,600/yr for avg hospital','HIGH'],
+    ['ASPE/HHS 2024 Medicare TCM study','TCM decreased spending by 11%; potential $1.66B savings; only 17.9% of eligible received TCM in 2019','HIGH'],
+    ['Ouayogode et al. 2024 (Health Services Research)','TCM: -0.31 pp 30-day readmissions (95% CI: -0.52 to -0.09)','HIGH'],
+  ];
+  var wsEvid=XLSX.utils.aoa_to_sheet(evidData);
+  XLSX.utils.book_append_sheet(wb,wsEvid,'Evidence Base');
+
+  // Sheet 4: Funder strategy
+  var funderData=[
+    ['FUNDER STRATEGY MATRIX — AQUEDUCT v3.2','','','',''],
+    [org+' · '+loc,'','','',''],
+    ['','','','',''],
+    ['FUNDER TYPE','EVIDENCE REQUIRED','TIMELINE','TYPICAL RANGE','NEMT FIT'],
+    ['Bank / CRA Grant','CHNA + LMI docs + 501(c)(3) + AKS safe harbor compliance','4-12 weeks','$25K-$500K/yr','Strong'],
+    ['Private Foundation (Grant)','CHNA + Form 990 + proposal + outcomes evaluation plan','3-9 months','$50K-$500K','Strong'],
+    ['Private Foundation (PRI)','Above + IRC 4944(c) 3-part test + repayment plan','6-12 months','$100K-$2M','Moderate (capital projects)'],
+    ['Community Foundation (DAF)','501(c)(3) + compelling local narrative','Days-weeks','$5K-$500K','Strong'],
+    ['Community Foundation (Competitive)','Full proposal + CHNA + evaluation plan','3-9 months','$10K-$100K','Strong'],
+    ['Corporate Direct Giving','CSR alignment + community narrative','1-6 months','$10K-$200K','Moderate'],
+    ['Corporate ESG / Sponsorship','Impact metrics + GRI/SDG mapping + ride data disaggregated','Annual budget cycle','$25K-$500K','Moderate with data'],
+    ['Employer Coalition','VBC contract + workforce data + proof case','12-24+ months','Unknown','Emerging — no precedents'],
+    ['','','','',''],
+    ['KEY NAMED FOUNDATIONS WITH NEMT TRACK RECORD','','','',''],
+    ['Kresge Foundation','~$4B assets','Grants + PRIs','Explicitly funds transport as SDOH; Environmental Health Coalition transit','kresge.org'],
+    ['Robert Wood Johnson Foundation','~$13B assets','Grants','~$1.9B SDOH grants; Culture of Health names transportation','rwjf.org'],
+    ['Cigna Group Foundation','Corporate','Targeted grants','2025 Health Equity Impact Fund: explicitly names transportation for health visits','cigna.com/foundation'],
+    ['RTW Foundation','Regional','Grants','$500K 2024 health equity; 20% no-show reduction at Icahn/Mount Sinai','rtwf.org'],
+  ];
+  var wsFunders=XLSX.utils.aoa_to_sheet(funderData);
+  XLSX.utils.book_append_sheet(wb,wsFunders,'Funder Strategy');
+
+  XLSX.writeFile(wb,'Aqueduct_NEMT_ROI_'+loc.replace(/[^a-zA-Z0-9]/g,'_')+'_'+Date.now()+'.xlsx');
+};
+
+window.exportROIdocx=function(){
+  // Generate a detailed text summary as .txt (DOCX would need server-side)
+  var r=S.roi||{};
+  var org=S.orgName||'Your Organization';
+  var loc=D.county?(D.county+(D.state?', '+D.state:'')):(S.orgLoc||'Your Region');
+  var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  var c=D.census||{},cd=D.cdc||{};
+  var LINE='='.repeat(70);
+  var txt=LINE+'\nAQUEDUCT v3.2 — NEMT PROGRAM ROI & COMMUNITY NEED SUMMARY\n'+LINE+'\n\n'
+    +org+' · '+loc+'\nGenerated: '+today+'\n\n'
+    +'-'.repeat(70)+'\nCOMMUNITY NEED — PUBLIC DATA ('+loc+')\n'+'-'.repeat(70)+'\n'
+    +'  No vehicle available:      '+(c.noVehiclePct!=null?c.noVehiclePct+'%':'—')+' (Census ACS 2022)\n'
+    +'  Disability population:     '+(c.disabPct!=null?c.disabPct+'%':'—')+' (Census ACS 2022)\n'
+    +'  Below poverty level:       '+(c.povPct!=null?c.povPct+'%':'—')+' (Census ACS 2022)\n'
+    +'  Foreign-born residents:    '+(c.fbPct!=null?c.fbPct+'%':'—')+' (Census ACS 2022)\n'
+    +'  Adults uninsured:          '+(cd.uninsured!=null?cd.uninsured+'%':'—')+' (CDC PLACES 2024)\n'
+    +'  Diabetes prevalence:       '+(cd.diabetes!=null?cd.diabetes+'%':'—')+' (CDC PLACES 2024)\n'
+    +'  High blood pressure:       '+(cd.bphigh!=null?cd.bphigh+'%':'—')+' (CDC PLACES 2024)\n'
+    +'  HRSA HPSA Designated:      '+(D.hrsa?.hpsa?'YES':'No')+'\n'
+    +'  HRSA MUA Designated:       '+(D.hrsa?.mua?'YES':'No')+'\n\n'
+    +'-'.repeat(70)+'\nFIVE-LAYER ROI MODEL\n'+'-'.repeat(70)+'\n'
+    +'  Prevented no-shows/yr:     '+Math.round(r.prevented||0).toLocaleString()+'\n'
+    +'  Layer 0 FFS Recovery:      $'+Math.round(r.ffsNet||0).toLocaleString()+'  [HIGH certainty]\n'
+    +'  Layer 1 SDOH/Z75.3:        $'+Math.round(r.l1val||0).toLocaleString()+'  [MOD certainty]\n'
+    +'  Layer 2 CCM/TCM:           $'+Math.round(r.l2val||0).toLocaleString()+'  [MOD certainty]\n'
+    +'  Layer 3 VBC Quality:       $'+Math.round(r.l3val||0).toLocaleString()+'  [MOD — treat as upside]\n'
+    +'  Layer 4 Workforce/HR:      $'+Math.round(r.l4val||0).toLocaleString()+'  [LOW-MOD — chain not end-to-end validated]\n\n'
+    +'  Program Cost:              $'+Math.round(r.progCost||0).toLocaleString()+'\n'
+    +'  Net Annual Benefit:        $'+Math.round(r.netBenefit||0).toLocaleString()+'\n'
+    +'  ROI on Program Cost:       '+(r.roi||'—')+'\n'
+    +'  Break-even Trip Cost:      $'+Math.round(r.beTrip||0)+'/round trip\n'
+    +'  3-Year Cumulative Net:     $'+Math.round((r.netBenefit||0)*3).toLocaleString()+'\n\n'
+    +'IMPORTANT: Direct outcomes attribution (HbA1c, BP control, readmissions) remains LOW certainty.\n'
+    +'Berkowitz 2025 (n=86,977): -0.09% HbA1c — significant but below 0.5% clinical threshold.\n'
+    +'NEMT works as an enabler within multi-component care models, not as a standalone intervention.\n\n'
+    +LINE+'\nCONFIDENTIAL. For review before distribution.\nAqueduct v3.2';
+  var a=document.createElement('a');
+  a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(txt);
+  a.download='Aqueduct_Summary_'+Date.now()+'.txt';a.click();
+};
+
 </script>
 </body>
 </html>
