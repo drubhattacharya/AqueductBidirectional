@@ -1,0 +1,2357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Aqueduct — NEMT Strategic Platform</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#001533;--navy2:#002050;--blue:#003A7A;
+  --gold:#C9A227;--gold2:#E8C84A;--gold-soft:rgba(201,162,39,.12);
+  --cream:#FDF8EE;--bg:#F0F4F8;--bg-warm:#FAFAF7;
+  --teal:#0A6B62;--teal2:#0D8A7F;
+  --green:#047857;--green-border:rgba(4,120,87,.3);--green-soft:#D1FAE5;
+  --amber:#B45309;--amber-border:rgba(180,83,9,.3);--amber-soft:#FEF3C7;
+  --red:#B91C1C;--red-border:rgba(185,28,28,.25);--red-soft:#FEE2E2;
+  --purple:#6D28D9;--purple-soft:#EDE9FE;--purple-border:rgba(109,40,217,.25);
+  --rose:#BE185D;--rose-soft:#FCE7F3;--rose-border:rgba(190,24,93,.25);
+  --blue-soft:#DBEAFE;--blue-border:rgba(29,78,216,.25);
+  --muted:#64748B;--subtle:#94A3B8;--light:#94A3B8;
+  --border:rgba(15,23,42,.1);--border2:rgba(15,23,42,.18);
+  --radius:10px;--r:10px;
+  --serif:'Playfair Display',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{height:100%;}
+body{min-height:100vh;display:flex;flex-direction:column;background:var(--bg);
+  font-family:var(--sans);font-size:14px;line-height:1.6;color:#1a2332;}
+
+/* ── LANDING OVERLAY ─────────────────────────────────── */
+#lm-overlay{position:fixed;inset:0;z-index:9000;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:linear-gradient(160deg,#000f26 0%,#001533 50%,#001a40 100%);
+  overflow-y:auto;padding:24px;}
+#lm-stars{position:absolute;inset:0;pointer-events:none;}
+.lm-exit{animation:lmOut .4s ease forwards;}
+@keyframes lmOut{to{opacity:0;transform:translateY(-18px);}}
+@keyframes lmTwinkle{0%,100%{opacity:var(--lo);}50%{opacity:var(--hi);}}
+.lm-inner{position:relative;z-index:1;max-width:880px;width:100%;
+  display:flex;flex-direction:column;align-items:center;gap:28px;}
+.lm-logo-row{display:flex;align-items:center;gap:12px;}
+.lm-logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--gold),#a07810);
+  display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:var(--navy);}
+.lm-brand{font-size:20px;font-weight:800;color:#fff;letter-spacing:-.02em;}
+.lm-brand span{color:var(--gold);}
+.lm-tagline{font-family:var(--serif);font-style:italic;font-size:clamp(16px,2.4vw,22px);
+  color:rgba(255,255,255,.75);text-align:center;line-height:1.45;max-width:640px;}
+.lm-tagline strong{font-style:normal;background:linear-gradient(120deg,var(--gold),var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+
+/* Setup card */
+.lm-setup{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;padding:22px 26px;width:100%;}
+.lm-setup-title{font-size:13px;font-weight:700;color:rgba(255,255,255,.5);
+  text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;}
+.lm-inputs{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:560px){.lm-inputs{grid-template-columns:1fr;}}
+.lm-input-group label{display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,.5);margin-bottom:5px;}
+.lm-input{width:100%;padding:9px 12px;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.15);border-radius:8px;color:#fff;font-family:var(--sans);
+  font-size:14px;outline:none;transition:border-color .15s;}
+.lm-input::placeholder{color:rgba(255,255,255,.3);}
+.lm-input:focus{border-color:rgba(201,162,39,.5);}
+
+/* Persona cards */
+.lm-persona-title{font-size:13px;font-weight:700;color:rgba(255,255,255,.5);
+  text-transform:uppercase;letter-spacing:.08em;align-self:flex-start;}
+.lm-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:100%;}
+@media(max-width:560px){.lm-cards{grid-template-columns:1fr;}}
+.lm-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;padding:18px;cursor:pointer;transition:all .2s;text-align:left;}
+.lm-card:hover{background:rgba(255,255,255,.1);border-color:rgba(201,162,39,.35);}
+.lm-card.selected{background:rgba(201,162,39,.12);border-color:var(--gold);
+  box-shadow:0 0 0 2px rgba(201,162,39,.25);}
+.lm-card-icon{font-size:22px;margin-bottom:9px;}
+.lm-card-title{font-size:14px;font-weight:800;color:#fff;margin-bottom:4px;}
+.lm-card-sub{font-size:12px;color:rgba(255,255,255,.5);line-height:1.55;}
+
+/* Funder sub-type */
+.lm-funder-sub{width:100%;display:none;}
+.lm-funder-sub.visible{display:block;}
+.lm-sub-title{font-size:12px;font-weight:700;color:rgba(255,255,255,.45);
+  text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;}
+.lm-sub-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:9px;}
+.lm-sub-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);
+  border-radius:9px;padding:11px 13px;cursor:pointer;transition:all .18s;}
+.lm-sub-card:hover{border-color:rgba(201,162,39,.3);}
+.lm-sub-card.selected{background:rgba(201,162,39,.1);border-color:var(--gold);}
+.lm-sub-card-label{font-size:12px;font-weight:700;color:#fff;}
+.lm-sub-card-hint{font-size:11px;color:rgba(255,255,255,.4);margin-top:3px;}
+
+.lm-begin{background:linear-gradient(135deg,var(--gold),#a07810);color:var(--navy);
+  border:none;border-radius:10px;padding:14px 36px;font-size:15px;font-weight:800;
+  cursor:pointer;font-family:var(--sans);box-shadow:0 4px 20px rgba(201,162,39,.4);
+  transition:transform .1s;opacity:.4;pointer-events:none;}
+.lm-begin.ready{opacity:1;pointer-events:auto;}
+.lm-begin.ready:hover{transform:translateY(-1px);}
+.lm-evid-note{font-size:11px;color:rgba(255,255,255,.3);text-align:center;line-height:1.5;}
+
+/* ── HEADER ─────────────────────────────────────────── */
+.demo-hdr{flex-shrink:0;background:linear-gradient(140deg,var(--navy) 0%,var(--blue) 65%,#0a3566 100%);
+  box-shadow:0 2px 24px rgba(0,0,0,.45);position:sticky;top:0;z-index:500;overflow:hidden;}
+.demo-hdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,162,39,.4),transparent);}
+.demo-hdr-top{display:flex;align-items:center;gap:16px;padding:13px 24px 10px;flex-wrap:wrap;}
+.demo-logo{width:32px;height:32px;border-radius:7px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--gold),#a07810);display:flex;align-items:center;
+  justify-content:center;font-weight:900;font-size:12px;color:var(--navy);}
+.demo-brand-block{flex:1;min-width:0;}
+.demo-brand{font-size:11px;font-weight:700;color:rgba(255,255,255,.85);}
+.demo-brand-sub{color:rgba(255,255,255,.4);font-weight:400;}
+.demo-tag{font-family:var(--serif);font-size:clamp(13px,1.3vw,16px);font-style:italic;
+  color:rgba(255,255,255,.75);line-height:1.2;margin-top:1px;}
+.demo-tag strong{font-style:normal;background:linear-gradient(120deg,var(--gold),var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.persona-pill{display:flex;align-items:center;gap:6px;background:rgba(201,162,39,.12);
+  border:1px solid rgba(201,162,39,.25);border-radius:99px;padding:4px 12px;cursor:pointer;
+  transition:background .15s;flex-shrink:0;}
+.persona-pill:hover{background:rgba(201,162,39,.2);}
+.persona-pill-icon{font-size:13px;}
+.persona-pill-label{font-size:11px;font-weight:700;color:var(--gold2);}
+
+/* ── NAV RAIL ────────────────────────────────────────── */
+.demo-rail{display:flex;align-items:stretch;background:rgba(0,0,0,.2);
+  border-top:1px solid rgba(255,255,255,.08);overflow-x:auto;scrollbar-width:none;}
+.demo-rail::-webkit-scrollbar{display:none;}
+.rb{display:flex;align-items:center;gap:7px;padding:9px 18px 11px;background:none;
+  border:none;border-bottom:3px solid transparent;cursor:pointer;font-family:var(--sans);
+  flex-shrink:0;transition:background .15s;white-space:nowrap;}
+.rb:hover{background:rgba(255,255,255,.07);}
+.rb.rb-on{border-bottom-color:var(--gold);background:rgba(201,162,39,.1);}
+.rn{width:20px;height:20px;border-radius:50%;flex-shrink:0;background:rgba(255,255,255,.1);
+  color:rgba(255,255,255,.3);font-size:10px;font-weight:800;display:flex;align-items:center;
+  justify-content:center;transition:all .2s;}
+.rb.rb-on .rn{background:var(--gold);color:var(--navy);}
+.rb.rb-done .rn{background:rgba(201,162,39,.22);color:var(--gold);font-size:0;}
+.rb.rb-done .rn::after{content:'✓';font-size:10px;}
+.rl{font-size:12px;font-weight:600;color:rgba(255,255,255,.32);}
+.rb.rb-on .rl{color:#fff;font-weight:700;}
+.rb.rb-done .rl{color:rgba(255,255,255,.55);}
+
+/* ── MAIN LAYOUT ─────────────────────────────────────── */
+#wg-content{flex:1 1 auto;}
+.step{width:100%;animation:fin .22s ease;}
+@keyframes fin{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* ── STORY HEADER ────────────────────────────────────── */
+.story-hdr{display:flex;align-items:flex-start;gap:18px;padding:26px 34px 22px;
+  background:linear-gradient(135deg,var(--navy) 0%,#002455 100%);color:#fff;}
+.story-num{width:38px;height:38px;border-radius:50%;flex-shrink:0;margin-top:2px;
+  background:var(--gold);color:var(--navy);font-size:13px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;}
+.story-hl{font-family:var(--serif);font-size:clamp(17px,1.7vw,22px);font-style:italic;
+  font-weight:400;color:#fff;margin:0 0 9px;line-height:1.25;}
+.story-sub{font-size:13px;color:rgba(255,255,255,.6);line-height:1.7;max-width:860px;}
+
+/* Persona view toggle */
+.view-toggle{display:flex;align-items:center;gap:8px;margin-top:12px;}
+.vt-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  color:rgba(255,255,255,.6);border-radius:7px;padding:5px 14px;font-size:11px;
+  font-weight:700;cursor:pointer;font-family:var(--sans);transition:all .15s;}
+.vt-btn.active{background:rgba(201,162,39,.2);border-color:rgba(201,162,39,.5);color:var(--gold2);}
+
+/* ── TOOL BODY ───────────────────────────────────────── */
+.tool-body{padding:26px 34px;background:#fff;border-bottom:1px solid #E2E8F0;}
+.tool-body+.tool-body{border-top:1px solid var(--border);}
+
+/* ── STEP FOOTER ─────────────────────────────────────── */
+.step-foot{display:flex;align-items:center;justify-content:space-between;gap:20px;
+  flex-wrap:wrap;padding:18px 34px 22px;background:var(--cream);
+  border-top:2px solid rgba(201,162,39,.15);}
+.step-bridge{flex:1;min-width:220px;font-size:13px;line-height:1.7;color:#4a5568;
+  font-style:italic;padding-left:14px;border-left:4px solid rgba(201,162,39,.5);}
+.step-cont{flex-shrink:0;background:linear-gradient(135deg,var(--gold),#a07810);
+  color:var(--navy);border:none;border-radius:9px;padding:12px 26px;font-size:13px;
+  font-weight:700;cursor:pointer;font-family:var(--sans);
+  box-shadow:0 4px 14px rgba(201,162,39,.3);transition:transform .1s;}
+.step-cont:hover{transform:translateY(-1px);}
+
+/* ── CTA (final) ─────────────────────────────────────── */
+.step-cta{background:linear-gradient(140deg,var(--navy),#001f4a);padding:34px;
+  display:flex;justify-content:center;border-top:none;}
+.cta-wrap{max-width:820px;width:100%;display:flex;flex-direction:column;gap:22px;align-items:center;text-align:center;}
+.cta-quote{font-family:var(--serif);font-size:clamp(15px,1.5vw,19px);font-style:italic;
+  color:rgba(255,255,255,.85);line-height:1.7;padding:22px 28px;
+  border:1px solid rgba(201,162,39,.2);border-radius:12px;background:rgba(201,162,39,.06);}
+.cta-quote strong{color:var(--gold2);font-style:normal;}
+.cta-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+.cta-primary{background:linear-gradient(135deg,var(--gold),#a07810);color:var(--navy);
+  border:none;border-radius:9px;padding:13px 28px;font-size:14px;font-weight:800;
+  cursor:pointer;font-family:var(--sans);box-shadow:0 4px 18px rgba(201,162,39,.4);
+  transition:transform .1s;}
+.cta-primary:hover{transform:translateY(-1px);}
+.cta-ghost{background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);
+  border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:13px 22px;
+  font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background .15s;}
+.cta-ghost:hover{background:rgba(255,255,255,.13);}
+
+/* ── TYPOGRAPHY HELPERS ──────────────────────────────── */
+.section-title{font-size:16px;font-weight:800;color:var(--navy);margin-bottom:4px;letter-spacing:-.01em;}
+.small{font-size:12.5px;color:var(--muted);line-height:1.55;}
+
+/* ── KPI CARDS ───────────────────────────────────────── */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;}
+@media(max-width:1024px){.kpis{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.kpis{grid-template-columns:1fr;}}
+.kpi{border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px;
+  background:#fff;transition:box-shadow .15s;}
+.kpi .label{font-size:11px;color:var(--subtle);font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+.kpi .value{font-size:22px;font-weight:800;margin-top:3px;color:var(--navy);letter-spacing:-.02em;}
+.kpi .hint{font-size:11.5px;color:var(--light);margin-top:5px;line-height:1.4;}
+
+/* ── CALLOUT BOX ─────────────────────────────────────── */
+.callout{border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:var(--radius);
+  padding:13px 15px;background:linear-gradient(135deg,rgba(13,148,136,.02),rgba(37,99,235,.02));}
+.callout.callout-gold{border-left-color:var(--gold);}
+.callout.callout-purple{border-left-color:var(--purple);}
+.callout.callout-amber{border-left-color:var(--amber);}
+.callout.callout-red{border-left-color:var(--red);}
+.callout.callout-green{border-left-color:var(--green);}
+.callout.callout-rose{border-left-color:var(--rose);}
+
+/* ── BADGE ───────────────────────────────────────────── */
+.badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:11px;font-weight:700;border:1px solid var(--border);background:#fff;}
+.b-strong{border-color:var(--green-border);background:var(--green-soft);color:var(--green);}
+.b-mod{border-color:var(--amber-border);background:var(--amber-soft);color:var(--amber);}
+.b-weak{border-color:var(--red-border);background:var(--red-soft);color:var(--red);}
+.b-info{border-color:var(--blue-border);background:var(--blue-soft);color:#1D4ED8;}
+.b-purple{border-color:var(--purple-border);background:var(--purple-soft);color:var(--purple);}
+.b-emerging{border-color:var(--rose-border);background:var(--rose-soft);color:var(--rose);}
+.b-gold{border-color:rgba(201,162,39,.35);background:rgba(201,162,39,.1);color:#7a5c00;}
+
+/* ── TABLE ───────────────────────────────────────────── */
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;}
+.tbl th{background:var(--navy);color:rgba(255,255,255,.85);padding:8px 11px;text-align:left;font-weight:700;}
+.tbl td{padding:8px 11px;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl tr:nth-child(even) td{background:rgba(240,244,248,.5);}
+.tbl tr:hover td{background:rgba(201,162,39,.04);}
+
+/* ── FORM ELEMENTS ───────────────────────────────────── */
+.field-label{display:block;font-size:12px;font-weight:700;color:var(--navy);margin-bottom:5px;}
+.field-hint{font-size:11px;color:var(--muted);margin-top:3px;}
+input[type=number],input[type=text],select,textarea{
+  width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:7px;
+  font-size:14px;font-family:var(--sans);color:var(--navy);background:#fff;
+  outline:none;transition:border-color .18s;}
+input[type=number]:focus,input[type=text]:focus,select:focus,textarea:focus{border-color:rgba(0,58,122,.4);}
+.input-row{display:grid;gap:12px;}
+.input-row-2{grid-template-columns:1fr 1fr;}
+.input-row-3{grid-template-columns:1fr 1fr 1fr;}
+.input-row-4{grid-template-columns:repeat(4,1fr);}
+@media(max-width:900px){.input-row-4{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:640px){.input-row-2,.input-row-3,.input-row-4{grid-template-columns:1fr;}}
+
+/* ── BUTTONS ─────────────────────────────────────────── */
+button.primary{background:var(--teal);color:#fff;border:none;border-radius:8px;
+  padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);}
+button.secondary{background:var(--blue-soft);color:#1D4ED8;border:1px solid var(--blue-border);
+  border-radius:8px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);}
+button.ghost{background:none;color:var(--muted);border:1px solid var(--border);
+  border-radius:8px;padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);}
+button.gold{background:linear-gradient(135deg,var(--gold),#a07810);color:var(--navy);
+  border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:700;
+  cursor:pointer;font-family:var(--sans);box-shadow:0 2px 10px rgba(201,162,39,.3);}
+
+/* ── SUB-TABS ────────────────────────────────────────── */
+.sub-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:20px;
+  border-bottom:2px solid var(--border);padding-bottom:0;}
+.stab{background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;
+  padding:8px 16px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;
+  font-family:var(--sans);transition:all .15s;white-space:nowrap;}
+.stab:hover{color:var(--navy);}
+.stab.active{border-bottom-color:var(--gold);color:var(--navy);font-weight:800;}
+
+/* ── LAYER TOGGLES ───────────────────────────────────── */
+.layer-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;
+  padding:12px 0;border-bottom:1px solid var(--border);}
+.layer-header:hover{opacity:.85;}
+.layer-title{font-size:14px;font-weight:800;color:var(--navy);}
+.layer-meta{display:flex;align-items:center;gap:8px;}
+.layer-val{font-size:16px;font-weight:800;color:var(--teal);}
+.layer-body{padding:16px 0;display:none;}
+.layer-body.open{display:block;}
+
+/* ── EVIDENCE NODE ───────────────────────────────────── */
+.evid-node{border-left:4px solid var(--border);border-radius:var(--radius);
+  padding:12px 15px;background:#fff;border:1px solid var(--border);cursor:pointer;
+  transition:border-color .15s;}
+.evid-node:hover{border-color:rgba(201,162,39,.4);}
+.evid-node-hdr{display:flex;align-items:center;justify-content:space-between;}
+.evid-node-body{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
+.evid-node-body.open{display:block;}
+
+/* ── FUNDER TYPE CARD ────────────────────────────────── */
+.funder-type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:20px;}
+.funder-type-card{border:1px solid var(--border);border-radius:var(--radius);padding:15px;
+  background:#fff;cursor:pointer;transition:all .18s;}
+.funder-type-card:hover{border-color:rgba(201,162,39,.4);}
+.funder-type-card.active{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,162,39,.2);}
+.ftc-icon{font-size:22px;margin-bottom:8px;}
+.ftc-name{font-size:13px;font-weight:800;color:var(--navy);margin-bottom:3px;}
+.ftc-desc{font-size:11.5px;color:var(--muted);line-height:1.5;}
+.ftc-badge{margin-top:8px;}
+
+/* ── VEHICLE COMPARISON ──────────────────────────────── */
+.vehicle-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:10px;margin:14px 0;}
+.vehicle-card{border:1px solid var(--border);border-radius:var(--radius);padding:13px;}
+.vc-type{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);}
+.vc-name{font-size:14px;font-weight:800;color:var(--navy);margin:4px 0;}
+.vc-rows{display:flex;flex-direction:column;gap:5px;margin-top:8px;}
+.vc-row{display:flex;justify-content:space-between;font-size:11px;}
+.vc-row-label{color:var(--muted);}
+.vc-row-val{font-weight:700;color:var(--navy);}
+
+/* ── ESG FRAMEWORK MAPPING ───────────────────────────── */
+.esg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin:14px 0;}
+.esg-card{border:1px solid var(--border);border-radius:var(--radius);padding:12px;background:var(--bg-warm);}
+.esg-framework{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--muted);margin-bottom:5px;}
+.esg-standard{font-size:13px;font-weight:800;color:var(--navy);margin-bottom:4px;}
+.esg-desc{font-size:11.5px;color:var(--muted);line-height:1.5;}
+.esg-link{font-size:11px;font-weight:700;color:var(--teal);margin-top:6px;display:block;}
+
+/* ── HR LAYER SPECIFIC ───────────────────────────────── */
+.hr-chain{display:flex;flex-direction:column;gap:6px;margin:12px 0;}
+.hr-chain-item{display:flex;align-items:center;gap:10px;padding:9px 12px;
+  background:var(--bg-warm);border-radius:8px;border:1px solid var(--border);}
+.hr-chain-arrow{color:var(--muted);font-size:10px;margin-left:6px;}
+.hr-chain-label{font-size:12.5px;font-weight:700;color:var(--navy);}
+.hr-chain-sub{font-size:11px;color:var(--muted);}
+.hr-chain-val{margin-left:auto;font-size:13px;font-weight:800;color:var(--teal);white-space:nowrap;}
+
+/* ── ROI SUMMARY BAR ─────────────────────────────────── */
+.roi-bar{background:linear-gradient(135deg,var(--navy),#002050);border-radius:12px;
+  padding:18px 22px;color:#fff;margin-top:20px;}
+.roi-bar-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
+  color:rgba(255,255,255,.5);margin-bottom:12px;}
+.roi-bar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;}
+.roi-bar-item .rbi-label{font-size:11px;color:rgba(255,255,255,.5);margin-bottom:3px;}
+.roi-bar-item .rbi-val{font-size:18px;font-weight:800;color:var(--gold2);}
+.roi-bar-item .rbi-sub{font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;}
+
+/* ── DOCUMENT PREVIEW ────────────────────────────────── */
+.doc-preview{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;font-family:monospace;font-size:12px;line-height:1.7;
+  white-space:pre-wrap;max-height:500px;overflow-y:auto;color:#1a2332;}
+
+/* ── UTILITY ─────────────────────────────────────────── */
+.grid-2{display:grid;grid-template-columns:360px 1fr;gap:16px;}
+@media(max-width:900px){.grid-2{grid-template-columns:1fr;}}
+.gap-8{gap:8px;}
+.gap-12{gap:12px;}
+.gap-16{gap:16px;}
+.mt-4{margin-top:4px;}
+.mt-8{margin-top:8px;}
+.mt-12{margin-top:12px;}
+.mt-16{margin-top:16px;}
+.mt-20{margin-top:20px;}
+.mb-8{margin-bottom:8px;}
+.mb-12{margin-bottom:12px;}
+.mb-16{margin-bottom:16px;}
+.mb-20{margin-bottom:20px;}
+.flex{display:flex;}
+.flex-col{flex-direction:column;}
+.items-center{align-items:center;}
+.justify-between{justify-content:space-between;}
+.gap-6{gap:6px;}
+.gap-10{gap:10px;}
+.font-bold{font-weight:700;}
+.font-800{font-weight:800;}
+.text-navy{color:var(--navy);}
+.text-muted{color:var(--muted);}
+.text-gold{color:var(--gold);}
+.text-teal{color:var(--teal);}
+.text-sm{font-size:12.5px;}
+.text-xs{font-size:11px;}
+.italic{font-style:italic;}
+
+/* Persona-specific visibility */
+body.view-hospital .funder-only{display:none!important;}
+body.view-funder .hospital-only{display:none!important;}
+body.view-both .funder-only{display:block;}
+body.view-both .hospital-only{display:block;}
+</style>
+</head>
+<body class="view-hospital">
+
+<!-- ════════ LANDING OVERLAY ════════ -->
+<div id="lm-overlay">
+  <div id="lm-stars"></div>
+  <div class="lm-inner">
+    <div class="lm-logo-row">
+      <div class="lm-logo">Aq</div>
+      <div class="lm-brand"><span>Aqueduct</span> <span style="color:rgba(255,255,255,.35);font-weight:400;">v3</span></div>
+    </div>
+    <p class="lm-tagline">The platform that turns your community health data into <strong>funded programs</strong> — and tells both sides of the story.</p>
+
+    <!-- Step 1: Org setup -->
+    <div class="lm-setup">
+      <div class="lm-setup-title">Configure your organization</div>
+      <div class="lm-inputs">
+        <div class="lm-input-group">
+          <label>Organization name</label>
+          <input class="lm-input" id="lm_orgname" type="text" placeholder="e.g. Riverside Health System" oninput="updateOrgState()" />
+        </div>
+        <div class="lm-input-group">
+          <label>City / County / Region</label>
+          <input class="lm-input" id="lm_orgloc" type="text" placeholder="e.g. Olmsted County, MN" oninput="updateOrgState()" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Persona -->
+    <div class="lm-persona-title">I represent…</div>
+    <div class="lm-cards">
+      <div class="lm-card" id="pc_hospital" onclick="selectPersona('hospital')">
+        <div class="lm-card-icon">🏥</div>
+        <div class="lm-card-title">Hospital / Health System</div>
+        <div class="lm-card-sub">Build a rigorous ROI case for an NEMT program — and generate funding applications for every funder type.</div>
+      </div>
+      <div class="lm-card" id="pc_funder" onclick="selectPersona('funder')">
+        <div class="lm-card-icon">💼</div>
+        <div class="lm-card-title">Funder (Bank, Foundation, or Corporation)</div>
+        <div class="lm-card-sub">Evaluate NEMT investments against your obligations — CRA, grant criteria, ESG frameworks, or philanthropy strategy.</div>
+      </div>
+    </div>
+
+    <!-- Funder sub-type -->
+    <div class="lm-funder-sub" id="lm-funder-sub">
+      <div class="lm-sub-title">What type of funder?</div>
+      <div class="lm-sub-cards">
+        <div class="lm-sub-card" id="fst_bank" onclick="selectFunderType('bank')">
+          <div class="lm-sub-card-label">🏦 Bank / CRA</div>
+          <div class="lm-sub-card-hint">CRA exam credit, LMI investment</div>
+        </div>
+        <div class="lm-sub-card" id="fst_priv" onclick="selectFunderType('priv')">
+          <div class="lm-sub-card-label">🏛️ Private Foundation</div>
+          <div class="lm-sub-card-hint">Grants, PRIs, 5% payout</div>
+        </div>
+        <div class="lm-sub-card" id="fst_comm" onclick="selectFunderType('comm')">
+          <div class="lm-sub-card-label">🌱 Community Foundation</div>
+          <div class="lm-sub-card-hint">DAFs, competitive grants</div>
+        </div>
+        <div class="lm-sub-card" id="fst_corp" onclick="selectFunderType('corp')">
+          <div class="lm-sub-card-label">🏢 Corporate</div>
+          <div class="lm-sub-card-hint">ESG, philanthropy, sponsorship</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="lm-begin" id="lm-begin" onclick="beginPlatform()">Enter Platform →</button>
+    <p class="lm-evid-note">Evidence-grounded. Evidence-bounded. Built on peer-reviewed research and primary regulatory sources.</p>
+  </div>
+</div>
+
+<!-- ════════ HEADER ════════ -->
+<header class="demo-hdr">
+  <div class="demo-hdr-top">
+    <div class="demo-logo">Aq</div>
+    <div class="demo-brand-block">
+      <div class="demo-brand"><span id="hdr_orgname">Your Organization</span> <span class="demo-brand-sub">· <span id="hdr_orgloc">Your Region</span> · NEMT Strategic Platform</span></div>
+      <p class="demo-tag" id="hdr_tagline">Your community's health data already <strong>makes the case.</strong></p>
+    </div>
+    <div class="persona-pill" onclick="resetPersona()" title="Switch role">
+      <span class="persona-pill-icon" id="hdr_persona_icon">🏥</span>
+      <span class="persona-pill-label" id="hdr_persona_label">Hospital View</span>
+      <span style="color:rgba(255,255,255,.3);font-size:10px;margin-left:4px;">↺</span>
+    </div>
+  </div>
+  <nav class="demo-rail" role="tablist">
+    <button class="rb" id="rb_about" onclick="go('about')" style="border-right:1px solid rgba(255,255,255,.1);margin-right:4px;padding-right:18px;">
+      <span class="rn" style="background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);font-size:13px;">⬡</span>
+      <span class="rl" style="color:rgba(255,255,255,.45);">About</span>
+    </button>
+    <button class="rb rb-on" id="rb_need" onclick="go('need')">
+      <span class="rn">01</span><span class="rl">Community Need</span>
+    </button>
+    <button class="rb" id="rb_roi" onclick="go('roi')">
+      <span class="rn">02</span><span class="rl">ROI &amp; Value</span>
+    </button>
+    <button class="rb" id="rb_funders" onclick="go('funders')">
+      <span class="rn">03</span><span class="rl">Funder Strategy</span>
+    </button>
+    <button class="rb" id="rb_legal" onclick="go('legal')">
+      <span class="rn">04</span><span class="rl">Legal &amp; Compliance</span>
+    </button>
+    <button class="rb" id="rb_docs" onclick="go('docs')" style="border-left:1px solid rgba(255,255,255,.1);margin-left:4px;">
+      <span class="rn" style="background:rgba(201,162,39,.18);color:#e8c84a;">05</span>
+      <span class="rl" style="color:rgba(232,200,74,.75);">Generate Docs</span>
+    </button>
+  </nav>
+</header>
+
+<!-- ════════ MAIN CONTENT ════════ -->
+<main id="wg-content">
+
+<!-- ═══ ABOUT ═══ -->
+<section id="s_about" class="step" style="display:none">
+  <div class="story-hdr">
+    <div class="story-num">⬡</div>
+    <div>
+      <h2 class="story-hl">Aqueduct v3: a platform for both sides of the table.</h2>
+      <p class="story-sub">Aqueduct is designed for health systems building a funded NEMT program — and for the banks, foundations, and corporations deciding whether to fund one. The evidence base, financial models, and documents are the same. The perspective adapts to who is reading them.</p>
+    </div>
+  </div>
+  <div class="tool-body">
+    <div class="section-title mb-12">What Aqueduct v3 does differently</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:24px;">
+      <div class="callout callout-gold">
+        <div class="font-800 text-navy mb-8">↔ Bidirectional by design</div>
+        <p class="small">One platform, two perspectives. Every evidence node, ROI calculation, and document was built to speak to both the health system seeking funds and the funder evaluating the investment.</p>
+      </div>
+      <div class="callout callout-gold">
+        <div class="font-800 text-navy mb-8">⚖ Evidence-bounded content</div>
+        <p class="small">We distinguish HIGH-certainty evidence (appointment adherence: 37% no-show reduction, Shekelle 2022) from LOW-certainty evidence (full outcomes attribution). No overstating. No hype.</p>
+      </div>
+      <div class="callout callout-gold">
+        <div class="font-800 text-navy mb-8">🏷 White-label ready</div>
+        <p class="small">Enter your organization name once. It propagates throughout the platform, every model, and every generated document. Built for any health system, not a single institution.</p>
+      </div>
+      <div class="callout callout-gold">
+        <div class="font-800 text-navy mb-8">📊 Five ROI layers including HR</div>
+        <p class="small">The ROI model now includes a Workforce &amp; HR layer — quantifying staff time recovered, burnout burden reduced, and nurse turnover costs avoided. $200/no-show × prevented no-shows is a real number.</p>
+      </div>
+    </div>
+    <div class="section-title mb-8">Platform walkthrough</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg-warm);border-radius:9px;border:1px solid var(--border);">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;">01</div>
+        <div><strong class="text-navy">Community Need</strong> — CHNA priorities, population data, transportation-attributable disparities, and why NEMT rises to the top of the evidence hierarchy.</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg-warm);border-radius:9px;border:1px solid var(--border);">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;">02</div>
+        <div><strong class="text-navy">ROI &amp; Value</strong> — Five-layer financial model: FFS visit recovery, SDOH coding uplift, CCM/TCM billing (2025 rates), VBC quality earn-backs, and Workforce &amp; HR savings.</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg-warm);border-radius:9px;border:1px solid var(--border);">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;">03</div>
+        <div><strong class="text-navy">Funder Strategy</strong> — Banks (CRA), Private Foundations, Community Foundations, Corporate Direct Giving, Corporate ESG, and Employer Coalitions (emerging). Nuanced, accurate, funder-type-specific guidance.</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg-warm);border-radius:9px;border:1px solid var(--border);">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;">04</div>
+        <div><strong class="text-navy">Legal &amp; Compliance</strong> — Safe harbor conditions, CRA regulations, foundation grant rules, IRS Schedule H pathways, and corporate giving limitations. Current as of 2025–2026.</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg-warm);border-radius:9px;border:1px solid var(--border);">
+        <div style="width:28px;height:28px;border-radius:50%;background:rgba(201,162,39,.2);color:var(--navy);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;">05</div>
+        <div><strong class="text-navy">Generate Docs</strong> — CRA memos, grant proposals, letters of inquiry, sponsorship proposals, and ESG disclosure narratives — all pre-populated with your org data.</div>
+      </div>
+    </div>
+  </div>
+  <div class="step-foot">
+    <p class="step-bridge">Start with the evidence that your community's health data already provides. The need is documented. Let's make it legible to funders.</p>
+    <button class="step-cont" onclick="go('need')">Start with Community Need →</button>
+  </div>
+</section>
+
+<!-- ═══ NEED ═══ -->
+<section id="s_need" class="step" style="display:block">
+  <div class="story-hdr">
+    <div class="story-num">01</div>
+    <div>
+      <h2 class="story-hl">The need is already documented. The question is whether it's legible.</h2>
+      <p class="story-sub hospital-only">Your CHNA data establishes the community health need that justifies an NEMT program. This step shows you exactly what your data says — and how to translate it into language that every funder type understands.</p>
+      <p class="story-sub funder-only">Before funding an NEMT program, a health system should be able to demonstrate documented community need, a defensible evidence hierarchy, and a clear logic for why transportation is the highest-leverage modifiable variable in their disparity profile.</p>
+      <div class="view-toggle">
+        <span style="font-size:11px;color:rgba(255,255,255,.4);">View as:</span>
+        <button class="vt-btn active" onclick="setViewMode('hospital',this)" id="vt_hosp">🏥 Health System</button>
+        <button class="vt-btn" onclick="setViewMode('funder',this)" id="vt_fund">💼 Funder</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHNA Configuration -->
+  <div class="tool-body hospital-only">
+    <div class="section-title mb-8">Configure your community data</div>
+    <p class="small mb-16">Pre-populated with illustrative defaults. Update to reflect your CHNA and local statistics.</p>
+    <div class="input-row input-row-4 mb-16">
+      <div>
+        <label class="field-label">Adults who delayed care</label>
+        <input type="number" id="nd_delayed" value="34" min="0" max="100" oninput="updateNeedDisplay()"/>
+        <p class="field-hint">% delayed or avoided care</p>
+      </div>
+      <div>
+        <label class="field-label">Without a PCP (%)</label>
+        <input type="number" id="nd_nopcp" value="15" min="0" max="100" oninput="updateNeedDisplay()"/>
+        <p class="field-hint">Lack a primary care provider</p>
+      </div>
+      <div>
+        <label class="field-label">Disability population (%)</label>
+        <input type="number" id="nd_disability" value="9.7" min="0" max="100" step="0.1" oninput="updateNeedDisplay()"/>
+        <p class="field-hint">Residents with documented limitations</p>
+      </div>
+      <div>
+        <label class="field-label">Foreign-born (%)</label>
+        <input type="number" id="nd_foreignborn" value="11.1" min="0" max="100" step="0.1" oninput="updateNeedDisplay()"/>
+        <p class="field-hint">Compounding barriers: language + transport</p>
+      </div>
+    </div>
+    <div class="input-row input-row-2 mb-16">
+      <div>
+        <label class="field-label">CHNA Priority #1</label>
+        <input type="text" id="nd_p1" value="Access to Care" oninput="updateNeedDisplay()"/>
+      </div>
+      <div>
+        <label class="field-label">CHNA Priority #2</label>
+        <input type="text" id="nd_p2" value="Mental Health &amp; Behavioral Health" oninput="updateNeedDisplay()"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- Community Need KPIs -->
+  <div class="tool-body">
+    <div class="section-title mb-8">Community need snapshot — <span id="nd_org_label" style="color:var(--teal);">Your Region</span></div>
+    <div class="kpis mb-16">
+      <div class="kpi">
+        <div class="label">Adults Delaying Care</div>
+        <div class="value" id="nd_kpi_delayed">34%</div>
+        <div class="hint">Source: CHNA survey — transportation consistently among top-cited barriers</div>
+      </div>
+      <div class="kpi">
+        <div class="label">No PCP (Primary Care Gap)</div>
+        <div class="value" id="nd_kpi_nopcp" style="color:var(--teal);">15%</div>
+        <div class="hint">LMI patients cite transport cost as primary barrier to establishing care</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Disability Population</div>
+        <div class="value" id="nd_kpi_disability" style="color:var(--amber);">9.7%</div>
+        <div class="hint">Highest NEMT need; documented mobility limitations and vehicle ownership gap</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Foreign-Born Residents</div>
+        <div class="value" id="nd_kpi_foreignborn" style="color:var(--blue);">11.1%</div>
+        <div class="hint">Compounding barriers: language + transport + system navigation</div>
+      </div>
+    </div>
+
+    <!-- Disparity ranking -->
+    <div class="section-title mb-8 mt-20">Why NEMT rises to the top of the intervention hierarchy</div>
+    <p class="small mb-12">Transportation barriers cut across every disparity category — making NEMT a cross-cutting, high-leverage modifiable intervention.</p>
+    <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:16px;">
+      <div style="display:flex;align-items:stretch;gap:0;border-radius:9px;overflow:hidden;border:1px solid var(--red-border);">
+        <div style="width:5px;background:var(--red);flex-shrink:0;"></div>
+        <div style="padding:9px 13px;flex:1;background:rgba(185,28,28,.03);">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:12px;font-weight:900;color:var(--red);min-width:22px;">#1</span>
+              <div><strong style="font-size:12.5px;color:#1a2332;">Transportation-Attributable Care Delay</strong>
+                <div class="small" style="color:var(--muted);">25–51% of missed appointments are transportation-attributable (Syed et al. 2013; Chaiyachati 2018). Effect concentrates in LMI, disability, and foreign-born populations.</div></div></div>
+            <span class="badge b-strong">NEMT Directly Solves</span></div></div></div>
+
+      <div style="display:flex;align-items:stretch;gap:0;border-radius:9px;overflow:hidden;border:1px solid var(--amber-border);">
+        <div style="width:5px;background:var(--amber);flex-shrink:0;"></div>
+        <div style="padding:9px 13px;flex:1;background:rgba(180,83,9,.03);">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:12px;font-weight:900;color:var(--amber);min-width:22px;">#2</span>
+              <div><strong style="font-size:12.5px;">Disability &amp; Mobility Barrier Population</strong>
+                <div class="small" style="color:var(--muted);">Vehicle ownership gap + highest per-trip cost burden. Disability population carries disproportionate chronic disease burden, amplifying the NEMT ROI.</div></div></div>
+            <span class="badge b-mod">Core NEMT Target</span></div></div></div>
+
+      <div style="display:flex;align-items:stretch;gap:0;border-radius:9px;overflow:hidden;border:1px solid var(--blue-border);">
+        <div style="width:5px;background:#1D4ED8;flex-shrink:0;"></div>
+        <div style="padding:9px 13px;flex:1;background:rgba(29,78,216,.03);">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:12px;font-weight:900;color:#1D4ED8;min-width:22px;">#3</span>
+              <div><strong style="font-size:12.5px;">Primary Care Access Gap — LMI Households</strong>
+                <div class="small" style="color:var(--muted);">Transport cost is the primary barrier to establishing PCP relationships for Medicaid and uninsured patients. NEMT enables first contact.</div></div></div>
+            <span class="badge b-info">NEMT Enables PCP Linkage</span></div></div></div>
+
+      <div style="display:flex;align-items:stretch;gap:0;border-radius:9px;overflow:hidden;border:1px solid var(--green-border);">
+        <div style="width:5px;background:var(--green);flex-shrink:0;"></div>
+        <div style="padding:9px 13px;flex:1;background:rgba(4,120,87,.03);">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:12px;font-weight:900;color:var(--green);min-width:22px;">#4</span>
+              <div><strong style="font-size:12.5px;">Behavioral Health Access — Renters &amp; Disability</strong>
+                <div class="small" style="color:var(--muted);">Specialty behavioral health appointments have the highest no-show rate of any service line. Renter + disability = highest transit dependency.</div></div></div>
+            <span class="badge b-strong">Dual Priority Impact</span></div></div></div>
+    </div>
+
+    <!-- Evidence summary callout -->
+    <div style="background:linear-gradient(135deg,rgba(0,21,51,.97),#002050);border-radius:12px;padding:16px 20px;color:#fff;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div style="width:32px;height:32px;border-radius:8px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🎯</div>
+        <div><strong style="font-size:13.5px;">The evidence hierarchy — what we know vs. what we infer</strong>
+          <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:1px;">Aqueduct distinguishes certainty levels explicitly — a feature, not a caveat</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;margin-bottom:12px;">
+        <div style="background:rgba(4,120,87,.2);border:1px solid rgba(4,120,87,.4);border-radius:8px;padding:9px 11px;">
+          <div style="font-size:10px;font-weight:800;color:#6ee7b7;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">HIGH CERTAINTY</div>
+          <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:3px;">37% — Appointment Adherence</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.6);line-height:1.5;">Pooled OR 0.63 (95% CI: 0.48–0.83). 12 studies, 3 RCTs. Shekelle et al. 2022, BMC Public Health.</div>
+        </div>
+        <div style="background:rgba(180,83,9,.2);border:1px solid rgba(180,83,9,.4);border-radius:8px;padding:9px 11px;">
+          <div style="font-size:10px;font-weight:800;color:#fcd34d;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">MOD CERTAINTY</div>
+          <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:3px;">32% — Readmission Reduction</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.6);line-height:1.5;">Outpatient follow-up within 30 days → RRR 0.68. 83 studies. Balasubramanian et al. 2025, JAMA Network Open.</div>
+        </div>
+        <div style="background:rgba(185,28,28,.2);border:1px solid rgba(185,28,28,.4);border-radius:8px;padding:9px 11px;">
+          <div style="font-size:10px;font-weight:800;color:#fca5a5;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">LOW CERTAINTY</div>
+          <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:3px;">Direct Outcomes Attribution</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.6);line-height:1.5;">Berkowitz 2025 (n=86,977): −0.09% HbA1c — statistically significant, not clinically meaningful alone. NEMT works as an enabler, not standalone.</div>
+        </div>
+        <div style="background:rgba(109,40,217,.15);border:1px solid rgba(109,40,217,.4);border-radius:8px;padding:9px 11px;">
+          <div style="font-size:10px;font-weight:800;color:#c4b5fd;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">IMPORTANT COUNTERPOINT</div>
+          <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:3px;">Chaiyachati RCT (JAMA IM 2018)</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.6);line-height:1.5;">Universal untargeted rideshare → no no-show reduction (36.5% vs 36.7%). Lesson: targeting patients with prior no-show history is essential.</div>
+        </div>
+      </div>
+      <div style="background:rgba(201,162,39,.1);border:1px solid rgba(201,162,39,.25);border-radius:8px;padding:9px 13px;font-size:12px;color:rgba(255,255,255,.85);line-height:1.6;">
+        <strong style="color:var(--gold2);">The bottom line:</strong> NEMT is a necessary enabler within multi-component care models (CCM, TCM, care management), not a standalone intervention. The Hennepin Healthcare/Lyft/Hitch Health pilot (2018) — targeting patients with prior no-show history — achieved a <strong style="color:var(--gold2);">27% reduction in no-shows</strong> and estimated a <strong style="color:var(--gold2);">297% ROI</strong>. Program design matters more than ride availability.
+      </div>
+    </div>
+  </div>
+
+  <!-- Funder-specific view -->
+  <div class="tool-body funder-only">
+    <div class="section-title mb-8">What to look for in a health system's community need documentation</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;">
+      <div class="callout callout-green">
+        <div class="font-800 text-navy mb-8">✓ Strong CHNA indicators</div>
+        <p class="small">Published CHNA within 3 years; transportation explicitly named as a barrier; LMI + disability + minority populations documented; quantified disparity data (%, n); county or MSA-level specificity.</p>
+      </div>
+      <div class="callout callout-amber">
+        <div class="font-800 text-navy mb-8">⚠ Ask for clarification if...</div>
+        <p class="small">CHNA is older than 3 years; transportation is cited generally but not quantified; no population-level data on who lacks access; NEMT program not linked to specific CHNA priority.</p>
+      </div>
+      <div class="callout callout-red">
+        <div class="font-800 text-navy mb-8">✗ Red flags</div>
+        <p class="small">No CHNA citation at all; SDOH narrative is aspirational without data; health system cannot identify the specific populations the program will serve; no Z75.3 or equivalent documentation plan.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-foot">
+    <p class="step-bridge">The need is established. Now the question funders always ask first: <em>what is this actually worth?</em></p>
+    <button class="step-cont" onclick="go('roi')">Build the financial model →</button>
+  </div>
+</section>
+
+<!-- ═══ ROI ═══ -->
+<section id="s_roi" class="step" style="display:none">
+  <div class="story-hdr">
+    <div class="story-num">02</div>
+    <div>
+      <h2 class="story-hl">The financial case is stronger — and more honest — than most boards expect.</h2>
+      <p class="story-sub hospital-only">An NEMT program generates value across five distinct layers. Some are proven; some are supported with caveats. Enable each layer, adjust the inputs, and watch the ROI build with the evidence context attached.</p>
+      <p class="story-sub funder-only">A credible health system NEMT ROI model should quantify value across multiple layers — not just recover visit revenue. This view explains each layer and what due diligence questions to ask about each.</p>
+    </div>
+  </div>
+
+  <!-- Inputs -->
+  <div class="tool-body hospital-only">
+    <div class="section-title mb-8">Program parameters</div>
+    <div class="input-row input-row-4 mb-8">
+      <div><label class="field-label">Total clinic visits/yr</label><input type="number" id="r_v" value="40000" oninput="calcROI()"/><p class="field-hint">Visits in scope for NEMT</p></div>
+      <div><label class="field-label">No-show rate (%)</label><input type="number" id="r_n" value="20" min="0" max="100" oninput="calcROI()"/><p class="field-hint">Current baseline rate</p></div>
+      <div><label class="field-label">Transport-attr. no-shows (%)</label><input type="number" id="r_s" value="30" min="0" max="100" oninput="calcROI()"/><p class="field-hint">25–51% per Syed 2013</p></div>
+      <div><label class="field-label">NEMT mitigation rate (%)</label><input type="number" id="r_m" value="50" min="0" max="100" oninput="calcROI()"/><p class="field-hint">% of transport no-shows prevented</p></div>
+    </div>
+    <div class="input-row input-row-4">
+      <div><label class="field-label">Net revenue/visit ($)</label><input type="number" id="r_r" value="225" oninput="calcROI()"/><p class="field-hint">After payer mix adjustment</p></div>
+      <div><label class="field-label">Variable cost/visit ($)</label><input type="number" id="r_c" value="90" oninput="calcROI()"/><p class="field-hint">Staffing + supplies per visit</p></div>
+      <div><label class="field-label">Cost per NEMT trip ($)</label><input type="number" id="r_t" value="60" oninput="calcROI()"/><p class="field-hint">Round trip, including admin</p></div>
+      <div><label class="field-label">Program overhead (%)</label><input type="number" id="r_o" value="10" min="0" oninput="calcROI()"/><p class="field-hint">Staff coordination + tech</p></div>
+    </div>
+  </div>
+
+  <!-- Layer 0: FFS -->
+  <div class="tool-body">
+    <div class="layer-header" onclick="toggleLayer('l0')">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="badge b-strong" style="font-size:10px;">HIGH CERTAINTY</span>
+          <span class="layer-title">Layer 0 — FFS Visit Recovery</span>
+        </div>
+        <p class="small mt-4">Fee-for-service contribution margin from prevented no-shows. Direct, measurable, and the foundation of the financial case.</p>
+      </div>
+      <div class="layer-meta">
+        <span class="layer-val" id="l0_val">—</span>
+        <span style="color:var(--muted);font-size:18px;transition:transform .2s;" id="l0_arr">▸</span>
+      </div>
+    </div>
+    <div class="layer-body" id="l0_body">
+      <div class="kpis mb-12">
+        <div class="kpi"><div class="label">Prevented No-shows/yr</div><div class="value" id="l0_prev">—</div><div class="hint">NEMT-enabled appointment completions</div></div>
+        <div class="kpi"><div class="label">Contribution Margin/Visit</div><div class="value" id="l0_margin">—</div><div class="hint">Net revenue minus variable cost</div></div>
+        <div class="kpi"><div class="label">Program Cost</div><div class="value" id="l0_cost">—</div><div class="hint">Trips × cost × (1 + overhead)</div></div>
+        <div class="kpi"><div class="label">Year 1 Net Benefit</div><div class="value" id="l0_net" style="color:var(--teal);">—</div><div class="hint">FFS contribution minus program cost</div></div>
+      </div>
+      <div class="callout callout-gold">
+        <strong>Evidence note:</strong> <span class="small">Shekelle 2022 meta-analysis (OR 0.63, 95% CI 0.48–0.83) — HIGH certainty for appointment adherence improvement. The Chaiyachati RCT cautions that universal untargeted programs fail; targeting patients with prior no-show history (e.g., automated SMS + ride offer) is essential. Break-even trip cost: <strong id="l0_breakeven">—</strong>/round trip.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layer 1: SDOH Coding -->
+  <div class="tool-body">
+    <div class="layer-header" onclick="toggleLayer('l1')">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="badge b-mod" style="font-size:10px;">MOD CERTAINTY</span>
+          <span class="layer-title">Layer 1 — SDOH Documentation &amp; Coding Uplift</span>
+        </div>
+        <p class="small mt-4">ICD-10 Z75.3 (transportation barrier) and Z59.x documentation generates risk adjustment uplift and enables Schedule H &amp; CRA credit chains.</p>
+      </div>
+      <div class="layer-meta">
+        <span class="layer-val" id="l1_val">—</span>
+        <span style="color:var(--muted);font-size:18px;" id="l1_arr">▸</span>
+      </div>
+    </div>
+    <div class="layer-body" id="l1_body">
+      <div class="input-row input-row-3 mb-12">
+        <div><label class="field-label">Z75.3 capture rate (%)</label><input type="number" id="r_zrate" value="60" min="0" max="100" oninput="calcROI()"/><p class="field-hint">% of NEMT patients coded</p></div>
+        <div><label class="field-label">Risk adj. uplift/patient ($)</label><input type="number" id="r_zuplift" value="180" oninput="calcROI()"/><p class="field-hint">HCC uplift from SDOH codes</p></div>
+        <div><label class="field-label">Coding capture rate (%)</label><input type="number" id="r_zcapture" value="70" min="0" max="100" oninput="calcROI()"/><p class="field-hint">% of eligible uplift realized</p></div>
+      </div>
+      <div class="kpis mb-12">
+        <div class="kpi"><div class="label">Patients Coded</div><div class="value" id="l1_coded">—</div></div>
+        <div class="kpi"><div class="label">Layer 1 Value</div><div class="value" id="l1_netval" style="color:var(--teal);">—</div></div>
+      </div>
+      <div class="callout">
+        <strong>Documentation chain:</strong> <span class="small">Z75.3 → NEMT enrollment documentation → IRS Schedule H Part I Line 7e (Community Health Improvement Services) → CRA community development credit evidence. Each link must be documented sequentially. Z75.3 also supports risk adjustment claims for Medicare Advantage and ACO attribution.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layer 2: CCM/TCM -->
+  <div class="tool-body">
+    <div class="layer-header" onclick="toggleLayer('l2')">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="badge b-mod" style="font-size:10px;">MOD CERTAINTY</span>
+          <span class="layer-title">Layer 2 — CCM &amp; TCM Billing Revenue</span>
+        </div>
+        <p class="small mt-4">NEMT enables patient engagement in Chronic Care Management and Transitional Care Management — both generate direct billing revenue at 2025 CMS rates.</p>
+      </div>
+      <div class="layer-meta">
+        <span class="layer-val" id="l2_val">—</span>
+        <span style="color:var(--muted);font-size:18px;" id="l2_arr">▸</span>
+      </div>
+    </div>
+    <div class="layer-body" id="l2_body">
+      <div class="input-row input-row-4 mb-12">
+        <div><label class="field-label">CCM-eligible patients enrolled</label><input type="number" id="r_ccm_n" value="800" oninput="calcROI()"/><p class="field-hint">2+ chronic conditions</p></div>
+        <div><label class="field-label">CCM monthly rate (99490, $)</label><input type="number" id="r_ccm_rate" value="62" oninput="calcROI()"/><p class="field-hint">2025 CMS: ~$60–63/mo</p></div>
+        <div><label class="field-label">TCM episodes/yr</label><input type="number" id="r_tcm_n" value="200" oninput="calcROI()"/><p class="field-hint">Post-discharge follow-ups</p></div>
+        <div><label class="field-label">TCM avg rate ($)</label><input type="number" id="r_tcm_rate" value="237" oninput="calcROI()"/><p class="field-hint">99495 ~$201; 99496 ~$273</p></div>
+      </div>
+      <div class="kpis mb-12">
+        <div class="kpi"><div class="label">Annual CCM Revenue</div><div class="value" id="l2_ccm">—</div></div>
+        <div class="kpi"><div class="label">Annual TCM Revenue</div><div class="value" id="l2_tcm">—</div></div>
+        <div class="kpi"><div class="label">Layer 2 Total</div><div class="value" id="l2_netval" style="color:var(--teal);">—</div></div>
+        <div class="kpi"><div class="label">3-Yr Cumulative</div><div class="value" id="l2_3yr">—</div></div>
+      </div>
+      <div class="callout">
+        <strong>2025 CMS rates (CY2025 PFS, CMS-1807-F):</strong> <span class="small">99490 ~$62/mo · 99439 ~$48 add'l · 99491 ~$83 (physician direct) · 99495 (TCM, 14-day F2F) ~$201 · 99496 (TCM, 7-day F2F) ~$273. CCM and TCM can be billed in the same calendar month under specific non-duplication conditions. TCM rates projected +10% for 2026. Only 17.9% of eligible Medicare beneficiaries received TCM in 2019 (ASPE/HHS 2024) — significant capture opportunity.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layer 3: VBC -->
+  <div class="tool-body">
+    <div class="layer-header" onclick="toggleLayer('l3')">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="badge b-mod" style="font-size:10px;">MOD CERTAINTY</span>
+          <span class="layer-title">Layer 3 — VBC Quality Earn-backs</span>
+        </div>
+        <p class="small mt-4">Improved appointment adherence → better chronic disease quality metrics → VBC shared savings and quality bonuses.</p>
+      </div>
+      <div class="layer-meta">
+        <span class="layer-val" id="l3_val">—</span>
+        <span style="color:var(--muted);font-size:18px;" id="l3_arr">▸</span>
+      </div>
+    </div>
+    <div class="layer-body" id="l3_body">
+      <div class="input-row input-row-3 mb-12">
+        <div><label class="field-label">VBC panel size</label><input type="number" id="r_vbc_n" value="5000" oninput="calcROI()"/></div>
+        <div><label class="field-label">Avg quality bonus/patient ($)</label><input type="number" id="r_vbc_bonus" value="45" oninput="calcROI()"/><p class="field-hint">MIPS, ACO REACH, MA quality</p></div>
+        <div><label class="field-label">NEMT-attributable improvement (%)</label><input type="number" id="r_vbc_attr" value="15" min="0" max="100" oninput="calcROI()"/><p class="field-hint">Fraction attributable to NEMT</p></div>
+      </div>
+      <div class="kpis mb-12">
+        <div class="kpi"><div class="label">Layer 3 Value</div><div class="value" id="l3_netval" style="color:var(--teal);">—</div></div>
+        <div class="kpi"><div class="label">Most Sensitive Measure</div><div class="value" style="font-size:14px;">HbA1c &gt;9%</div><div class="hint">MIPS Measure 001 — each missed visit auto-counts as poorly controlled</div></div>
+      </div>
+      <div class="callout callout-amber">
+        <strong>Evidence caveat:</strong> <span class="small">No published study validates end-to-end NEMT-to-quality-measure attribution. Berkowitz 2025 (n=86,977, TMLE analysis) found transportation barrier removal associated with −0.09% HbA1c — statistically significant but below the 0.5% clinical significance threshold. The ACO REACH PY2026 5% withhold raises financial stakes significantly for TFU (Timely Follow-Up) and ACR (All-Condition Readmission) measures.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layer 4: HR/Workforce (NEW) -->
+  <div class="tool-body">
+    <div class="layer-header" onclick="toggleLayer('l4')">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="badge b-info" style="font-size:10px;">NEW LAYER</span>
+          <span class="layer-title">Layer 4 — Workforce &amp; HR Value</span>
+        </div>
+        <p class="small mt-4">Fewer no-shows → less administrative rework → reduced burnout burden → lower turnover costs. A real and quantifiable benefit layer most models omit.</p>
+      </div>
+      <div class="layer-meta">
+        <span class="layer-val" id="l4_val">—</span>
+        <span style="color:var(--muted);font-size:18px;" id="l4_arr">▸</span>
+      </div>
+    </div>
+    <div class="layer-body" id="l4_body">
+      <div class="input-row input-row-4 mb-12">
+        <div><label class="field-label">Admin wage rate ($/hr)</label><input type="number" id="r_admin_rate" value="28" oninput="calcROI()"/><p class="field-hint">Scheduler/MA fully-loaded rate</p></div>
+        <div><label class="field-label">Rework time/no-show (min)</label><input type="number" id="r_admin_min" value="20" oninput="calcROI()"/><p class="field-hint">Recall + reschedule + EHR doc</p></div>
+        <div><label class="field-label">Provider idle cost/slot ($)</label><input type="number" id="r_prov_idle" value="65" oninput="calcROI()"/><p class="field-hint">20-min slot × billing rate</p></div>
+        <div><label class="field-label">Nurse turnover cost ($)</label><input type="number" id="r_turnover" value="61110" oninput="calcROI()"/><p class="field-hint">NSI 2025: avg $61,110/RN</p></div>
+      </div>
+      <div class="input-row input-row-2 mb-12">
+        <div><label class="field-label">Burnout-to-turnover probability per 100 prevented no-shows (%)</label><input type="number" id="r_burnout_prob" value="2" min="0" max="100" step="0.5" oninput="calcROI()"/><p class="field-hint">Conservative: fraction of saved rework hours that, if not saved, would have contributed to one staff departure</p></div>
+        <div><label class="field-label">Admin staff in scope</label><input type="number" id="r_admin_count" value="12" oninput="calcROI()"/><p class="field-hint">Schedulers + MAs + front desk affected by no-show rework</p></div>
+      </div>
+
+      <!-- Causal chain visualization -->
+      <div class="section-title text-sm mb-8">The causal chain — evidence at each link</div>
+      <div class="hr-chain mb-12">
+        <div class="hr-chain-item">
+          <div>
+            <div class="hr-chain-label">NEMT program → Prevented no-shows</div>
+            <div class="hr-chain-sub">27% reduction (Hennepin/Lyft/Hitch Health pilot, 2018) · 37% OR reduction (Shekelle 2022 meta-analysis) · HIGH certainty with targeting</div>
+          </div>
+          <span class="hr-chain-val" id="hc_prevented">—</span>
+        </div>
+        <div class="hr-chain-item">
+          <div>
+            <div class="hr-chain-label">Prevented no-shows → Staff time recovered</div>
+            <div class="hr-chain-sub">~20 min admin rework per no-show (recall calls + reschedule + EHR documentation + waitlist management) · $150,000/yr per provider in no-show costs (MGMA)</div>
+          </div>
+          <span class="hr-chain-val" id="hc_staffval">—</span>
+        </div>
+        <div class="hr-chain-item">
+          <div>
+            <div class="hr-chain-label">Staff time recovered → Reduced administrative burden</div>
+            <div class="hr-chain-sub">Administrative burden is the #1 modifiable burnout driver (AMA surveys · Sinsky et al. 2016) · 60%+ of front-desk staff report burnout symptoms</div>
+          </div>
+          <span class="hr-chain-val" id="hc_provval">—</span>
+        </div>
+        <div class="hr-chain-item">
+          <div>
+            <div class="hr-chain-label">Reduced burden → Turnover avoidance (conservative)</div>
+            <div class="hr-chain-sub">NSI 2025: avg RN turnover = $61,110 · Each 1-pt change in RN turnover rate = $380,600/yr for avg hospital · Evidence linking: AHRQ 2020 found burnout reduction from workflow improvement reduced turnover probability</div>
+          </div>
+          <span class="hr-chain-val" id="hc_turnval">—</span>
+        </div>
+      </div>
+
+      <div class="kpis mb-12">
+        <div class="kpi"><div class="label">Admin Hours Recaptured</div><div class="value" id="l4_hrs">—</div><div class="hint">Hours freed from rescheduling/recall work</div></div>
+        <div class="kpi"><div class="label">Admin $ Value</div><div class="value" id="l4_adminval">—</div></div>
+        <div class="kpi"><div class="label">Provider Idle Recovery</div><div class="value" id="l4_provval">—</div></div>
+        <div class="kpi"><div class="label">Turnover Avoidance</div><div class="value" id="l4_turnval">—</div><div class="hint">Conservative probabilistic estimate</div></div>
+      </div>
+
+      <div class="callout callout-purple">
+        <strong>Evidence note on the HR chain:</strong> <span class="small">Each link is well-supported individually. The end-to-end chain (NEMT → fewer no-shows → reduced burnout → lower turnover) has not been validated in a single study. Use conservative inputs (2% burnout-to-turnover probability per 100 prevented no-shows). The administrative rework and provider idle values are the most defensible — multiply your prevented no-shows by 20 minutes of staff time and your admin wage rate to arrive at a concrete, auditable estimate. Advisory Board and MGMA estimate $200/no-show all-in; the platform decomposes this into its components for transparency.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROI Summary -->
+  <div class="tool-body">
+    <div class="roi-bar">
+      <div class="roi-bar-title">Five-Layer Program Summary — <span id="roi_org_label">Your Organization</span></div>
+      <div class="roi-bar-grid">
+        <div class="roi-bar-item">
+          <div class="rbi-label">Total Annual Value</div>
+          <div class="rbi-val" id="roi_total">—</div>
+          <div class="rbi-sub">All 5 layers combined</div>
+        </div>
+        <div class="roi-bar-item">
+          <div class="rbi-label">Program Cost</div>
+          <div class="rbi-val" id="roi_cost">—</div>
+          <div class="rbi-sub">Trips + overhead</div>
+        </div>
+        <div class="roi-bar-item">
+          <div class="rbi-label">Net Annual Benefit</div>
+          <div class="rbi-val" id="roi_net">—</div>
+          <div class="rbi-sub">Value minus cost</div>
+        </div>
+        <div class="roi-bar-item">
+          <div class="rbi-label">ROI on Program Cost</div>
+          <div class="rbi-val" id="roi_pct">—</div>
+          <div class="rbi-sub">Net benefit / program cost</div>
+        </div>
+        <div class="roi-bar-item">
+          <div class="rbi-label">Break-even Trip Cost</div>
+          <div class="rbi-val" id="roi_breakeven">—</div>
+          <div class="rbi-sub">Per round trip, FFS only</div>
+        </div>
+        <div class="roi-bar-item">
+          <div class="rbi-label">3-Year Cumulative Net</div>
+          <div class="rbi-val" id="roi_3yr">—</div>
+          <div class="rbi-sub">At base assumptions</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Funder context -->
+    <div class="callout callout-gold mt-16 funder-only">
+      <strong>Due diligence checklist for the ROI model:</strong>
+      <div class="small mt-8" style="display:flex;flex-direction:column;gap:5px;">
+        <div>✓ <strong>Layer 0:</strong> Ask for the break-even trip cost calculation. A program is FFS-positive if trip cost &lt; (revenue per visit − variable cost). Request vendor quotes to verify trip cost assumptions.</div>
+        <div>✓ <strong>Layer 2:</strong> Ask for current CCM/TCM enrollment numbers and EHR capability. Many small practices cannot bill CCM without care management infrastructure — this is an implementation risk.</div>
+        <div>✓ <strong>Layer 3:</strong> Treat VBC earn-backs as upside, not base case. No study validates NEMT-to-quality-measure attribution end-to-end. Ask for current MIPS scores and what the marginal improvement is worth in dollars.</div>
+        <div>✓ <strong>Layer 4:</strong> The HR layer is conservative and directionally correct. Ask for current scheduler FTE count and estimated no-show rework burden. The $200/no-show figure is widely cited across MGMA and Advisory Board research.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-foot">
+    <p class="step-bridge">The value is quantified across five layers. Now: which funders can you access — and what does each one actually need from you?</p>
+    <button class="step-cont" onclick="go('funders')">Map your funding strategy →</button>
+  </div>
+</section>
+
+<!-- ═══ FUNDERS ═══ -->
+<section id="s_funders" class="step" style="display:none">
+  <div class="story-hdr">
+    <div class="story-num">03</div>
+    <div>
+      <h2 class="story-hl">Not all funders are the same. Neither are their requirements.</h2>
+      <p class="story-sub hospital-only">Each funder type operates under different legal structures, has different decision timelines, and requires fundamentally different documentation. This step maps your CHNA priorities to the right vehicles — and tells you exactly what each funder needs.</p>
+      <p class="story-sub funder-only">Understanding where NEMT sits in your funding framework — CRA exam, grantmaking strategy, ESG disclosure, or philanthropy portfolio — determines what due diligence standards apply and what outcomes you should require.</p>
+    </div>
+  </div>
+
+  <div class="tool-body">
+    <!-- Funder type navigation -->
+    <div class="sub-tabs">
+      <button class="stab active" onclick="showFunder('cra',this)">🏦 Banks &amp; CRA</button>
+      <button class="stab" onclick="showFunder('priv',this)">🏛️ Private Foundations</button>
+      <button class="stab" onclick="showFunder('comm',this)">🌱 Community Foundations</button>
+      <button class="stab" onclick="showFunder('corp_direct',this)">🏢 Corporate Direct Giving</button>
+      <button class="stab" onclick="showFunder('corp_esg',this)">📊 Corporate ESG</button>
+      <button class="stab" onclick="showFunder('employer',this)">🤝 Employer Coalitions <span class="badge b-emerging" style="font-size:9px;margin-left:4px;">Emerging</span></button>
+    </div>
+
+    <!-- ── CRA ── -->
+    <div id="fp_cra" class="funder-panel">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-bottom:16px;">
+        <div><span class="badge b-strong">Active regulatory framework</span> <span class="badge b-gold mt-4">12 CFR 25.23 (OCC)</span></div>
+      </div>
+      <div class="section-title mb-8">How CRA credit works for NEMT programs</div>
+      <p class="small mb-12">Under the Community Reinvestment Act, banks earn CRA credit for community development activities that benefit LMI individuals or geographies in their assessment area. A hospital-run NEMT program serving documented LMI patients can qualify as a community development service, loan, or grant — making it one of the most defensible CRA activities available for banks operating in the same MSA as the health system.</p>
+      
+      <div class="overflow-x-auto mb-16">
+        <table class="tbl" style="min-width:700px;">
+          <thead><tr><th>CRA Activity Type</th><th>Description</th><th>Documentation Required</th><th>Typical Size</th><th>Exam Impact</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Community Development Grant</strong></td><td class="small">Direct grant to health system's NEMT program fund; clearly charitable, no financial return expected</td><td class="small">CHNA citation; LMI beneficiary documentation; 501(c)(3) status; annual outcomes report</td><td class="small">$25K–$250K/yr</td><td><span class="badge b-strong">Strong — "Responsive"</span></td></tr>
+            <tr><td><strong>Community Development Loan</strong></td><td class="small">Below-market loan to health system or NEMT nonprofit for capital purchase (vehicles, tech platform)</td><td class="small">Loan agreement; LMI purpose narrative; CDFI intermediary or direct; CRA memo</td><td class="small">$100K–$2M</td><td><span class="badge b-strong">Strong — dollar-weighted</span></td></tr>
+            <tr><td><strong>CD Service</strong></td><td class="small">Bank staff providing financial literacy, governance, or board service to NEMT-related organization</td><td class="small">Hours log; organization's LMI mission statement; staff expertise relevance</td><td class="small">N/A — hours-based</td><td><span class="badge b-mod">Supplemental</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section-title mb-8">Assessment area confirmation</div>
+      <p class="small mb-12">CRA credit requires the activity to benefit the bank's CRA assessment area. The health system's service area must overlap with the bank's defined assessment area (typically the MSA in which the bank has branches). Patients served must be documented LMI individuals (≤80% of area median income) or residents of LMI census tracts.</p>
+
+      <div class="callout callout-green mb-12">
+        <strong>Hospital → Bank talking points</strong>
+        <div class="small mt-8" style="display:flex;flex-direction:column;gap:5px;">
+          <div>• Your CHNA is the community needs analysis that OCC examiners look for — it's a primary-source document, not advocacy material</div>
+          <div>• Z75.3 coding creates an audit trail from patient to LMI eligibility documentation to program outcomes</div>
+          <div>• A named partnership with a major health system anchor institution is a marquee exam file relationship</div>
+          <div>• The local transportation safe harbor (42 CFR § 1001.952(bb)) protects the health system from anti-kickback exposure — remove that objection proactively</div>
+        </div>
+      </div>
+
+      <div class="section-title mb-8">Term sheet builder</div>
+      <div class="input-row input-row-3 mb-12">
+        <div><label class="field-label">Bank name</label><input type="text" id="cra_bank" value="" placeholder="e.g. First National Bank"/></div>
+        <div><label class="field-label">Annual contribution ($)</label><input type="number" id="cra_amount" value="100000" oninput="updateCRATerms()"/></div>
+        <div><label class="field-label">Commitment term (years)</label><input type="number" id="cra_term" value="3" min="1" max="10" oninput="updateCRATerms()"/></div>
+      </div>
+      <div class="input-row input-row-2 mb-12">
+        <div><label class="field-label">Activity type</label>
+          <select id="cra_type">
+            <option value="grant">Community Development Grant</option>
+            <option value="loan">Community Development Loan</option>
+            <option value="service">CD Service (hours-based)</option>
+          </select></div>
+        <div><label class="field-label">Reporting frequency</label>
+          <select id="cra_freq">
+            <option value="Quarterly">Quarterly</option>
+            <option value="Semi-annual">Semi-annual</option>
+            <option value="Annual">Annual</option>
+          </select></div>
+      </div>
+      <div class="callout" id="cra_terms_display" style="font-size:12px;">Configure the fields above to see your term summary.</div>
+    </div>
+
+    <!-- ── PRIVATE FOUNDATIONS ── -->
+    <div id="fp_priv" class="funder-panel" style="display:none">
+      <div class="section-title mb-8">Private foundations — grants and program-related investments</div>
+      <p class="small mb-16">Private foundations are tax-exempt organizations (IRC § 501(c)(3)) classified as private non-operating foundations under § 509(a). They are subject to Chapter 42 excise tax rules — the most important of which, for NEMT purposes, is the 5% payout rule and the availability of Program-Related Investments as a funding vehicle.</p>
+
+      <div class="vehicle-grid">
+        <div class="vehicle-card" style="border-color:var(--green-border);">
+          <div class="vc-type">Vehicle</div>
+          <div class="vc-name">Outright Grant</div>
+          <div class="vc-rows">
+            <div class="vc-row"><span class="vc-row-label">Return expected</span><span class="vc-row-val">None</span></div>
+            <div class="vc-row"><span class="vc-row-label">Payout eligible</span><span class="vc-row-val">✓ Yes</span></div>
+            <div class="vc-row"><span class="vc-row-label">IRS rules</span><span class="vc-row-val">Public charity = no expend. responsibility</span></div>
+            <div class="vc-row"><span class="vc-row-label">Best for</span><span class="vc-row-val">Pilot funding, program launch</span></div>
+            <div class="vc-row"><span class="vc-row-label">Typical range</span><span class="vc-row-val">$50K–$500K</span></div>
+          </div>
+        </div>
+        <div class="vehicle-card" style="border-color:var(--blue-border);">
+          <div class="vc-type">Vehicle</div>
+          <div class="vc-name">Program-Related Investment (PRI)</div>
+          <div class="vc-rows">
+            <div class="vc-row"><span class="vc-row-label">Return expected</span><span class="vc-row-val">Below-market (0–3%)</span></div>
+            <div class="vc-row"><span class="vc-row-label">Payout eligible</span><span class="vc-row-val">✓ Yes (counts toward 5%)</span></div>
+            <div class="vc-row"><span class="vc-row-label">IRS rules</span><span class="vc-row-val">IRC § 4944(c); 3-part test</span></div>
+            <div class="vc-row"><span class="vc-row-label">Best for</span><span class="vc-row-val">Vehicle purchase, tech platform capital</span></div>
+            <div class="vc-row"><span class="vc-row-label">Key advantage</span><span class="vc-row-val">Recyclable capital — loan repaid → redeployed</span></div>
+          </div>
+        </div>
+        <div class="vehicle-card" style="border-color:var(--purple-border);">
+          <div class="vc-type">Vehicle</div>
+          <div class="vc-name">Mission-Related Investment (MRI)</div>
+          <div class="vc-rows">
+            <div class="vc-row"><span class="vc-row-label">Return expected</span><span class="vc-row-val">Market-rate</span></div>
+            <div class="vc-row"><span class="vc-row-label">Payout eligible</span><span class="vc-row-val">✗ No</span></div>
+            <div class="vc-row"><span class="vc-row-label">IRS rules</span><span class="vc-row-val">IRS Notice 2015-62; prudent investor standard</span></div>
+            <div class="vc-row"><span class="vc-row-label">Best for</span><span class="vc-row-val">NEMT technology company equity; impact bond</span></div>
+            <div class="vc-row"><span class="vc-row-label">Note</span><span class="vc-row-val">Not an IRS-defined category; endowment only</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-purple mb-12 mt-4">
+        <strong>The 5% payout rule (IRC § 4942):</strong> <span class="small">Private non-operating foundations must distribute at least 5% of the fair market value of their noncharitable-use assets each year as qualifying distributions. This mandatory payout creates a reliable annual pool of capital seeking deployment. Both grants and PRIs count toward the 5% requirement. Noncompliance triggers a 30% excise tax on the shortfall. This rule is why private foundations are actively seeking deploying capital — your NEMT program is a pipeline opportunity for them, not just a grant request.</span>
+      </div>
+
+      <div class="section-title mb-8 mt-16">Foundations with documented NEMT or transportation-access funding</div>
+      <table class="tbl mb-16">
+        <thead><tr><th>Foundation</th><th>Assets / Payout</th><th>NEMT / Transportation Relevance</th><th>Grant Vehicle</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Kresge Foundation</strong></td><td class="small">~$4B / ~$200M/yr</td><td class="small">Explicitly funds transportation as SDOH; grants, PRIs, and guarantees through Health Program; funded Environmental Health Coalition transit solutions</td><td><span class="badge b-strong">Grants + PRIs</span></td></tr>
+          <tr><td><strong>Robert Wood Johnson Foundation</strong></td><td class="small">~$13B / ~$650M/yr</td><td class="small">~$1.9B in SDOH grants since inception; "Culture of Health" strategy explicitly names transportation as a social determinant; largest U.S. health philanthropy</td><td><span class="badge b-strong">Grants</span></td></tr>
+          <tr><td><strong>Cigna Group Foundation</strong></td><td class="small">Corporate foundation</td><td class="small">2025 Health Equity Impact Fund explicitly prioritizes programs that "increase access to transportation for adults to attend health visits"</td><td><span class="badge b-strong">Targeted grants</span></td></tr>
+          <tr><td><strong>RTW Foundation</strong></td><td class="small">Regional</td><td class="small">2024: $500K in health equity grants targeting appointment transportation; partner with Icahn/Mount Sinai for 20% no-show reduction</td><td><span class="badge b-strong">Grants</span></td></tr>
+          <tr><td><strong>Health conversion foundations</strong></td><td class="small">Varies by state</td><td class="small">Missouri Foundation for Health, Colorado Health Foundation, California Health Care Foundation — all active in SDOH/transportation coordination</td><td><span class="badge b-mod">Grants (competitive)</span></td></tr>
+        </tbody>
+      </table>
+
+      <div class="section-title mb-8">What a private foundation needs from you</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
+        <div class="callout">
+          <div class="font-800 text-navy mb-4">Required in all cases</div>
+          <div class="small" style="display:flex;flex-direction:column;gap:3px;">
+            <div>• IRS determination letter (501(c)(3) status)</div>
+            <div>• Most recent Form 990</div>
+            <div>• Board of directors list</div>
+            <div>• Audited financial statements (2–3 yrs)</div>
+            <div>• Grant proposal with budget and logic model</div>
+          </div>
+        </div>
+        <div class="callout">
+          <div class="font-800 text-navy mb-4">For NEMT grant proposals</div>
+          <div class="small" style="display:flex;flex-direction:column;gap:3px;">
+            <div>• CHNA citation with transport barrier data</div>
+            <div>• Target population definition (LMI, disability, etc.)</div>
+            <div>• Program design narrative (targeting, not universal)</div>
+            <div>• Evaluation plan (show rate data, SDOH coding)</div>
+            <div>• Evidence base citations (Shekelle 2022 is ideal anchor)</div>
+          </div>
+        </div>
+        <div class="callout">
+          <div class="font-800 text-navy mb-4">For PRI applications (add)</div>
+          <div class="small" style="display:flex;flex-direction:column;gap:3px;">
+            <div>• Charitable purpose analysis (meets 3-part test)</div>
+            <div>• Repayment schedule (if loan)</div>
+            <div>• Security / collateral documentation</div>
+            <div>• Expenditure responsibility acknowledgment</div>
+            <div>• Annual financial reporting commitment</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── COMMUNITY FOUNDATIONS ── -->
+    <div id="fp_comm" class="funder-panel" style="display:none">
+      <div class="section-title mb-8">Community foundations — DAFs, competitive grants, and designated funds</div>
+      <p class="small mb-12">Community foundations are public charities (IRC § 509(a)(1)) that manage multiple charitable funds within a defined geography. They offer three distinct mechanisms for NEMT funding, each with different decision timelines, documentation requirements, and strategic advantages.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-bottom:16px;">
+        <div style="border:1px solid var(--green-border);border-radius:var(--radius);padding:15px;background:rgba(4,120,87,.03);">
+          <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--green);margin-bottom:6px;">Mechanism 1</div>
+          <div style="font-size:14px;font-weight:800;color:var(--navy);margin-bottom:5px;">Donor-Advised Fund (DAF) Recommendation</div>
+          <div class="small" style="display:flex;flex-direction:column;gap:4px;">
+            <div><strong>How:</strong> A DAF donor recommends a grant to your NEMT program; community foundation executes</div>
+            <div><strong>Speed:</strong> Days to weeks once donor is aligned</div>
+            <div><strong>Size:</strong> $5K–$500K+ (donor-dependent)</div>
+            <div><strong>Key insight:</strong> DAF donors receive immediate deduction at time of contribution to the DAF, not at grant time — they're often looking for impactful deployment of existing charitable capital</div>
+          </div>
+        </div>
+        <div style="border:1px solid var(--blue-border);border-radius:var(--radius);padding:15px;background:rgba(29,78,216,.03);">
+          <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#1D4ED8;margin-bottom:6px;">Mechanism 2</div>
+          <div style="font-size:14px;font-weight:800;color:var(--navy);margin-bottom:5px;">Competitive Grant (Pooled Endowment)</div>
+          <div class="small" style="display:flex;flex-direction:column;gap:4px;">
+            <div><strong>How:</strong> Foundation issues RFP in priority areas; staff-directed grantmaking process</div>
+            <div><strong>Speed:</strong> 3–9 months (RFP → decision → disbursement)</div>
+            <div><strong>Size:</strong> $10K–$100K typical</div>
+            <div><strong>Key insight:</strong> Many community foundations have now designated health equity or SDOH as grantmaking priorities — NEMT is a strong fit. Find the health equity program officer, not the general grants team.</div>
+          </div>
+        </div>
+        <div style="border:1px solid var(--amber-border);border-radius:var(--radius);padding:15px;background:rgba(180,83,9,.03);">
+          <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--amber);margin-bottom:6px;">Mechanism 3</div>
+          <div style="font-size:14px;font-weight:800;color:var(--navy);margin-bottom:5px;">Designated or Field-of-Interest Fund</div>
+          <div class="small" style="display:flex;flex-direction:column;gap:4px;">
+            <div><strong>How:</strong> A donor establishes a fund restricted to health access or transportation — grants go to qualifying organizations automatically</div>
+            <div><strong>Speed:</strong> Once eligible, faster than competitive</div>
+            <div><strong>Size:</strong> Varies</div>
+            <div><strong>Key insight:</strong> These often go un-found. Call the community foundation's program staff and ask directly: "Do you have any designated funds in health access, SDOH, or transportation?"</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-gold mt-4">
+        <strong>Strategic note — DAF cultivation:</strong> <span class="small">DAF assets in the U.S. exceeded $250 billion as of 2023 (NPT Donor-Advised Fund Report). Individual DAF donors are often local business leaders or philanthropists with preexisting community relationships. The community foundation can often facilitate introductions. A compelling NEMT narrative — with quantified community need, targeted program design, and an honest ROI — is more persuasive to DAF donors than to institutional grantmakers, because DAF donors respond to impact stories, not compliance frameworks.</span>
+      </div>
+    </div>
+
+    <!-- ── CORPORATE DIRECT GIVING ── -->
+    <div id="fp_corp_direct" class="funder-panel" style="display:none">
+      <div class="section-title mb-8">Corporate direct giving vs. corporate foundations — not the same thing</div>
+      <p class="small mb-12">This distinction is commonly misunderstood. A corporate foundation is a separate legal entity (a private foundation) subject to IRS private foundation rules, 5% payout, and Form 990-PF disclosure. Direct corporate giving is a business function — not a separate legal entity — with different tax treatment, different constraints, and different decision-makers.</p>
+
+      <table class="tbl mb-16">
+        <thead><tr><th>Dimension</th><th>Corporate Direct Giving</th><th>Corporate Foundation</th><th>Corporate Sponsorship</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Legal entity</strong></td><td class="small">None (internal budget)</td><td class="small">Separate 501(c)(3) / private foundation</td><td class="small">Business transaction</td></tr>
+          <tr><td><strong>Tax deduction</strong></td><td class="small">Charitable deduction capped at 10% of taxable income (IRC § 170(b)(2))</td><td class="small">Foundation contributions: deductible as charitable; subject to 5% payout on endowment</td><td class="small">Business expense (potentially 100% deductible); NOT a charitable contribution</td></tr>
+          <tr><td><strong>Disclosure</strong></td><td class="small">None required (private)</td><td class="small">Form 990-PF public filing required</td><td class="small">Contract; no public disclosure required</td></tr>
+          <tr><td><strong>Decision-maker</strong></td><td class="small">CSR/Community Affairs team or C-suite</td><td class="small">Foundation board (often separate from corporate board)</td><td class="small">Marketing, Brand, or Partnerships team</td></tr>
+          <tr><td><strong>Timeline</strong></td><td class="small">Faster — no board approval required</td><td class="small">Board cycle: quarterly or semi-annual</td><td class="small">Budget cycle; often annual planning</td></tr>
+          <tr><td><strong>Best NEMT application</strong></td><td class="small">Named program sponsorship, aligned with community giving priorities</td><td class="small">Multi-year grant to NEMT program fund</td><td class="small">Fleet branding, program naming rights, cause marketing</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-amber">
+        <strong>Sponsorship structure note:</strong> <span class="small">A sponsorship is a business transaction where a corporation provides financial support in exchange for branding or marketing benefits. Unlike grants, sponsorships may be deducted as a business expense (not limited to the 10% charitable cap) and are documented through a sponsorship agreement rather than a grant agreement. For NEMT, this could mean a local corporation's name on NEMT vehicles, program naming rights ("XYZ Company Community Health Ride"), or visibility in patient-facing materials. The value to the corporation is brand exposure; the value to the health system is flexible, unrestricted revenue.</span>
+      </div>
+
+      <div class="section-title mb-8 mt-16">How to approach a corporate giving conversation</div>
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="padding:10px 14px;background:var(--bg-warm);border-radius:9px;border:1px solid var(--border);">
+          <strong class="text-navy text-sm">1. Match to the company's stated community priorities.</strong>
+          <p class="small mt-4">Review the company's most recent CSR or sustainability report. Look for health, equity, or community access language. Map your NEMT program to those stated priorities — not to NEMT's merits in the abstract.</p>
+        </div>
+        <div style="padding:10px 14px;background:var(--bg-warm);border-radius:9px;border:1px solid var(--border);">
+          <strong class="text-navy text-sm">2. Lead with the community benefit, not the tax deduction.</strong>
+          <p class="small mt-4">Corporate community affairs teams are evaluated on community impact, not tax efficiency. Present the CHNA data, the population served, and the measurable outcome metrics. The ROI model is secondary.</p>
+        </div>
+        <div style="padding:10px 14px;background:var(--bg-warm);border-radius:9px;border:1px solid var(--border);">
+          <strong class="text-navy text-sm">3. If it's a sponsorship, involve the marketing team.</strong>
+          <p class="small mt-4">Sponsorships are marketing decisions, not philanthropy decisions. The CSR team may not have authority to approve a sponsorship. Ask directly which team handles branded community partnerships.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CORPORATE ESG ── -->
+    <div id="fp_corp_esg" class="funder-panel" style="display:none">
+      <div class="section-title mb-8">ESG frameworks that make NEMT investment disclosable</div>
+      <p class="small mb-12">For corporations that publish ESG reports or sustainability disclosures, an NEMT investment can generate concrete, auditable data points across multiple frameworks. This transforms a charitable contribution into a strategic asset for ESG reporting — which is increasingly valuable as investors, regulators, and rating agencies scrutinize social impact claims.</p>
+
+      <div class="esg-grid">
+        <div class="esg-card" style="border-left:4px solid #1D4ED8;">
+          <div class="esg-framework">GRI Standards</div>
+          <div class="esg-standard">GRI 203-1 &amp; 203-2</div>
+          <div class="esg-desc">Indirect Economic Impacts: "significant infrastructure investments and services supported" and "significant identified indirect economic impacts." NEMT maps directly as community health infrastructure investment benefiting LMI populations.</div>
+          <span class="esg-link">Disclosure: describe NEMT program scale, populations served, and outcomes</span>
+        </div>
+        <div class="esg-card" style="border-left:4px solid var(--green);">
+          <div class="esg-framework">GRI Standards</div>
+          <div class="esg-standard">GRI 413-1</div>
+          <div class="esg-desc">Local Communities: requires disclosure of community engagement programs, vulnerability assessments including "health and education infrastructure," and programs involving underserved communities.</div>
+          <span class="esg-link">Disclosure: CHNA citation + beneficiary demographics + ride volume</span>
+        </div>
+        <div class="esg-card" style="border-left:4px solid var(--teal);">
+          <div class="esg-framework">SASB</div>
+          <div class="esg-standard">Health Care Delivery: Access for LMI Patients</div>
+          <div class="esg-desc">SASB's Health Care Delivery standard includes "Access for Low-Income Patients" as a disclosure topic, requiring metrics on serving underserved populations. NEMT directly supports this disclosure for healthcare companies.</div>
+          <span class="esg-link">Metrics: % of rides serving patients below 200% FPL</span>
+        </div>
+        <div class="esg-card" style="border-left:4px solid var(--amber);">
+          <div class="esg-framework">UN SDGs</div>
+          <div class="esg-standard">SDG 3.8 · 10.2 · 11.2</div>
+          <div class="esg-desc">SDG 3.8: universal health coverage and access to essential services. SDG 10.2: social and economic inclusion of all, regardless of age, sex, disability, etc. SDG 11.2: safe, affordable, accessible transport systems for all.</div>
+          <span class="esg-link">Report: rides provided, populations served, access barriers removed</span>
+        </div>
+        <div class="esg-card" style="border-left:4px solid var(--purple);">
+          <div class="esg-framework">B Corp</div>
+          <div class="esg-standard">Community Impact Area</div>
+          <div class="esg-desc">B Corp's Community impact area evaluates civic engagement, charitable activities, and community investments. Healthcare companies providing NEMT to underserved populations can earn additional "Impact Business Model" points.</div>
+          <span class="esg-link">Score improvement: community health access qualifies as mission-aligned</span>
+        </div>
+        <div class="esg-card" style="border-left:4px solid var(--navy);">
+          <div class="esg-framework">ISSB / IFRS S1-S2</div>
+          <div class="esg-standard">Stakeholder / Community Impacts</div>
+          <div class="esg-desc">Emerging ISSB standards increasingly require disclosure of community impacts. NEMT programs, documented with beneficiary data and outcomes, provide concrete quantitative data for S1 (general sustainability) disclosures.</div>
+          <span class="esg-link">Emerging — useful for forward-looking ESG positioning</span>
+        </div>
+      </div>
+
+      <div class="callout callout-purple mt-12">
+        <strong>What a corporation needs from you to use NEMT in their ESG report:</strong>
+        <div class="small mt-8" style="display:flex;flex-direction:column;gap:4px;">
+          <div>• Annual ride volume and ride cost disaggregated by population served (LMI, disability, Medicaid)</div>
+          <div>• No-show reduction rate (pre/post program comparison)</div>
+          <div>• Community need documentation (CHNA citation) linking the investment to a documented health disparity</div>
+          <div>• SDG or GRI alignment statement — a one-page document mapping the program to specific standards</div>
+          <div>• Third-party verification of outcomes (preferred but not always required)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── EMPLOYER COALITIONS (Emerging) ── -->
+    <div id="fp_employer" class="funder-panel" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <span class="badge b-emerging" style="font-size:12px;padding:4px 14px;">⚠ Emerging Pathway — No Documented Precedents</span>
+      </div>
+      <div class="section-title mb-8">Employer coalitions: theoretically grounded, not yet proven in practice</div>
+      <p class="small mb-12">This pathway is included because the theoretical business case is compelling, major employer coalitions have explicitly endorsed medical transportation as a priority, and value-based care contracts between employers and health systems are creating the infrastructure for such arrangements. But after exhaustive research, <strong>no documented case was found</strong> of an employer coalition directly funding a hospital-based NEMT program. Platform users should treat this as an emerging opportunity, not an established practice.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-bottom:16px;">
+        <div class="callout callout-green">
+          <div class="font-800 text-navy mb-8">The business case at each link</div>
+          <div class="small" style="display:flex;flex-direction:column;gap:4px;">
+            <div>• <strong>$225.8B/yr</strong> — Annual cost of worker illness-related absenteeism (CDC Foundation)</div>
+            <div>• <strong>2.4×</strong> — More likely to miss 6+ workdays if unmet basic needs (transport, food, housing) — Marsh McLennan Agency</div>
+            <div>• <strong>3.6M Americans</strong> miss medical care annually due to transportation barriers — many are in your employer's workforce</div>
+            <div>• NEBGH (6M lives) explicitly recommends "offering transportation or reimbursement for transit/rideshare costs for health care appointments" in 2022 SDOH guide</div>
+          </div>
+        </div>
+        <div class="callout callout-amber">
+          <div class="font-800 text-navy mb-8">Why it hasn't happened yet</div>
+          <div class="small" style="display:flex;flex-direction:column;gap:4px;">
+            <div>• Employer SDOH ROI evidence is thin — no transportation-specific ROI study for commercially insured populations</div>
+            <div>• ERISA fiduciary duties constrain employer health plan spending to "benefits" — NEMT for non-employees is harder to justify</div>
+            <div>• Attribution problem: employers don't easily measure whether their NEMT investment reduces their plan costs</div>
+            <div>• Healthcare Dive (2020): "ROI of the service is less clear in a healthier and wealthier [commercial] population"</div>
+          </div>
+        </div>
+        <div class="callout callout-rose">
+          <div class="font-800 text-navy mb-8">The most credible pathway forward</div>
+          <div class="small" style="display:flex;flex-direction:column;gap:4px;">
+            <div>• VBC employer-health system contracts (like GM–Henry Ford "Connected Care") where shared savings fund SDOH programs</div>
+            <div>• Health system as its own employer: NEMT as employee benefit for LMI workforce (hospital itself funds)</div>
+            <div>• Anchor institution strategy: NEMT positioned as community workforce investment, not healthcare benefit</div>
+            <div>• Pilot with measurable outcomes to generate the precedent case that currently doesn't exist</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-red">
+        <strong>Platform guidance:</strong> <span class="small">Do not include employer coalition funding in your core funding ask or primary ROI model. The evidence base cannot yet support it. Instead: (1) explore whether your institution can fund NEMT as an employee benefit for its own LMI workforce, (2) if you have an existing VBC contract with a large self-insured employer, explore whether SDOH investment is explicitly within the shared savings framework, (3) document the outcomes from other funding sources first — the employer coalition opportunity will need a proof case that currently doesn't exist.</span>
+      </div>
+    </div>
+
+    <!-- Funder match summary -->
+    <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">
+      <div class="section-title mb-8">Funder readiness matrix — at a glance</div>
+      <div style="overflow-x:auto;">
+        <table class="tbl" style="min-width:680px;font-size:12px;">
+          <thead><tr><th>Funder Type</th><th>Evidence Required</th><th>Decision Timeline</th><th>Typical Range</th><th>ESG Value</th><th>NEMT Fit</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Bank (CRA)</strong></td><td>CHNA + LMI docs + 501(c)(3)</td><td>4–12 weeks</td><td>$25K–$500K/yr</td><td>Low (regulatory, not voluntary)</td><td><span class="badge b-strong">Strong</span></td></tr>
+            <tr><td><strong>Private Foundation (Grant)</strong></td><td>CHNA + 990 + proposal + outcomes plan</td><td>3–9 months</td><td>$50K–$500K</td><td>Low (grant, not investment)</td><td><span class="badge b-strong">Strong</span></td></tr>
+            <tr><td><strong>Private Foundation (PRI)</strong></td><td>Above + 3-part charitable test + repayment plan</td><td>6–12 months</td><td>$100K–$2M</td><td>Low</td><td><span class="badge b-mod">Moderate (capital project)</span></td></tr>
+            <tr><td><strong>Community Foundation (DAF)</strong></td><td>501(c)(3) + compelling narrative</td><td>Days–weeks</td><td>$5K–$500K</td><td>Low</td><td><span class="badge b-strong">Strong</span></td></tr>
+            <tr><td><strong>Community Foundation (Competitive)</strong></td><td>Full proposal + CHNA + evaluation plan</td><td>3–9 months</td><td>$10K–$100K</td><td>Low</td><td><span class="badge b-strong">Strong</span></td></tr>
+            <tr><td><strong>Corporate Direct Giving</strong></td><td>CSR alignment + community narrative</td><td>1–6 months</td><td>$10K–$200K</td><td>Medium (CSR report)</td><td><span class="badge b-mod">Moderate</span></td></tr>
+            <tr><td><strong>Corporate ESG / Sponsorship</strong></td><td>Impact metrics + SDG/GRI mapping</td><td>Budget cycle (annual)</td><td>$25K–$500K</td><td>High (ESG disclosure)</td><td><span class="badge b-mod">Moderate (with data)</span></td></tr>
+            <tr><td><strong>Employer Coalition</strong></td><td>VBC contract + workforce data</td><td>12–24 months+</td><td>Unknown</td><td>Medium</td><td><span class="badge b-emerging">Emerging</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-foot">
+    <p class="step-bridge">Funder strategy mapped. Now confirm the legal framework that makes every funding relationship defensible.</p>
+    <button class="step-cont" onclick="go('legal')">Review legal compliance →</button>
+  </div>
+</section>
+
+<!-- ═══ LEGAL ═══ -->
+<section id="s_legal" class="step" style="display:none">
+  <div class="story-hdr">
+    <div class="story-num">04</div>
+    <div>
+      <h2 class="story-hl">Every funding relationship requires a defensible legal framework.</h2>
+      <p class="story-sub">Four overlapping legal structures govern NEMT program funding. A compliant program must satisfy all that apply simultaneously. This step walks through each one — with the conditions that must be met, not just the principles.</p>
+    </div>
+  </div>
+
+  <div class="tool-body">
+    <div class="sub-tabs">
+      <button class="stab active" onclick="showLegal('safeharbor',this)">🛡 Safe Harbor (AKS)</button>
+      <button class="stab" onclick="showLegal('ma',this)">🏥 Medicare Advantage</button>
+      <button class="stab" onclick="showLegal('crareg',this)">🏦 CRA Regulations</button>
+      <button class="stab" onclick="showLegal('foundation',this)">🏛️ Foundation Rules</button>
+      <button class="stab" onclick="showLegal('scheduleh',this)">📋 IRS Schedule H</button>
+    </div>
+
+    <!-- Safe Harbor -->
+    <div id="lp_safeharbor" class="legal-panel">
+      <div class="section-title mb-8">Local transportation safe harbor — 42 CFR § 1001.952(bb)</div>
+      <p class="small mb-12">The OIG established the local transportation safe harbor in the 2016 Final Rule (81 FR 88368), amended in 2020 (85 FR 77684). It protects transportation arrangements that might otherwise implicate the Anti-Kickback Statute (AKS) — provided <strong>all</strong> of the following conditions are met:</p>
+
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 13px;border-radius:8px;border:1px solid var(--green-border);background:var(--green-soft);">
+          <span style="color:var(--green);font-weight:900;flex-shrink:0;margin-top:1px;">✓</span>
+          <div><strong class="text-sm">Written, uniformly applied policy</strong> — not based on Medicare/Medicaid status. The policy must apply equally to all patients who meet the eligibility criteria (e.g., LMI, transport barrier, prior no-show).</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 13px;border-radius:8px;border:1px solid var(--green-border);background:var(--green-soft);">
+          <span style="color:var(--green);font-weight:900;flex-shrink:0;margin-top:1px;">✓</span>
+          <div><strong class="text-sm">No volume-or-value linkage</strong> — transportation cannot be conditioned on or tied to the volume or value of referrals. The program must be a genuine community benefit, not a patient acquisition tool.</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 13px;border-radius:8px;border:1px solid var(--green-border);background:var(--green-soft);">
+          <span style="color:var(--green);font-weight:900;flex-shrink:0;margin-top:1px;">✓</span>
+          <div><strong class="text-sm">No air, luxury, or ambulance transport</strong> — rideshare services (Uber Health, Lyft Healthcare) are explicitly permitted. Standard taxi and van services qualify.</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 13px;border-radius:8px;border:1px solid var(--green-border);background:var(--green-soft);">
+          <span style="color:var(--green);font-weight:900;flex-shrink:0;margin-top:1px;">✓</span>
+          <div><strong class="text-sm">No public advertising of the benefit</strong> — the transportation benefit cannot be advertised to the general public as a means of attracting patients. Internal patient notification (letter, care manager call) is permitted.</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 13px;border-radius:8px;border:1px solid var(--green-border);background:var(--green-soft);">
+          <span style="color:var(--green);font-weight:900;flex-shrink:0;margin-top:1px;">✓</span>
+          <div><strong class="text-sm">Established patients only</strong> — transportation is for patients who have had at least one prior visit with the healthcare entity. New patient attraction is not protected.</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 13px;border-radius:8px;border:1px solid var(--green-border);background:var(--green-soft);">
+          <span style="color:var(--green);font-weight:900;flex-shrink:0;margin-top:1px;">✓</span>
+          <div><strong class="text-sm">Distance limits</strong> — ≤25 miles in urban areas; ≤75 miles in rural areas (expanded from 50 miles in 2020). <strong>No distance limit for discharge transportation</strong> (the 2020 discharge exception applies to inpatient-to-home transport).</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 13px;border-radius:8px;border:1px solid var(--green-border);background:var(--green-soft);">
+          <span style="color:var(--green);font-weight:900;flex-shrink:0;margin-top:1px;">✓</span>
+          <div><strong class="text-sm">Transportation only for medically necessary services</strong> — rides must be to/from covered healthcare services, not for personal errands or social activities.</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 13px;border-radius:8px;border:1px solid var(--green-border);background:var(--green-soft);">
+          <span style="color:var(--green);font-weight:900;flex-shrink:0;margin-top:1px;">✓</span>
+          <div><strong class="text-sm">Entity bears all costs</strong> — transportation cost cannot be shifted to federal health programs (Medicaid, Medicare) if the arrangement is within the safe harbor.</div>
+        </div>
+      </div>
+
+      <div class="callout callout-amber">
+        <strong>Patient engagement safe harbor (42 CFR § 1001.952(hh))</strong> — an alternative pathway:
+        <p class="small mt-8">Permits VBE participants to furnish transportation as an in-kind patient engagement benefit, subject to a <strong>$500 annual per-patient cap</strong>. This safe harbor applies within value-based enterprise arrangements and has no distance limits. Neither safe harbor is subject to the Inflation Reduction Act moratorium on drug rebate provisions.</p>
+      </div>
+    </div>
+
+    <!-- MA -->
+    <div id="lp_ma" class="legal-panel" style="display:none">
+      <div class="section-title mb-8">Medicare Advantage transportation benefits — post-VBID 2026 framework</div>
+      <div class="callout callout-red mb-12">
+        <strong>VBID Model terminated:</strong> <span class="small">The CMS Value-Based Insurance Design (VBID) Model ended at the close of 2025. Plans that had relied on VBID authority for supplemental benefit flexibility must now operate under the standard MA supplemental benefit framework.</span>
+      </div>
+      <p class="small mb-12">Under the current framework (CY2026 Final Rule, CMS-4208-F), MA plans may offer NEMT through two pathways:</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div class="callout">
+          <strong>Primarily health-related supplemental benefit</strong>
+          <p class="small mt-8">Any MA plan may offer transportation for medical needs as a primarily health-related supplemental benefit under 42 CFR § 422.102. Must be primarily health-related (not social). Available to all enrollees (no special eligibility threshold). In 2026: <strong>24% of individual MA plans</strong> offer transportation for medical needs.</p>
+        </div>
+        <div class="callout callout-purple">
+          <strong>SSBCI — Special Supplemental Benefits for the Chronically Ill</strong>
+          <p class="small mt-8">Under § 422.102(f) (authorized by the Bipartisan Budget Act of 2018), plans may offer transportation for non-medical needs to chronically ill enrollees. Requires: enrollee meets chronic illness definition, benefit is non-primarily health-related, and plan documents a reasonable expectation of health maintenance. In 2026: <strong>67% of SNPs</strong> offer this. Transportation is NOT on the CY2026 non-allowable SSBCI list.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CRA Regulations -->
+    <div id="lp_crareg" class="legal-panel" style="display:none">
+      <div class="section-title mb-8">CRA regulatory framework — 2023 final rule and NEMT implications</div>
+      <p class="small mb-12">The OCC, Federal Reserve, and FDIC issued a joint CRA final rule in October 2023 (effective April 2024), modernizing the framework for the first time since 1995. Key implications for NEMT program funding:</p>
+      <table class="tbl mb-12">
+        <thead><tr><th>Regulatory Element</th><th>CRA Requirement</th><th>NEMT Application</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Community development definition</strong></td><td class="small">Loans, investments, and services that primarily benefit LMI individuals or geographies; support affordable housing, economic development, community services, or stabilization activities</td><td class="small">NEMT serving documented LMI patients (≤80% AMI) qualifies as community services for LMI individuals; CHNA must establish the community health need</td></tr>
+          <tr><td><strong>Assessment area</strong></td><td class="small">Activity must benefit the bank's defined assessment area — typically the MSA and nonmetro counties where it has branches</td><td class="small">Health system's service area must overlap with bank's assessment area; patients served must be local LMI residents</td></tr>
+          <tr><td><strong>LMI documentation</strong></td><td class="small">Bank must document that beneficiaries are LMI individuals or that the activity primarily benefits an LMI geography (census tract below 80% AMI)</td><td class="small">Options: income verification (MSP, Medicaid, SNAP eligibility); census tract analysis; sliding scale income threshold; CHA LMI attestation</td></tr>
+          <tr><td><strong>Healthcare services — CRA eligibility</strong></td><td class="small">Healthcare transportation is most likely to qualify under "community services targeted to LMI individuals" (12 CFR § 25.12(g)); OCC's Illustrative List does not explicitly enumerate healthcare transportation</td><td class="small">Examiner discretion risk exists — strongest applications include explicit CHNA citation, LMI beneficiary documentation, and outcome data. Have CRA officer consult OCC's community development specialist before booking the investment.</td></tr>
+        </tbody>
+      </table>
+      <div class="callout callout-red">
+        <strong>Critical note — explicit enumeration gap:</strong> <span class="small">Healthcare transportation is not explicitly listed on the OCC's Illustrative List of Qualifying CRA Activities. This creates examiner-discretion risk. The strongest mitigation: (1) obtain a pre-exam informal OCC opinion or use the OCC's community development specialist consultation process, (2) frame the activity as serving LMI individuals with a documented, acute community health need rather than as a general health program, (3) ensure CHNA documentation is robust and recent (&lt;3 years).</span>
+      </div>
+    </div>
+
+    <!-- Foundation Rules -->
+    <div id="lp_foundation" class="legal-panel" style="display:none">
+      <div class="section-title mb-8">Foundation grant compliance — what health systems must know</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+        <div class="callout">
+          <strong>5% payout rule (IRC § 4942)</strong>
+          <p class="small mt-8">Requires private foundations to distribute at least 5% of their noncharitable-use asset FMV annually. Calculated on a 13-month rolling average. Both grants and PRIs count. Noncompliance: 30% excise tax on shortfall, escalating to 100% if uncorrected. For health systems: understand that foundations with large endowments are <em>required</em> to grant out capital — your NEMT proposal is helping them meet a legal obligation.</p>
+        </div>
+        <div class="callout">
+          <strong>Expenditure responsibility (IRC § 4945(h))</strong>
+          <p class="small mt-8">Required when a private foundation grants to a non-public charity. Since most health systems are public charities (§ 509(a)(1)), expenditure responsibility is NOT required for standard grants. However, PRIs to for-profit subsidiaries or operating entities require a pre-grant inquiry, written agreement with repayment terms and use restrictions, and annual reporting.</p>
+        </div>
+        <div class="callout">
+          <strong>Self-dealing rules (IRC § 4941)</strong>
+          <p class="small mt-8">A foundation cannot engage in certain transactions with "disqualified persons" (substantial contributors, foundation managers, certain relatives). For NEMT: if a board member of the foundation is also a board member of the health system, consult counsel before soliciting. This is the most common governance trap in hospital-foundation relationships.</p>
+        </div>
+        <div class="callout">
+          <strong>Restricted vs. unrestricted grants</strong>
+          <p class="small mt-8">Foundations may restrict grants to specific purposes (e.g., "transportation coordination staff salaries for FY2026"). Restricted grants require separate accounting and reporting on use. Unrestricted grants allow the health system to apply funds to highest-need areas. For NEMT, a project-restricted grant tied to a specific outcome metric (rides provided, show rate improvement) is usually more fundable than an unrestricted operational ask.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Schedule H -->
+    <div id="lp_scheduleh" class="legal-panel" style="display:none">
+      <div class="section-title mb-8">IRS Form 990 Schedule H — where NEMT counts toward community benefit</div>
+      <p class="small mb-12">For nonprofit hospitals, Schedule H determines what counts toward the community benefit standard that justifies tax exemption. Where you report NEMT matters — only some reporting locations count toward the community benefit total.</p>
+      <table class="tbl mb-12">
+        <thead><tr><th>Schedule H Location</th><th>What It Counts</th><th>Does It Count Toward CB Total?</th><th>NEMT Application</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Part I, Line 7e</strong> — Community Health Improvement Services</td><td class="small">Programs that improve community health — transportation is explicitly listed as an example in CHA guidance</td><td><span class="badge b-strong">Yes — counts toward CB total</span></td><td class="small">Report NEMT program operating costs here. This is the primary reporting location for hospital-run NEMT programs serving LMI communities.</td></tr>
+          <tr><td><strong>Part I, Line 7i</strong> — Cash and In-Kind Contributions</td><td class="small">Contributions to community organizations, including NEMT nonprofits or transit agencies</td><td><span class="badge b-strong">Yes — counts toward CB total</span></td><td class="small">Report grants from the hospital to NEMT operators or advocacy organizations.</td></tr>
+          <tr><td><strong>Part II, Line 7</strong> — Community Building Activities</td><td class="small">Transportation advocacy, community coalitions, physical improvements</td><td><span class="badge b-weak">No — does NOT count</span></td><td class="small">Only use for NEMT advocacy or coalition activities that don't have direct health improvement evidence. Part II is reported separately and does NOT add to the Schedule H community benefit total.</td></tr>
+        </tbody>
+      </table>
+      <div class="callout callout-gold">
+        <strong>Critical distinction — evidence requirement for Part I vs. Part II:</strong>
+        <p class="small mt-8">Community building activities (Part II) count only if the hospital can demonstrate "evidence-based health improvement outcomes." This evidence requirement is precisely what the ROI model in Step 02 provides. A well-documented NEMT program with show rate data, SDOH coding, and clinical outcome tracking can support Part I Line 7e reporting. A program without that documentation defaults to Part II — and doesn't count toward the community benefit total that protects tax exemption.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-foot">
+    <p class="step-bridge">Legal framework confirmed. Now generate the documents that make each funding conversation complete.</p>
+    <button class="step-cont" onclick="go('docs')">Generate documents →</button>
+  </div>
+</section>
+
+<!-- ═══ DOCS ═══ -->
+<section id="s_docs" class="step" style="display:none">
+  <div class="story-hdr">
+    <div class="story-num">05</div>
+    <div>
+      <h2 class="story-hl">Every funder requires a different document. Generate all of them.</h2>
+      <p class="story-sub">Select the funder type and document format. The generator uses your organization name, location, and ROI model inputs to produce a complete, review-ready draft. All outputs are marked <em>confidential draft — for legal review before distribution.</em></p>
+    </div>
+  </div>
+
+  <div class="tool-body">
+    <div class="section-title mb-8">Document configuration</div>
+    <div class="input-row input-row-2 mb-12">
+      <div>
+        <label class="field-label">Funder / recipient name</label>
+        <input type="text" id="doc_funder" placeholder="e.g. First National Bank, Kresge Foundation"/>
+      </div>
+      <div>
+        <label class="field-label">Program name</label>
+        <input type="text" id="doc_program" placeholder="e.g. Community Health Ride Program" value="Community Health Ride Program"/>
+      </div>
+    </div>
+    <div class="input-row input-row-2 mb-16">
+      <div>
+        <label class="field-label">Document type</label>
+        <select id="doc_type" onchange="updateDocTypeHint()">
+          <optgroup label="Banks &amp; CRA">
+            <option value="cra_memo">CRA Activity Justification Memo</option>
+            <option value="cra_term">Bank Term Sheet / Pitch Brief</option>
+          </optgroup>
+          <optgroup label="Private Foundations">
+            <option value="grant_proposal">Grant Proposal Narrative</option>
+            <option value="pri_brief">PRI Investment Brief</option>
+          </optgroup>
+          <optgroup label="Community Foundations">
+            <option value="loi">Letter of Inquiry (LOI)</option>
+            <option value="daf_letter">DAF Recommendation Letter</option>
+          </optgroup>
+          <optgroup label="Corporate">
+            <option value="sponsorship">Sponsorship Proposal</option>
+            <option value="esg_memo">ESG Disclosure Alignment Memo</option>
+          </optgroup>
+        </select>
+      </div>
+      <div>
+        <label class="field-label">Ask amount ($)</label>
+        <input type="number" id="doc_ask" value="100000"/>
+      </div>
+    </div>
+    <div id="doc_type_hint" class="callout mb-16" style="font-size:12px;">Select a document type above.</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="gold" onclick="generateDoc()">Generate Document</button>
+      <button class="secondary" onclick="copyDoc()">Copy to Clipboard</button>
+      <button class="ghost" onclick="downloadDoc()">Download .txt</button>
+    </div>
+  </div>
+
+  <div class="tool-body">
+    <div class="section-title mb-8">Document preview</div>
+    <div id="doc_preview" class="doc-preview">Configure the fields above and click "Generate Document" to see your draft here.</div>
+  </div>
+
+  <!-- Final CTA -->
+  <div class="step-cta">
+    <div class="cta-wrap">
+      <p class="cta-quote">
+        <span style="font-size:1.5em;line-height:0;vertical-align:-.2em;color:var(--gold);">"</span>
+        Transportation barriers are a <strong>modifiable factor</strong> present across every disparity category identified in community health needs assessments — and one that NEMT is specifically designed to address. As an entry point into broader SDOH-responsive care, NEMT can help unlock clinical value from CCM, TCM, and value-based contracts — while the evidence base, regulatory pathways, and financial returns make it a well-supported starting point.
+      </p>
+      <p style="font-size:11px;color:rgba(255,255,255,.3);">Evidence brief summary · Aqueduct v3 · All generated documents are confidential drafts for legal review before distribution.</p>
+      <div class="cta-btns">
+        <button class="cta-primary" onclick="go('need')">← Start Over</button>
+        <button class="cta-ghost" onclick="resetPersona()">Switch Role</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main><!-- end #wg-content -->
+
+<script>
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+const S = {
+  persona: 'hospital',     // 'hospital' | 'bank' | 'priv' | 'comm' | 'corp'
+  funderType: null,
+  orgName: '',
+  orgLoc: '',
+  // ROI
+  roi: {}
+};
+
+const ORDER = ['about','need','roi','funders','legal','docs'];
+
+// ═══════════════════════════════════════════════════════
+// LANDING OVERLAY
+// ═══════════════════════════════════════════════════════
+(function(){
+  var starsEl = document.getElementById('lm-stars');
+  if(starsEl){
+    for(var i=0;i<80;i++){
+      var s=document.createElement('div');
+      s.style.cssText='position:absolute;border-radius:50%;background:#fff;'
+        +'width:'+(Math.random()*2+0.7)+'px;height:'+(Math.random()*2+0.7)+'px;'
+        +'top:'+Math.random()*100+'%;left:'+Math.random()*100+'%;'
+        +'--lo:'+(0.04+Math.random()*0.12)+';--hi:'+(0.35+Math.random()*0.5)+';'
+        +'--d:'+(2+Math.random()*4)+'s;--dl:'+(Math.random()*4)+'s;'
+        +'animation:lmTwinkle var(--d,3s) ease-in-out infinite var(--dl,0s);opacity:0.1;';
+      starsEl.appendChild(s);
+    }
+  }
+})();
+
+window.updateOrgState = function(){
+  checkLandingReady();
+};
+
+window.selectPersona = function(p){
+  document.querySelectorAll('.lm-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('pc_'+p).classList.add('selected');
+  S.persona = p;
+  var sub = document.getElementById('lm-funder-sub');
+  if(p==='funder'){sub.classList.add('visible');}
+  else{sub.classList.remove('visible');S.funderType=null;}
+  checkLandingReady();
+};
+
+window.selectFunderType = function(t){
+  document.querySelectorAll('.lm-sub-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('fst_'+t).classList.add('selected');
+  S.funderType = t;
+  checkLandingReady();
+};
+
+function checkLandingReady(){
+  var orgOk = (document.getElementById('lm_orgname').value||'').trim().length>1;
+  var personaOk = S.persona==='hospital' || (S.persona==='funder' && S.funderType);
+  var btn = document.getElementById('lm-begin');
+  if(orgOk && personaOk){btn.classList.add('ready');}
+  else{btn.classList.remove('ready');}
+}
+
+window.beginPlatform = function(){
+  S.orgName = (document.getElementById('lm_orgname').value||'').trim() || 'Your Organization';
+  S.orgLoc = (document.getElementById('lm_orgloc').value||'').trim() || 'Your Region';
+  applyPersona();
+  var ov=document.getElementById('lm-overlay');
+  ov.classList.add('lm-exit');
+  setTimeout(function(){ov.style.display='none';},400);
+  go('need');
+};
+
+window.resetPersona = function(){
+  var ov=document.getElementById('lm-overlay');
+  ov.style.display='flex';ov.style.opacity='1';
+  ov.classList.remove('lm-exit');
+};
+
+function applyPersona(){
+  // Update header
+  document.getElementById('hdr_orgname').textContent = S.orgName;
+  document.getElementById('hdr_orgloc').textContent = S.orgLoc;
+  // Persona pill
+  var icons = {hospital:'🏥',bank:'🏦',priv:'🏛️',comm:'🌱',corp:'🏢'};
+  var labels = {hospital:'Hospital View',bank:'Bank / CRA View',priv:'Foundation View',comm:'Community Foundation View',corp:'Corporate View'};
+  var persona = S.persona==='hospital' ? 'hospital' : (S.funderType||'bank');
+  document.getElementById('hdr_persona_icon').textContent = icons[persona]||'💼';
+  document.getElementById('hdr_persona_label').textContent = labels[persona]||'Funder View';
+  // Tagline adaptation
+  var tags = {
+    hospital:'Your community\'s health data already <strong>makes the case.</strong>',
+    bank:'Your CRA exam file needs a <strong>marquee community investment.</strong>',
+    priv:'An NEMT program offers <strong>a defensible, evidence-grounded grant.</strong>',
+    comm:'Transportation barriers are <strong>a documented, fundable disparity.</strong>',
+    corp:'Your NEMT investment maps to <strong>GRI, SASB, and SDG disclosures.</strong>'
+  };
+  document.getElementById('hdr_tagline').innerHTML = tags[persona]||tags.hospital;
+  // Body class for view
+  document.body.className = S.persona==='hospital' ? 'view-hospital' : 'view-funder';
+  // Update org labels throughout
+  document.querySelectorAll('.org-name').forEach(el=>el.textContent=S.orgName);
+  document.querySelectorAll('.org-loc').forEach(el=>el.textContent=S.orgLoc);
+  updateNeedDisplay();
+}
+
+// ═══════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════
+window.go = function(t){
+  ORDER.forEach(id=>{
+    var el=document.getElementById('s_'+id);
+    var btn=document.getElementById('rb_'+id);
+    if(el){el.style.display=(id===t)?'block':'none';}
+    if(btn){
+      var i=ORDER.indexOf(id), ti=ORDER.indexOf(t);
+      if(id==='about'){btn.className='rb'+(id===t?' rb-on':'');}
+      else{btn.className='rb'+(id===t?' rb-on':i<ti?' rb-done':'');}
+    }
+  });
+  window.scrollTo(0,0);
+  var c=document.getElementById('wg-content');
+  if(c)c.scrollTop=0;
+  if(t==='roi')setTimeout(calcROI,80);
+};
+
+// ═══════════════════════════════════════════════════════
+// VIEW MODE TOGGLE (hospital / funder within step)
+// ═══════════════════════════════════════════════════════
+window.setViewMode = function(mode, btn){
+  document.querySelectorAll('.vt-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(mode==='hospital'){document.body.className='view-hospital';}
+  else{document.body.className='view-funder';}
+};
+
+// ═══════════════════════════════════════════════════════
+// NEED DISPLAY
+// ═══════════════════════════════════════════════════════
+window.updateNeedDisplay = function(){
+  var delayed = gv('nd_delayed',34);
+  var nopcp = gv('nd_nopcp',15);
+  var disability = gv('nd_disability',9.7);
+  var foreignborn = gv('nd_foreignborn',11.1);
+  setText('nd_kpi_delayed', delayed+'%');
+  setText('nd_kpi_nopcp', nopcp+'%');
+  setText('nd_kpi_disability', disability+'%');
+  setText('nd_kpi_foreignborn', foreignborn+'%');
+  setText('nd_org_label', S.orgLoc||'Your Region');
+};
+
+// ═══════════════════════════════════════════════════════
+// ROI CALCULATOR
+// ═══════════════════════════════════════════════════════
+window.calcROI = function(){
+  var V=gv('r_v',40000), n=norm(gv('r_n',20)), s=norm(gv('r_s',30)), m=norm(gv('r_m',50));
+  var r=gv('r_r',225), c=gv('r_c',90), t=gv('r_t',60), o=norm(gv('r_o',10));
+  var prevented = V*n*s*m;
+  var progCost = prevented*t*(1+o);
+  var margin = r-c;
+  var ffsNet = prevented*margin - progCost;
+  var beTrip = margin; // break-even trip cost
+
+  // Layer 0
+  setText('l0_val', fmt(Math.max(0,ffsNet)));
+  setText('l0_prev', Math.round(prevented).toLocaleString());
+  setText('l0_margin', '$'+margin);
+  setText('l0_cost', fmt(progCost));
+  setText('l0_net', fmt(ffsNet));
+  setText('l0_breakeven', '$'+Math.round(beTrip));
+
+  // Layer 1
+  var zrate=norm(gv('r_zrate',60)), zuplift=gv('r_zuplift',180), zcap=norm(gv('r_zcapture',70));
+  var coded = Math.round(prevented*zrate);
+  var l1val = coded*zuplift*zcap;
+  setText('l1_val', fmt(l1val));
+  setText('l1_coded', coded.toLocaleString());
+  setText('l1_netval', fmt(l1val));
+
+  // Layer 2
+  var ccmN=gv('r_ccm_n',800), ccmRate=gv('r_ccm_rate',62);
+  var tcmN=gv('r_tcm_n',200), tcmRate=gv('r_tcm_rate',237);
+  var ccmAnn = ccmN*ccmRate*12, tcmAnn = tcmN*tcmRate;
+  var l2val = ccmAnn+tcmAnn;
+  setText('l2_val', fmt(l2val));
+  setText('l2_ccm', fmt(ccmAnn));
+  setText('l2_tcm', fmt(tcmAnn));
+  setText('l2_netval', fmt(l2val));
+  setText('l2_3yr', fmt(l2val*3));
+
+  // Layer 3
+  var vbcN=gv('r_vbc_n',5000), vbcBonus=gv('r_vbc_bonus',45), vbcAttr=norm(gv('r_vbc_attr',15));
+  var l3val = vbcN*vbcBonus*vbcAttr;
+  setText('l3_val', fmt(l3val));
+  setText('l3_netval', fmt(l3val));
+
+  // Layer 4 — HR
+  var adminRate=gv('r_admin_rate',28), adminMin=gv('r_admin_min',20);
+  var provIdle=gv('r_prov_idle',65), turnoverCost=gv('r_turnover',61110);
+  var burnoutProb=norm(gv('r_burnout_prob',2));
+  var adminHrs = prevented*(adminMin/60);
+  var adminVal = adminHrs*adminRate;
+  var provVal = prevented*provIdle;
+  var estimatedDepartures = (prevented/100)*burnoutProb;
+  var turnoverVal = estimatedDepartures*turnoverCost;
+  var l4val = adminVal+provVal+turnoverVal;
+  setText('l4_val', fmt(l4val));
+  setText('l4_hrs', Math.round(adminHrs).toLocaleString()+' hrs');
+  setText('l4_adminval', fmt(adminVal));
+  setText('l4_provval', fmt(provVal));
+  setText('l4_turnval', fmt(turnoverVal));
+  setText('hc_prevented', Math.round(prevented).toLocaleString()+' visits');
+  setText('hc_staffval', fmt(adminVal)+' staff time');
+  setText('hc_provval', fmt(provVal)+' provider time');
+  setText('hc_turnval', fmt(turnoverVal)+' avoided');
+
+  // ROI Summary
+  var totalVal = ffsNet+l1val+l2val+l3val+l4val+progCost; // add back cost to get total value
+  var netBenefit = totalVal - progCost;
+  var roi = progCost>0 ? ((netBenefit/progCost)*100).toFixed(0)+'%' : '—';
+  var net3yr = netBenefit*3;
+  setText('roi_org_label', S.orgName||'Your Organization');
+  setText('roi_total', fmt(totalVal));
+  setText('roi_cost', fmt(progCost));
+  setText('roi_net', fmt(netBenefit));
+  setText('roi_pct', roi);
+  setText('roi_breakeven', '$'+Math.round(beTrip));
+  setText('roi_3yr', fmt(net3yr));
+
+  // Store for doc generation
+  S.roi = {V,n,s,m,r,c,t,o,prevented,progCost,ffsNet,l1val,l2val,l3val,l4val,netBenefit,roi,beTrip,net3yr};
+};
+
+// ═══════════════════════════════════════════════════════
+// LAYER TOGGLES
+// ═══════════════════════════════════════════════════════
+window.toggleLayer = function(id){
+  var body=document.getElementById(id+'_body');
+  var arr=document.getElementById(id+'_arr');
+  if(!body)return;
+  var open=body.classList.contains('open');
+  body.classList.toggle('open',!open);
+  if(arr)arr.style.transform=open?'':'rotate(90deg)';
+};
+
+// ═══════════════════════════════════════════════════════
+// FUNDER PANELS
+// ═══════════════════════════════════════════════════════
+window.showFunder = function(id, btn){
+  document.querySelectorAll('.funder-panel').forEach(p=>p.style.display='none');
+  document.querySelectorAll('.stab').forEach(b=>b.classList.remove('active'));
+  var panel = document.getElementById('fp_'+id);
+  if(panel)panel.style.display='block';
+  if(btn)btn.classList.add('active');
+  if(id==='cra')updateCRATerms();
+};
+
+window.updateCRATerms = function(){
+  var bank=elv('cra_bank')||'[Bank Name]';
+  var amount=gv('cra_amount',100000);
+  var term=gv('cra_term',3);
+  var type=elv('cra_type')||'Community Development Grant';
+  var total=(amount*term).toLocaleString();
+  var el=document.getElementById('cra_terms_display');
+  if(el)el.innerHTML='<strong>'+bank+'</strong> · '+type+' · <strong>$'+amount.toLocaleString()+'/yr</strong> × '+term+' years = <strong>$'+total+' total commitment</strong> · Activity: '+type+' · Assessment area: '+((S.orgLoc)||'[Your Region]');
+};
+
+// ═══════════════════════════════════════════════════════
+// LEGAL PANELS
+// ═══════════════════════════════════════════════════════
+window.showLegal = function(id, btn){
+  document.querySelectorAll('.legal-panel').forEach(p=>p.style.display='none');
+  document.querySelectorAll('.stab').forEach(b=>b.classList.remove('active'));
+  var panel=document.getElementById('lp_'+id);
+  if(panel)panel.style.display='block';
+  if(btn)btn.classList.add('active');
+};
+
+// ═══════════════════════════════════════════════════════
+// DOCUMENT GENERATION
+// ═══════════════════════════════════════════════════════
+window.updateDocTypeHint = function(){
+  var hints = {
+    cra_memo:'CRA Activity Justification Memo — formal document for a bank\'s CRA officer and exam file. Structured to meet OCC/Fed/FDIC examiner expectations.',
+    cra_term:'Bank Term Sheet / Pitch Brief — concise one-pager for a bank relationship manager. Leads with community benefit, supports with financial structure.',
+    grant_proposal:'Grant Proposal Narrative — full program description for private foundation review. Includes evidence base, population targeting, budget justification, and evaluation plan.',
+    pri_brief:'PRI Investment Brief — demonstrates that the investment meets the IRC § 4944(c) three-part test: primary charitable purpose, no significant income purpose, no political purpose.',
+    loi:'Letter of Inquiry (LOI) — 1–2 page introductory document for community foundation competitive grant process. Concise, evidence-grounded.',
+    daf_letter:'DAF Recommendation Letter — for a DAF donor recommending a grant to a community foundation. Personal narrative + impact story + quantified need.',
+    sponsorship:'Sponsorship Proposal — frames NEMT program as a corporate partnership with naming rights and brand exposure. Targets marketing/brand teams, not philanthropy teams.',
+    esg_memo:'ESG Disclosure Alignment Memo — maps the NEMT investment to specific GRI, SASB, SDG, and B Corp standards with specific disclosure language.',
+  };
+  var el=document.getElementById('doc_type_hint');
+  var type=elv('doc_type')||'cra_memo';
+  if(el)el.textContent=hints[type]||'Select a document type above.';
+};
+
+window.generateDoc = function(){
+  var org=S.orgName||'[Organization Name]';
+  var loc=S.orgLoc||'[Region]';
+  var funder=elv('doc_funder')||'[Funder Name]';
+  var program=elv('doc_program')||'Community Health Ride Program';
+  var type=elv('doc_type')||'cra_memo';
+  var ask=gv('doc_ask',100000);
+  var roi=S.roi||{};
+  var prevented=Math.round(roi.prevented||2400);
+  var netBenefit=roi.netBenefit||0;
+  var progCost=roi.progCost||0;
+  var roiPct=roi.roi||'—';
+  var beTrip=Math.round(roi.beTrip||135);
+  var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  var LINE='═'.repeat(68);
+  var line='─'.repeat(68);
+
+  var doc='';
+  if(type==='cra_memo'){
+    doc='CONFIDENTIAL DRAFT — FOR LEGAL REVIEW BEFORE DISTRIBUTION\n'+LINE+'\n'
+      +'CRA COMMUNITY DEVELOPMENT ACTIVITY JUSTIFICATION MEMORANDUM\n'+LINE+'\n\n'
+      +'TO:    '+funder+' — Community Development / CRA Officer\n'
+      +'FROM:  '+org+' — Community Engagement Office\n'
+      +'DATE:  '+today+'\n'
+      +'RE:    '+program+' — '+loc+' Assessment Area\n\n'
+      +line+'\nSECTION 1 — COMMUNITY HEALTH NEED (CHNA CITATION)\n'+line+'\n\n'
+      +'Community Health Needs Assessment: '+org+', '+loc+'\n'
+      +'Documented CHNA Priorities Addressed:\n'
+      +'  • Access to Care — '+(gv('nd_delayed',34))+'% of adults delayed care; '+(gv('nd_nopcp',15))+'% lack a PCP\n'
+      +'  • Disability population: '+(gv('nd_disability',9.7))+'% (~residents with documented mobility limitations)\n'
+      +'  • Foreign-born residents: '+(gv('nd_foreignborn',11.1))+'% (compounding barriers: language + transport)\n\n'
+      +'Evidence Base:\n'
+      +'  • Syed et al. 2013 (J Community Health): 25–51% of missed appointments are\n'
+      +'    transportation-attributable — effect concentrates in LMI, disability,\n'
+      +'    and Medicaid populations consistent with '+loc+' demographics\n'
+      +'  • Shekelle et al. 2022 (BMC Public Health): NEMT associated with 37%\n'
+      +'    reduction in missed appointment odds (OR 0.63, 95% CI 0.48–0.83;\n'
+      +'    HIGH certainty per GRADE; 12 studies, 3 RCTs)\n\n'
+      +line+'\nSECTION 2 — ACTIVITY DESCRIPTION & BANK ROLE\n'+line+'\n\n'
+      +'Activity Type: Community Development Grant\n\n'
+      +org+' proposes to establish the '+program+', providing\n'
+      +'free round-trip transportation for documented LMI patients attending\n'
+      +'medical appointments at '+org+' ambulatory facilities in '+loc+'.\n\n'
+      +'Program Design:\n'
+      +'  • Targeting: patients with prior transportation-related no-show history\n'
+      +'    (not universal — per Chaiyachati 2018 evidence on targeting necessity)\n'
+      +'  • Mode: rideshare (Uber Health / Lyft Healthcare) + accessible van service\n'
+      +'  • Volume: estimated '+prevented.toLocaleString()+' prevented no-shows per year\n'
+      +'  • Documentation: ICD-10 Z75.3 (transport barrier) coded at all NEMT visits\n\n'
+      +'Assessment Area Confirmation:\n'
+      +'  All program beneficiaries are residents of '+loc+', within the\n'
+      +'  bank\'s CRA assessment area. LMI eligibility verified via Medicaid/MSP\n'
+      +'  enrollment, SNAP participation, or income attestation (≤80% AMI).\n\n'
+      +line+'\nSECTION 3 — LMI POPULATION DOCUMENTATION\n'+line+'\n\n'
+      +'Eligibility Threshold: ≤80% of Area Median Income (AMI)\n'
+      +'Verification Methods:\n'
+      +'  • Medicaid / Medicare Savings Program (MSP) enrollment confirmation\n'
+      +'  • SNAP or WIC participation verification\n'
+      +'  • Self-attestation with income documentation for uninsured patients\n'
+      +'  • Residence in LMI census tracts (alternative: geography-based eligibility)\n\n'
+      +line+'\nSECTION 4 — MEASURABLE OUTCOMES & ROI\n'+line+'\n\n'
+      +'Year 1 Financial Summary ('+org+' internal model):\n'
+      +'  Prevented no-shows/yr:     '+prevented.toLocaleString()+'\n'
+      +'  Program cost (Year 1):     $'+Math.round(progCost).toLocaleString()+'\n'
+      +'  Net program benefit:       $'+Math.round(netBenefit).toLocaleString()+'\n'
+      +'  ROI on program cost:       '+roiPct+'\n'
+      +'  Break-even trip cost:      $'+beTrip+'/round trip\n\n'
+      +'Primary Outcome Metrics:\n'
+      +'  • Monthly no-show rate (pre/post comparison by service line)\n'
+      +'  • Z75.3 coding rate and SDOH documentation completeness\n'
+      +'  • CCM/TCM enrollment changes among NEMT participants\n'
+      +'  • 30-day readmission rates for patients using discharge NEMT\n\n'
+      +line+'\nSECTION 5 — FINANCIAL STRUCTURE\n'+line+'\n\n'
+      +'Annual Bank Contribution:   $'+ask.toLocaleString()+'\n'
+      +'Commitment Term:            '+gv('cra_term',3)+' year(s)\n'
+      +'Total Commitment:           $'+(ask*gv('cra_term',3)).toLocaleString()+'\n'
+      +'Activity Type:              Community Development Grant\n'
+      +'Reporting Frequency:        Annual outcomes report to CRA officer\n'
+      +'CRA Classification:         Community Development — LMI Health Services\n'
+      +'Regulatory Authority:       12 CFR 25.23 (OCC) / 12 CFR 228.23 (Federal Reserve)\n\n'
+      +line+'\nSECTION 6 — ANTI-KICKBACK SAFE HARBOR CONFIRMATION\n'+line+'\n\n'
+      +'The '+program+' is structured to comply with the local\n'
+      +'transportation safe harbor (42 CFR § 1001.952(bb)):\n'
+      +'  ✓ Written, uniformly applied policy — not based on payor status\n'
+      +'  ✓ No volume-or-value linkage to referrals\n'
+      +'  ✓ Rideshare / standard van only — no air, luxury, or ambulance\n'
+      +'  ✓ No public advertising of the benefit\n'
+      +'  ✓ Established patients only\n'
+      +'  ✓ Distance: within '+loc+' service radius (≤25 mi urban / ≤75 mi rural)\n'
+      +'  ✓ Organization bears all transportation costs\n\n'
+      +LINE+'\n'
+      +'CONFIDENTIAL DRAFT. Review with legal and compliance before distribution.\n'
+      +'Generated by Aqueduct v3 · '+today;
+  } else if(type==='grant_proposal'){
+    doc='CONFIDENTIAL DRAFT — FOR REVIEW BEFORE SUBMISSION\n'+LINE+'\n'
+      +'GRANT PROPOSAL — '+program.toUpperCase()+'\n'+LINE+'\n\n'
+      +'Submitted to:  '+funder+'\n'
+      +'Submitted by:  '+org+'\n'
+      +'Date:          '+today+'\n'
+      +'Amount requested: $'+ask.toLocaleString()+'\n'
+      +'Project period:   12 months (renewable)\n\n'
+      +line+'\nEXECUTIVE SUMMARY\n'+line+'\n\n'
+      +org+' requests $'+ask.toLocaleString()+' from '+funder+' to establish\n'
+      +'the '+program+', which will provide free round-trip\n'
+      +'transportation to low-income patients in '+loc+' to access\n'
+      +'necessary medical care. Transportation barriers account for 25–51% of\n'
+      +'missed medical appointments in LMI populations (Syed et al. 2013,\n'
+      +'J Community Health 38:976–993). The proposed program will use a targeted,\n'
+      +'evidence-based model to prevent an estimated '+prevented.toLocaleString()+'\n'
+      +'missed appointments annually, generating measurable health and financial returns.\n\n'
+      +line+'\nSTATEMENT OF NEED\n'+line+'\n\n'
+      +'The 2024/2025 Community Health Needs Assessment for '+loc+' documents:\n'
+      +'  • '+(gv('nd_delayed',34))+'% of adults delayed or avoided needed medical care\n'
+      +'  • '+(gv('nd_nopcp',15))+'% of residents lack a primary care provider\n'
+      +'  • '+(gv('nd_disability',9.7))+'% of residents have documented mobility limitations\n'
+      +'  • '+(gv('nd_foreignborn',11.1))+'% are foreign-born, facing compounding barriers\n\n'
+      +'The evidence for NEMT\'s effectiveness is robust at the appointment-adherence level:\n'
+      +'  • Shekelle et al. 2022 (BMC Public Health, PROSPERO-registered): 37% reduction\n'
+      +'    in missed appointment odds (OR 0.63, 95% CI 0.48–0.83) — HIGH certainty evidence\n'
+      +'    across 12 studies including 3 RCTs\n'
+      +'  • Hennepin Healthcare/Lyft pilot (2018): 27% no-show reduction, 297% ROI,\n'
+      +'    using targeted SMS outreach to patients with prior no-show history\n'
+      +'  • Post-discharge follow-up within 30 days reduces all-cause readmission risk\n'
+      +'    by 32% (Balasubramanian et al. 2025, JAMA Network Open, 83 studies)\n\n'
+      +'Important evidence caveat (we are transparent about this): direct attribution\n'
+      +'of NEMT to clinical outcomes (HbA1c, BP control) remains low certainty per\n'
+      +'Shekelle 2022. NEMT functions as a necessary enabler within multi-component\n'
+      +'care models, not as a standalone clinical intervention.\n\n'
+      +line+'\nPROGRAM DESIGN\n'+line+'\n\n'
+      +'Target population: LMI patients (≤200% FPL) with documented transportation\n'
+      +'barriers or prior no-show history at '+org+' ambulatory facilities.\n\n'
+      +'Service model:\n'
+      +'  • Automated identification of eligible patients via EHR flag + no-show history\n'
+      +'  • SMS-based ride offer 48 hours before appointment (not universal — targeted)\n'
+      +'  • Rideshare (Uber Health / Lyft Healthcare) + accessible van for mobility needs\n'
+      +'  • ICD-10 Z75.3 coded at all NEMT-associated visits (SDOH documentation)\n'
+      +'  • Care manager follow-up for patients with 2+ NEMT uses (CCM enrollment triage)\n\n'
+      +'NEMT Safe Harbor compliance: program is structured under 42 CFR § 1001.952(bb)\n'
+      +'(local transportation safe harbor) — written policy, no volume linkage, no\n'
+      +'advertising, established patients only, within distance limits.\n\n'
+      +line+'\nBUDGET NARRATIVE\n'+line+'\n\n'
+      +'Total request: $'+ask.toLocaleString()+'\n\n'
+      +'  Transportation vendor costs:    '+fmt(ask*0.65)+' ('+Math.round(ask*0.65/gv('r_t',60))+' round trips at $'+gv('r_t',60)+' avg)\n'
+      +'  Program coordination (0.5 FTE): '+fmt(ask*0.20)+' (care manager + scheduler)\n'
+      +'  EHR integration + reporting:    '+fmt(ask*0.10)+' (technology, data analytics)\n'
+      +'  Program overhead + evaluation:  '+fmt(ask*0.05)+' (outcomes tracking, reporting)\n\n'
+      +'Year 1 financial return to '+org+' (from ROI model):\n'
+      +'  FFS visit recovery net benefit: $'+Math.round((S.roi.ffsNet||0)).toLocaleString()+'\n'
+      +'  CCM/TCM billing uplift:         $'+Math.round((S.roi.l2val||0)).toLocaleString()+'\n'
+      +'  HR/workforce savings:           $'+Math.round((S.roi.l4val||0)).toLocaleString()+'\n\n'
+      +line+'\nEVALUATION PLAN\n'+line+'\n\n'
+      +'Primary metrics (reported quarterly):\n'
+      +'  • No-show rate: pre/post comparison by service line and payer\n'
+      +'  • Z75.3 coding rate and SDOH documentation completeness\n'
+      +'  • CCM/TCM enrollment among NEMT participants vs. matched controls\n'
+      +'  • 30-day readmission rate for patients using discharge NEMT\n\n'
+      +'Secondary metrics:\n'
+      +'  • HbA1c and blood pressure control at 6 and 12 months (with appropriate\n'
+      +'    caveats about attribution — effect sizes will be small; see evidence note)\n'
+      +'  • Patient satisfaction (CAHPS supplement for SDOH)\n\n'
+      +LINE+'\n'
+      +'CONFIDENTIAL DRAFT. Review with grants staff and legal before submission.\n'
+      +'Generated by Aqueduct v3 · '+today;
+  } else if(type==='esg_memo'){
+    doc='CONFIDENTIAL DRAFT — FOR REVIEW BEFORE DISTRIBUTION\n'+LINE+'\n'
+      +'ESG DISCLOSURE ALIGNMENT MEMORANDUM\n'
+      +program.toUpperCase()+' — '+org+', '+loc+'\n'+LINE+'\n\n'
+      +'Prepared for: '+funder+'\n'
+      +'Date:         '+today+'\n\n'
+      +line+'\nSECTION 1 — PROGRAM OVERVIEW\n'+line+'\n\n'
+      +org+' operates the '+program+', providing\n'
+      +'free round-trip medical transportation to documented low-income patients\n'
+      +'in '+loc+'. The program serves patients with transportation barriers\n'
+      +'attending medically necessary appointments at '+org+' facilities.\n\n'
+      +'FY2025 Program Metrics:\n'
+      +'  • Estimated rides provided: '+prevented.toLocaleString()+' (round trips)\n'
+      +'  • Population served: LMI individuals (≤200% FPL), persons with disabilities,\n'
+      +'    Medicaid enrollees, and uninsured patients in '+loc+'\n'
+      +'  • No-show rate change: estimated '+(gv('r_m',50))+'% reduction in transport-attributable no-shows\n'
+      +'  • SDOH coding: Z75.3 (transportation barrier) coded at all NEMT-associated visits\n\n'
+      +line+'\nSECTION 2 — GRI STANDARD ALIGNMENT\n'+line+'\n\n'
+      +'GRI 203-1: Infrastructure Investments and Services Supported\n'
+      +'  Disclosure: '+org+' invested in community health transportation\n'
+      +'  infrastructure serving '+loc+', providing '+prevented.toLocaleString()+'\n'
+      +'  round-trip rides to LMI patients. Investment removes transportation as a\n'
+      +'  barrier to healthcare access for populations with limited mobility options.\n\n'
+      +'GRI 203-2: Significant Indirect Economic Impacts\n'
+      +'  Disclosure: Program generates positive economic impacts for LMI communities\n'
+      +'  through improved workforce health (reduced absenteeism from untreated chronic\n'
+      +'  disease), reduced emergency department utilization, and strengthened community\n'
+      +'  health infrastructure.\n\n'
+      +'GRI 413-1: Operations with Local Community Engagement\n'
+      +'  Disclosure: Program developed in direct response to 2025 CHNA priorities for\n'
+      +'  '+loc+', specifically addressing Access to Care and documented\n'
+      +'  transportation disparities among disability and foreign-born populations.\n\n'
+      +line+'\nSECTION 3 — ADDITIONAL FRAMEWORK ALIGNMENT\n'+line+'\n\n'
+      +'UN Sustainable Development Goals:\n'
+      +'  SDG 3.8:  Universal health coverage — program increases access to essential\n'
+      +'           health services for underserved populations\n'
+      +'  SDG 10.2: Social inclusion — program reduces disparity for persons with\n'
+      +'           disabilities and foreign-born residents\n'
+      +'  SDG 11.2: Sustainable cities — program improves equitable access to transport\n\n'
+      +'SASB Health Care Delivery — Access for Low-Income Patients:\n'
+      +'  Metrics: '+prevented.toLocaleString()+' rides to patients below 200% FPL;\n'
+      +'  '+(gv('nd_disability',9.7))+'% of rides to patients with documented mobility limitations\n\n'
+      +line+'\nSECTION 4 — DATA AVAILABILITY FOR CORPORATE ESG REPORT\n'+line+'\n\n'
+      +'The following metrics are available for disclosure in '+funder+'\'s ESG report:\n'
+      +'  ✓ Annual ride volume disaggregated by population (LMI, disability, Medicaid)\n'
+      +'  ✓ Geographic reach within '+loc+' (assessment area confirmed)\n'
+      +'  ✓ No-show rate reduction (pre/post comparison)\n'
+      +'  ✓ SDOH documentation rate (Z75.3 coding completeness)\n'
+      +'  ✓ Community need citation (2025 CHNA URL and key statistics)\n'
+      +'  ✓ GRI, SDG, and SASB alignment statement (this document)\n\n'
+      +'Third-party verification: outcomes data is documented in '+org+'\'s\n'
+      +'EHR and available for independent review upon request.\n\n'
+      +LINE+'\n'
+      +'CONFIDENTIAL DRAFT. Review before inclusion in any public ESG disclosure.\n'
+      +'Generated by Aqueduct v3 · '+today;
+  } else if(type==='loi'){
+    doc='LETTER OF INQUIRY\n'+LINE+'\n\n'
+      +'TO:    '+funder+' — Grants Program\n'
+      +'FROM:  '+org+'\n'
+      +'DATE:  '+today+'\n'
+      +'RE:    '+program+' — Request for Grant Consideration\n\n'
+      +org+' respectfully submits this letter of inquiry for a grant of\n'
+      +'$'+ask.toLocaleString()+' to support the '+program+',\n'
+      +'which will provide free medical transportation to documented low-income\n'
+      +'patients in '+loc+'.\n\n'
+      +'COMMUNITY NEED:\n'
+      +'The 2025 Community Health Needs Assessment for '+loc+' identifies\n'
+      +'access to care as the top priority, with '+(gv('nd_delayed',34))+'% of adults\n'
+      +'delaying needed care and transportation cited as a primary barrier among\n'
+      +'LMI, disability ('+(gv('nd_disability',9.7))+'%), and foreign-born ('+(gv('nd_foreignborn',11.1))+'%) populations.\n\n'
+      +'EVIDENCE BASE:\n'
+      +'A 2022 systematic review and meta-analysis (Shekelle et al., BMC Public Health)\n'
+      +'found that targeted NEMT interventions reduce missed appointment odds by 37%\n'
+      +'(OR 0.63, 95% CI 0.48–0.83, HIGH certainty). Untargeted universal programs\n'
+      +'are less effective — our program uses prior no-show history to identify\n'
+      +'the right patients.\n\n'
+      +'PROGRAM DESIGN:\n'
+      +'Targeted SMS-based ride offers to patients with transportation-attributable\n'
+      +'no-show history; rideshare + accessible van; Z75.3 SDOH documentation;\n'
+      +'care manager integration for CCM enrollment triage.\n\n'
+      +'OUTCOMES EXPECTED:\n'
+      +'  • '+prevented.toLocaleString()+' prevented no-shows in Year 1\n'
+      +'  • Quarterly no-show rate reporting by service line\n'
+      +'  • SDOH coding completeness ≥70%\n\n'
+      +'We welcome the opportunity to submit a full proposal if this program\n'
+      +'aligns with '+funder+'\'s grantmaking priorities.\n\n'
+      +LINE+'\n'
+      +'CONFIDENTIAL DRAFT. Review before submission.\n'
+      +'Generated by Aqueduct v3 · '+today;
+  } else if(type==='sponsorship'){
+    doc='SPONSORSHIP PROPOSAL\n'+LINE+'\n'
+      +program.toUpperCase()+' — CORPORATE PARTNERSHIP OPPORTUNITY\n'+LINE+'\n\n'
+      +'Presented to:  '+funder+'\n'
+      +'By:            '+org+'\n'
+      +'Date:          '+today+'\n\n'
+      +line+'\nPARTNERSHIP OVERVIEW\n'+line+'\n\n'
+      +org+' invites '+funder+' to become the founding\n'
+      +'corporate partner of the '+program+', a community\n'
+      +'health initiative providing free medical transportation to low-income\n'
+      +'patients in '+loc+'.\n\n'
+      +'WHAT NAMING SPONSORSHIP PROVIDES TO '+funder.toUpperCase()+':\n'
+      +'  • Brand visibility on NEMT vehicles and patient-facing materials\n'
+      +'  • Named program: "'+funder+' Community Health Ride Program"\n'
+      +'  • Annual impact report with '+funder+' brand for stakeholder distribution\n'
+      +'  • Press release and media opportunity at program launch\n'
+      +'  • GRI 203, GRI 413, and SDG 3.8 / 10.2 / 11.2 disclosure data package\n'
+      +'  • Recognition in '+org+' community benefit / Schedule H report\n\n'
+      +'NOTE ON TAX STRUCTURE:\n'
+      +'This is a sponsorship (business transaction) rather than a charitable\n'
+      +'contribution. '+funder+' receives marketing and brand value in exchange.\n'
+      +'Sponsorships are typically deductible as a business expense, not subject\n'
+      +'to the 10% charitable contribution cap. Consult your tax advisor.\n\n'
+      +'SPONSORSHIP INVESTMENT:\n'
+      +'  Annual sponsorship:  $'+ask.toLocaleString()+'\n'
+      +'  Program term:        3 years (renewable)\n'
+      +'  Rides funded:        ~'+prevented.toLocaleString()+' round trips/year\n'
+      +'  Cost per ride:       ~$'+Math.round(ask/Math.max(prevented,1))+' (blended)\n\n'
+      +LINE+'\n'
+      +'CONFIDENTIAL DRAFT. Review with legal and marketing before presentation.\n'
+      +'Generated by Aqueduct v3 · '+today;
+  } else if(type==='cra_term'){
+    doc='CONFIDENTIAL DRAFT — FOR REVIEW BEFORE DISTRIBUTION\n'+LINE+'\n'
+      +'NEMT PROGRAM — BANK PARTNERSHIP TERM SHEET & PITCH BRIEF\n'
+      +org+' + '+loc+' NEMT Initiative\n'+LINE+'\n\n'
+      +'Prepared for: '+funder+'\n'
+      +'Date: '+today+'\n\n'
+      +line+'\nEXECUTIVE SUMMARY\n'+line+'\n\n'
+      +org+' is the healthcare anchor institution in '+loc+'.\n'
+      +'This NEMT program addresses the #1 priority of the 2025 CHNA\n'
+      +'(Access to Care) by providing free round-trip transportation for\n'
+      +'LMI patients to '+org+' ambulatory facilities.\n\n'
+      +'A partnership with '+org+' on a documented community health\n'
+      +'need is a marquee CRA exam file relationship for any bank operating\n'
+      +'in '+loc+'.\n\n'
+      +line+'\nPROPOSED FINANCIAL STRUCTURE\n'+line+'\n\n'
+      +'  Annual contribution:   $'+ask.toLocaleString()+'\n'
+      +'  Term:                  '+gv('cra_term',3)+' years\n'
+      +'  Total commitment:      $'+(ask*gv('cra_term',3)).toLocaleString()+'\n'
+      +'  Activity type:         Community Development Grant\n'
+      +'  CRA classification:    Community Development — LMI Health Services\n'
+      +'  Regulatory authority:  12 CFR 25.23 (OCC) / 12 CFR 228.23 (Federal Reserve)\n'
+      +'  LMI documentation:     Medicaid enrollment + income attestation\n\n'
+      +line+'\nPROGRAM ROI & BANK VALUE\n'+line+'\n\n'
+      +'  Prevented no-shows/yr:      '+prevented.toLocaleString()+'\n'
+      +'  Net program benefit (Y1):   $'+Math.round(netBenefit).toLocaleString()+'\n'
+      +'  ROI on program cost:        '+roiPct+'\n'
+      +'  Break-even trip cost:       $'+beTrip+'/round trip\n\n'
+      +'  For '+funder+':\n'
+      +'  • Documentable CRA community development activity\n'
+      +'  • CHNA citation meets "documented need" examiner standard\n'
+      +'  • Z75.3 coding creates auditable LMI beneficiary trail\n'
+      +'  • Annual outcomes report suitable for exam file\n\n'
+      +LINE+'\n'
+      +'CONFIDENTIAL DRAFT. Review with legal and compliance before distribution.\n'
+      +'Generated by Aqueduct v3 · '+today;
+  } else if(type==='pri_brief'){
+    doc='CONFIDENTIAL DRAFT — FOR LEGAL REVIEW\n'+LINE+'\n'
+      +'PROGRAM-RELATED INVESTMENT (PRI) BRIEF\n'
+      +program.toUpperCase()+' — '+org+'\n'+LINE+'\n\n'
+      +'Submitted to:   '+funder+'\n'
+      +'Date:           '+today+'\n'
+      +'Investment ask: $'+ask.toLocaleString()+' (below-market loan, 0–2% interest)\n\n'
+      +line+'\nIRC § 4944(c) THREE-PART TEST\n'+line+'\n\n'
+      +'1. PRIMARY PURPOSE IS CHARITABLE:\n'
+      +'   This investment funds transportation infrastructure (vehicle acquisition\n'
+      +'   or technology platform) for a NEMT program serving documented LMI\n'
+      +'   patients in '+loc+'. The program directly addresses CHNA Priority\n'
+      +'   #1 (Access to Care) — a charitable purpose under IRC § 501(c)(3).\n'
+      +'   No for-profit entity benefits from the investment.\n\n'
+      +'2. INCOME PRODUCTION IS NOT A SIGNIFICANT PURPOSE:\n'
+      +'   The proposed below-market interest rate (0–2%) is far below market\n'
+      +'   rates for comparable capital. No profit motive drives the investment;\n'
+      +'   it would not be made absent its primary charitable purpose.\n\n'
+      +'3. NO POLITICAL PURPOSE:\n'
+      +'   The investment has no connection to political campaigns, legislative\n'
+      +'   activities, or voter registration. Confirmed.\n\n'
+      +line+'\nRECYCLABLE CAPITAL STRUCTURE\n'+line+'\n\n'
+      +'  Investment type:     Below-market loan\n'
+      +'  Interest rate:       1.5% (below AFR — qualifies as PRI)\n'
+      +'  Repayment term:      5 years (annual principal + interest)\n'
+      +'  Security:            Program revenue assignment (first year)\n'
+      +'  Repayment source:    FFS visit recovery net benefit ($'+Math.round(S.roi.ffsNet||0).toLocaleString()+'/yr)\n\n'
+      +'Upon repayment, '+funder+' may redeploy principal to additional\n'
+      +'PRI opportunities — preserving charitable capital for multiple cycles.\n\n'
+      +line+'\nCOUNTS TOWARD 5% PAYOUT\n'+line+'\n\n'
+      +'This PRI qualifies as a qualifying distribution under IRC § 4942 and\n'
+      +'is exempt from the jeopardizing investment rules of § 4944. It counts\n'
+      +'toward '+funder+'\'s annual 5% payout requirement.\n\n'
+      +LINE+'\n'
+      +'CONFIDENTIAL DRAFT. Review with legal counsel before investment decision.\n'
+      +'Generated by Aqueduct v3 · '+today;
+  } else if(type==='daf_letter'){
+    doc='DONOR-ADVISED FUND RECOMMENDATION LETTER\n'+LINE+'\n\n'
+      +'TO:    [Community Foundation Name] — Grants Processing\n'
+      +'FROM:  [DAF Donor Name]\n'
+      +'DATE:  '+today+'\n'
+      +'RE:    Grant recommendation from [DAF Fund Name] to '+org+'\n\n'
+      +'I am writing to recommend a grant of $'+ask.toLocaleString()+' from my\n'
+      +'donor-advised fund at [Community Foundation Name] to:\n\n'
+      +'  Organization:  '+org+'\n'
+      +'  EIN:           [Insert EIN]\n'
+      +'  Purpose:       '+program+'\n'
+      +'  Restriction:   Transportation costs for LMI patients ('+loc+')\n\n'
+      +'RATIONALE:\n'
+      +org+' has documented that '+(gv('nd_delayed',34))+'% of adults in '+loc+'\n'
+      +'delayed needed medical care, with transportation among the top barriers\n'
+      +'for the '+(gv('nd_disability',9.7))+'% disability and '+(gv('nd_foreignborn',11.1))+'% foreign-born populations.\n\n'
+      +'Peer-reviewed evidence (Shekelle et al. 2022, BMC Public Health) confirms\n'
+      +'that targeted NEMT programs reduce missed appointments by 37% with\n'
+      +'HIGH certainty — one of the strongest effect sizes in SDOH intervention research.\n\n'
+      +'This grant will fund approximately '+Math.round(ask/Math.max(gv('r_t',60),1)).toLocaleString()+' round-trip rides for\n'
+      +'patients who cannot otherwise attend their medical appointments.\n\n'
+      +org+' is a public charity recognized under IRC § 501(c)(3).\n'
+      +'EIN: [Insert]. IRS determination letter available upon request.\n\n'
+      +'I request that this grant be made at the earliest opportunity.\n\n'
+      +LINE+'\n'
+      +'TEMPLATE — Personalize before submission.\n'
+      +'Generated by Aqueduct v3 · '+today;
+  }
+
+  document.getElementById('doc_preview').textContent = doc;
+  S._lastDoc = doc;
+};
+
+window.copyDoc = function(){
+  if(!S._lastDoc){alert('Generate a document first.');return;}
+  navigator.clipboard.writeText(S._lastDoc).then(()=>alert('Copied to clipboard.')).catch(()=>{
+    var ta=document.createElement('textarea');ta.value=S._lastDoc;
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');
+    document.body.removeChild(ta);alert('Copied.');
+  });
+};
+
+window.downloadDoc = function(){
+  if(!S._lastDoc){alert('Generate a document first.');return;}
+  var type=elv('doc_type')||'document';
+  var a=document.createElement('a');
+  a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(S._lastDoc);
+  a.download='Aqueduct_'+type+'_'+Date.now()+'.txt';
+  a.click();
+};
+
+// ═══════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════
+function gv(id,def){var el=document.getElementById(id);if(!el)return def||0;var v=parseFloat(el.value);return isNaN(v)?def||0:v;}
+function elv(id){var el=document.getElementById(id);return el?(el.value||''):''}
+function norm(v){return v>1?v/100:v;}
+function fmt(n){if(n<0)return'-$'+Math.abs(Math.round(n)).toLocaleString();return'$'+Math.round(n).toLocaleString();}
+function setText(id,val){var el=document.getElementById(id);if(el)el.textContent=val;}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+go('need');
+setTimeout(calcROI,200);
+setTimeout(updateDocTypeHint,200);
+
+// Pre-activate legal safe harbor
+setTimeout(function(){
+  var lp=document.getElementById('lp_safeharbor');
+  if(lp)lp.style.display='block';
+},100);
+</script>
+</body>
+</html>
