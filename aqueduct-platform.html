@@ -2157,23 +2157,23 @@ function emBegin() {
     if(hn) hn.textContent = S.orgName;
     if(hl) hl.textContent = S.orgLoc;
 
-    // Route to first step immediately (no await — user sees the screen NOW)
+    // Set body class for CSS persona visibility
+    document.body.className = 'persona-' + (S.persona || 'hospital');
+
+    // Route to first step immediately
     if (S.persona === 'hospital') {
       goStep('hs', 'need');
-      // Fetch data in background AFTER navigation
+      // Fetch data in background after navigation
       setTimeout(function() {
         try {
           showLoading();
           fetchAllData().then(function() {
             hideLoading();
-            if(typeof renderFunderMatch === 'function') renderFunderMatch();
-            if(typeof calcScheduleH === 'function') calcScheduleH();
-          }).catch(function(e) {
-            hideLoading();
-            console.warn('Data fetch error:', e);
-          });
-        } catch(e) { hideLoading(); console.warn('fetchAllData error:', e); }
-      }, 100);
+            if(typeof renderFunderMatch==='function') renderFunderMatch();
+            if(typeof calcScheduleH==='function') calcScheduleH();
+          }).catch(function(e){ hideLoading(); });
+        } catch(e){ hideLoading(); }
+      }, 200);
     } else if (S.persona === 'bank') {
       var bankName = document.getElementById('bank_name');
       var bankArea = document.getElementById('bank_area');
@@ -4382,36 +4382,7 @@ window.resetToLanding = function() {
 };
 
 // Read persona from URL param on page load
-(function(){
-  var params = new URLSearchParams(window.location.search);
-  var p = params.get('persona');
-  if(p === 'hospital') {
-    S.persona = 'hospital';
-    S.orgName = 'Your Organization';
-  } else if(p === 'funder') {
-    // Show funder sub-type selection on landing
-    S.persona = null; // will be set after sub-type chosen
-  } else if(p === 'bank') {
-    S.persona = 'bank';
-  } else if(p === 'foundation') {
-    S.persona = 'foundation';
-  }
-  // If persona set from URL, skip landing overlay and go straight in
-  if(S.persona) {
-    var ov = document.getElementById('lm-overlay');
-    if(ov) {
-      // Pre-select the journey card
-      var jcEl = document.getElementById('jc_'+S.persona);
-      if(jcEl) selectJourney(S.persona);
-      // Auto-begin after a short delay to let DOM settle
-      setTimeout(function(){
-        var nameEl = document.getElementById('lm_orgname');
-        if(nameEl && !nameEl.value) return; // wait for user to fill in name
-        // Don't auto-begin — just pre-select and let user confirm
-      }, 100);
-    }
-  }
-})();
+// (persona set by new entry modal)
 
 window.applyPersona = function() {
   document.getElementById('hdr_orgname').textContent = S.orgName;
