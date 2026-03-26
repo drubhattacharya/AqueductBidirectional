@@ -7,250 +7,167 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --navy:#001533;--navy2:#002050;--blue:#003A7A;
-  --gold:#C9A227;--gold2:#E8C84A;--gold-soft:rgba(201,162,39,.12);
-  --teal:#0A6B62;--teal2:#0D8A7F;
-  --green:#047857;--green-border:rgba(4,120,87,.3);--green-soft:#D1FAE5;
-  --amber:#B45309;--amber-soft:#FEF3C7;
-  --red:#B91C1C;--red-soft:#FEE2E2;
+  --navy:#001533;--blue:#003A7A;
+  --gold:#C9A227;--gold2:#E8C84A;
+  --teal:#0A6B62;--green:#047857;
   --muted:#64748B;--border:rgba(15,23,42,.1);
-  --bg:#F0F4F8;--bg-warm:#FAFAF7;
   --serif:'Playfair Display',Georgia,serif;
   --sans:'DM Sans',system-ui,sans-serif;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
-body{background:var(--navy);font-family:var(--sans);font-size:14px;line-height:1.6;color:#1a2332;min-height:100vh;}
+html{height:100%;}
+body{min-height:100vh;background:linear-gradient(160deg,#000f26 0%,#001533 55%,#001a40 100%);
+  font-family:var(--sans);display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:24px;overflow-x:hidden;}
 
-/* ── OVERLAY ── */
-#overlay{position:fixed;inset:0;z-index:100;background:linear-gradient(160deg,#000f26 0%,#001533 55%,#001a40 100%);
-  overflow-y:auto;display:flex;flex-direction:column;}
-#stars{position:fixed;inset:0;pointer-events:none;overflow:hidden;}
-@keyframes twinkle{0%,100%{opacity:var(--lo)}50%{opacity:var(--hi)}}
-.inner{position:relative;z-index:1;max-width:920px;width:100%;margin:0 auto;padding:40px 24px 60px;
-  display:flex;flex-direction:column;align-items:center;gap:32px;}
+#stars{position:fixed;inset:0;pointer-events:none;}
+@keyframes tw{0%,100%{opacity:var(--lo)}50%{opacity:var(--hi)}}
+
+.wrap{position:relative;z-index:1;max-width:860px;width:100%;
+  display:flex;flex-direction:column;align-items:center;gap:28px;}
 
 /* wordmark */
-.wm{display:flex;align-items:center;gap:14px;}
-.wm-logo{border-radius:10px;overflow:hidden;display:inline-flex;}
-.wm-logo img{height:38px;mix-blend-mode:multiply;}
-.wm-tagline-sub{font-size:12px;color:rgba(255,255,255,.4);font-weight:500;}
-
-/* FSS badge */
-.fss-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;
-  border:1px solid rgba(201,162,39,.3);border-radius:99px;background:rgba(201,162,39,.08);}
-.fss-badge-text{font-size:11px;font-weight:800;color:var(--gold2);letter-spacing:.04em;}
-.fss-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);}
+.wm{display:flex;align-items:center;gap:12px;}
+.wm img{height:38px;mix-blend-mode:multiply;border-radius:8px;overflow:hidden;}
+.wm-right{display:flex;flex-direction:column;gap:2px;}
+.wm-name{font-size:13px;font-weight:700;color:rgba(255,255,255,.7);}
+.fss{font-size:10px;color:var(--gold);font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
 
 /* headline */
-.headline{font-family:var(--serif);font-size:clamp(24px,3.5vw,42px);
-  text-align:center;line-height:1.2;color:#fff;max-width:780px;}
-.headline em{font-style:italic;background:linear-gradient(120deg,var(--gold),var(--gold2));
+h1{font-family:var(--serif);font-size:clamp(22px,3.2vw,38px);text-align:center;
+  line-height:1.25;color:#fff;max-width:740px;}
+h1 em{font-style:italic;background:linear-gradient(120deg,var(--gold),var(--gold2));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sub{font-size:15px;color:rgba(255,255,255,.58);text-align:center;line-height:1.8;
+  max-width:620px;}
 
-/* sub */
-.sub-copy{font-size:clamp(14px,1.5vw,16px);color:rgba(255,255,255,.62);text-align:center;
-  line-height:1.8;max-width:680px;}
+/* stats */
+.stats{display:flex;gap:28px;flex-wrap:wrap;justify-content:center;padding:16px 24px;
+  background:rgba(255,255,255,.04);border-radius:12px;border:1px solid rgba(255,255,255,.07);}
+.stat-val{font-size:22px;font-weight:800;color:var(--gold2);text-align:center;}
+.stat-lbl{font-size:10px;color:rgba(255,255,255,.35);text-align:center;margin-top:2px;line-height:1.4;}
 
-/* 3-tier ladder */
-.ladder{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%;}
-@media(max-width:680px){.ladder{grid-template-columns:1fr;}}
-.rung{border-radius:14px;padding:22px;border:1.5px solid rgba(255,255,255,.08);
-  background:rgba(255,255,255,.04);display:flex;flex-direction:column;gap:12px;
-  transition:all .2s;cursor:pointer;}
-.rung:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);}
-.rung-1{border-color:rgba(201,162,39,.25);background:rgba(201,162,39,.05);}
-.rung-1:hover{border-color:var(--gold);background:rgba(201,162,39,.1);}
-.rung-tier{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;
-  color:rgba(255,255,255,.35);}
-.rung-1 .rung-tier{color:var(--gold);}
-.rung-icon{font-size:28px;}
-.rung-title{font-size:17px;font-weight:800;color:#fff;line-height:1.2;}
-.rung-items{display:flex;flex-direction:column;gap:7px;}
-.ri{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:rgba(255,255,255,.72);line-height:1.55;}
-.ri-check{color:var(--gold);font-weight:800;flex-shrink:0;margin-top:2px;}
-.rung-1 .ri-check{color:var(--gold2);}
-.rung-cta{margin-top:4px;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;
-  text-align:center;cursor:pointer;transition:all .15s;text-decoration:none;display:block;}
-.cta-gold{background:linear-gradient(135deg,var(--gold),#a07810);color:var(--navy);
-  box-shadow:0 3px 14px rgba(201,162,39,.35);}
-.cta-ghost{background:rgba(255,255,255,.07);color:#fff;border:1px solid rgba(255,255,255,.15);}
-.cta-ghost:hover{background:rgba(255,255,255,.12);}
-.cta-gold:hover{transform:translateY(-1px);}
+/* ENTRY CARDS — the only thing that matters */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%;}
+@media(max-width:680px){.cards{grid-template-columns:1fr;}}
 
-/* persona select */
-.persona-select{width:100%;}
-.ps-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;
-  color:rgba(255,255,255,.35);text-align:center;margin-bottom:12px;}
-.ps-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-@media(max-width:600px){.ps-cards{grid-template-columns:1fr;}}
-.ps-card{border:1.5px solid rgba(255,255,255,.08);border-radius:11px;padding:16px;
-  cursor:pointer;transition:all .18s;background:rgba(255,255,255,.03);}
-.ps-card:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.18);}
-.ps-card.selected{background:rgba(201,162,39,.1);border-color:var(--gold);}
-.ps-icon{font-size:22px;margin-bottom:7px;}
-.ps-name{font-size:14px;font-weight:800;color:#fff;margin-bottom:4px;}
-.ps-desc{font-size:11.5px;color:rgba(255,255,255,.45);line-height:1.55;}
+.card{border-radius:14px;padding:22px 20px;border:1.5px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.04);cursor:pointer;transition:all .2s;
+  text-decoration:none;display:flex;flex-direction:column;gap:10px;}
+.card:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.22);
+  transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.3);}
+.card-featured{border-color:rgba(201,162,39,.35);background:rgba(201,162,39,.06);}
+.card-featured:hover{border-color:var(--gold);background:rgba(201,162,39,.12);}
 
-/* stats bar */
-.stats-bar{display:flex;gap:32px;flex-wrap:wrap;justify-content:center;padding:20px 24px;
-  background:rgba(255,255,255,.04);border-radius:12px;border:1px solid rgba(255,255,255,.07);width:100%;}
-.stat{text-align:center;}
-.stat-val{font-size:24px;font-weight:800;color:var(--gold2);}
-.stat-label{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;}
+.card-icon{font-size:28px;}
+.card-title{font-size:16px;font-weight:800;color:#fff;line-height:1.2;}
+.card-sub{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.6;flex:1;}
+.card-items{display:flex;flex-direction:column;gap:5px;margin-top:4px;}
+.ci{font-size:12px;color:rgba(255,255,255,.65);display:flex;align-items:flex-start;gap:6px;line-height:1.5;}
+.ci-check{color:var(--gold2);flex-shrink:0;font-size:11px;margin-top:2px;}
+.card-featured .ci-check{color:var(--gold2);}
 
-/* enter btn */
-.enter-btn{background:linear-gradient(135deg,var(--gold),#a07810);color:var(--navy);
-  border:none;border-radius:10px;padding:14px 40px;font-size:16px;font-weight:800;
-  cursor:pointer;font-family:var(--sans);box-shadow:0 4px 24px rgba(201,162,39,.4);
-  transition:transform .1s;opacity:.35;pointer-events:none;}
-.enter-btn.ready{opacity:1;pointer-events:auto;}
-.enter-btn.ready:hover{transform:translateY(-1px);}
+.card-cta{margin-top:8px;padding:10px 0;border-radius:8px;font-size:13px;font-weight:700;
+  text-align:center;color:var(--navy);background:linear-gradient(135deg,var(--gold),#a07810);
+  box-shadow:0 2px 10px rgba(201,162,39,.3);}
+.card-cta-ghost{margin-top:8px;padding:10px 0;border-radius:8px;font-size:13px;font-weight:700;
+  text-align:center;color:rgba(255,255,255,.75);background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.12);}
 
-.evid-note{font-size:11px;color:rgba(255,255,255,.2);text-align:center;line-height:1.6;max-width:580px;}
+/* note */
+.note{font-size:11px;color:rgba(255,255,255,.2);text-align:center;line-height:1.6;max-width:560px;}
 </style>
 </head>
 <body>
+
 <div id="stars"></div>
-<div id="overlay">
-  <div class="inner">
 
-    <!-- Wordmark -->
-    <div class="wm">
-      <div class="wm-logo"><img src="data:image/png;base64,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" alt="Aqueduct" style="height:38px;mix-blend-mode:multiply;"/></div>
-      <div class="wm-tagline-sub">Technology-Enabled Community Health</div>
+<div class="wrap">
+
+  <!-- Wordmark -->
+  <div class="wm">
+    <img src="data:image/png;base64,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" alt="Aqueduct"/>
+    <div class="wm-right">
+      <div class="wm-name">Technology-Enabled Community Health</div>
+      <div class="fss">Fundable · Sustainable · Scalable</div>
     </div>
-
-    <!-- FSS Badge -->
-    <div class="fss-badge">
-      <div class="fss-dot"></div>
-      <div class="fss-badge-text">Identifying Fundable, Sustainable &amp; Scalable Implementation Strategies</div>
-      <div class="fss-dot"></div>
-    </div>
-
-    <!-- Headline -->
-    <h1 class="headline">Your CHNA data already makes<br><em>the case for every funder at the table.</em></h1>
-
-    <p class="sub-copy">Aqueduct is the intelligence platform that connects what health systems <em>must</em> do — CHNA compliance, CMS SDOH requirements, NCQA accreditation, JC standards — with what funders <em>need</em> to do — CRA examination, 5% payout obligations, ESG disclosure mandates. It predicts the specific programs that satisfy every requirement simultaneously.</p>
-
-    <!-- Stats -->
-    <div class="stats-bar">
-      <div class="stat"><div class="stat-val">37%</div><div class="stat-label">Missed appt. reduction<br>Shekelle 2022 · HIGH certainty</div></div>
-      <div class="stat"><div class="stat-val">$11.1M</div><div class="stat-label">Avg annual nonprofit<br>hospital tax exemption</div></div>
-      <div class="stat"><div class="stat-val">8</div><div class="stat-label">Compliance frameworks<br>scored simultaneously</div></div>
-      <div class="stat"><div class="stat-val">17.9%</div><div class="stat-label">Eligible patients<br>receiving TCM today</div></div>
-    </div>
-
-    <!-- 3-Tier Ladder -->
-    <div class="ladder">
-      <div class="rung rung-1" onclick="selectTier('self')">
-        <div class="rung-tier">Tier 1 · Self-Directed</div>
-        <div class="rung-icon">🗺️</div>
-        <div class="rung-title">Strategy &amp; Funding Platform</div>
-        <div class="rung-items">
-          <div class="ri"><span class="ri-check">✓</span><span>CHNA + CRA + Schedule H parsed in seconds from public sources</span></div>
-          <div class="ri"><span class="ri-check">✓</span><span>5-layer ROI cascade model with evidence ratings at each layer</span></div>
-          <div class="ri"><span class="ri-check">✓</span><span>8-dimension SDOH project scoring across NCQA, JC, CMS, CRA</span></div>
-          <div class="ri"><span class="ri-check">✓</span><span>9 ready-to-submit funding documents — CRA memo, grant proposal, PRI brief, ESG disclosure</span></div>
-          <div class="ri"><span class="ri-check">✓</span><span>Tax exemption parity calculator and community benefit gap analysis</span></div>
-        </div>
-        <a href="aqueduct-platform.html" class="rung-cta cta-gold" id="cta_platform">Enter Platform →</a>
-      </div>
-
-      <div class="rung" onclick="selectTier('intel')">
-        <div class="rung-tier">Tier 2 · Intelligence Engine</div>
-        <div class="rung-icon">⚡</div>
-        <div class="rung-title">ML-Powered Project Scoring</div>
-        <div class="rung-items">
-          <div class="ri"><span class="ri-check">✓</span><span>Score 10 SDOH programs across 8 mandate dimensions simultaneously</span></div>
-          <div class="ri"><span class="ri-check">✓</span><span>Tax exemption parity gap calculator with program fill recommendations</span></div>
-          <div class="ri"><span class="ri-check">✓</span><span>NCQA / HEDIS measure mapping · JC NPSG alignment · ACO REACH weighting</span></div>
-          <div class="ri"><span class="ri-check">✓</span><span>Portfolio builder: which combination of projects satisfies the most mandates</span></div>
-          <div class="ri"><span class="ri-check">✓</span><span>AI-generated board brief with specific first-step recommendation</span></div>
-        </div>
-        <a href="aqueduct-intelligence.html" class="rung-cta cta-ghost">Open Intelligence Engine →</a>
-      </div>
-
-      <div class="rung" onclick="selectTier('advisory')">
-        <div class="rung-tier">Tier 3 · Advisory Partnership</div>
-        <div class="rung-icon">🤝</div>
-        <div class="rung-title">Bidirectional Engagement</div>
-        <div class="rung-items">
-          <div class="ri"><span class="ri-check">✓</span><span>Hospitals and funders each enter from their own documentation</span></div>
-          <div class="ri"><span class="ri-check">✓</span><span>Shared data room: same ROI model, both perspectives, one engagement point</span></div>
-          <div class="ri"><span class="ri-check">✓</span><span>Bank CRA officer finds qualifying NEMT programs in their assessment area</span></div>
-          <div class="ri"><span class="ri-check">✓</span><span>Foundation 5% payout tracker + due diligence checklist with evidence citations</span></div>
-          <div class="ri"><span class="ri-check">✓</span><span>Complete funding package generation — both sides of the table leave ready to act</span></div>
-        </div>
-        <a href="aqueduct-platform.html" class="rung-cta cta-ghost">Enter Bidirectional Platform →</a>
-      </div>
-    </div>
-
-    <!-- Persona select -->
-    <div class="persona-select">
-      <div class="ps-label">I represent…</div>
-      <div class="ps-cards">
-        <div class="ps-card" id="ps_hospital" onclick="selectPersona('hospital','aqueduct-platform.html')">
-          <div class="ps-icon">🏥</div>
-          <div class="ps-name">Health System</div>
-          <div class="ps-desc">Build the ROI case, identify funders, generate funding packages from your CHNA and community data</div>
-        </div>
-        <div class="ps-card" id="ps_bank" onclick="selectPersona('bank','aqueduct-platform.html')">
-          <div class="ps-icon">🏦</div>
-          <div class="ps-name">Bank / CRA Officer</div>
-          <div class="ps-desc">Start from your CRA exam and assessment area — find qualifying NEMT programs that strengthen your exam file</div>
-        </div>
-        <div class="ps-card" id="ps_foundation" onclick="selectPersona('foundation','aqueduct-platform.html')">
-          <div class="ps-icon">🏛️</div>
-          <div class="ps-name">Foundation / Corporation</div>
-          <div class="ps-desc">Define your funding vehicle, track your 5% payout obligation, validate community need, generate investment documents</div>
-        </div>
-      </div>
-    </div>
-
-    <button class="enter-btn" id="enter_btn" onclick="enterPlatform()">Enter Platform →</button>
-    <p class="evid-note">Evidence-grounded. Evidence-bounded. Built on U.S. federal public data — Census ACS, CDC PLACES, HRSA, FFIEC, IRS 990s. Every claim traceable to a primary source.</p>
   </div>
+
+  <!-- Headline -->
+  <h1>Your CHNA already makes the case.<br><em>Aqueduct turns it into funded programs.</em></h1>
+
+  <p class="sub">The platform that connects what health systems must do — CHNA compliance, CMS SDOH, NCQA accreditation, JC standards — with what funders need to do: CRA examination, 5% payout obligations, ESG disclosure.</p>
+
+  <!-- Stats bar -->
+  <div class="stats">
+    <div><div class="stat-val">37%</div><div class="stat-lbl">Missed appt reduction<br>Shekelle 2022 · HIGH certainty</div></div>
+    <div><div class="stat-val">$11.1M</div><div class="stat-lbl">Avg hospital tax<br>exemption per year</div></div>
+    <div><div class="stat-val">8</div><div class="stat-lbl">Compliance mandates<br>scored simultaneously</div></div>
+    <div><div class="stat-val">17.9%</div><div class="stat-lbl">Eligible Medicare patients<br>receiving TCM today</div></div>
+  </div>
+
+  <!-- THE THREE ENTRY POINTS -->
+  <div class="cards">
+
+    <!-- Hospital -->
+    <a class="card card-featured" href="aqueduct-platform.html?persona=hospital">
+      <div class="card-icon">🏥</div>
+      <div class="card-title">I represent a Health System</div>
+      <div class="card-items">
+        <div class="ci"><span class="ci-check">✓</span>CHNA + Census + CDC data auto-fetched</div>
+        <div class="ci"><span class="ci-check">✓</span>5-layer ROI cascade model</div>
+        <div class="ci"><span class="ci-check">✓</span>Ranked funder match for your community</div>
+        <div class="ci"><span class="ci-check">✓</span>9 funding documents — CRA memo, grant proposal, PRI brief, ESG memo</div>
+      </div>
+      <div class="card-cta">Build My Funding Case →</div>
+    </a>
+
+    <!-- Funder -->
+    <a class="card" href="aqueduct-platform.html?persona=funder">
+      <div class="card-icon">🏦🏛️</div>
+      <div class="card-title">I represent a Funder</div>
+      <div class="card-sub">Bank · Foundation · Corporation</div>
+      <div class="card-items">
+        <div class="ci"><span class="ci-check">✓</span>Banks: CRA exam search + assessment area health map + qualifying program finder</div>
+        <div class="ci"><span class="ci-check">✓</span>Foundations: 5% payout tracker + due diligence checklist</div>
+        <div class="ci"><span class="ci-check">✓</span>Corporations: ESG framework mapping (GRI, SASB, SDG)</div>
+      </div>
+      <div class="card-cta-ghost">Find Qualifying Programs →</div>
+    </a>
+
+    <!-- Intelligence Engine -->
+    <a class="card" href="aqueduct-intelligence.html">
+      <div class="card-icon">⚡</div>
+      <div class="card-title">Score &amp; Prioritize Projects</div>
+      <div class="card-sub">8-dimension compliance scoring engine</div>
+      <div class="card-items">
+        <div class="ci"><span class="ci-check">✓</span>Tax exemption parity gap calculator</div>
+        <div class="ci"><span class="ci-check">✓</span>Score 10 SDOH programs across NCQA, JC, CRA, CMS, Schedule H simultaneously</div>
+        <div class="ci"><span class="ci-check">✓</span>AI board brief with specific citations</div>
+      </div>
+      <div class="card-cta-ghost">Open Intelligence Engine →</div>
+    </a>
+
+  </div>
+
+  <p class="note">Evidence-grounded · Evidence-bounded · Census ACS · CDC PLACES · HRSA · FFIEC · IRS 990s · Every claim traceable to a primary source</p>
+
 </div>
 
 <script>
-var _persona = null;
-var _dest = 'aqueduct-platform.html';
-
 // Stars
 (function(){
-  var s = document.getElementById('stars');
-  for(var i=0;i<90;i++){
+  var s=document.getElementById('stars');
+  for(var i=0;i<80;i++){
     var d=document.createElement('div');
     d.style.cssText='position:absolute;border-radius:50%;background:#fff;'
-      +'width:'+(Math.random()*2.2+.5)+'px;height:'+(Math.random()*2.2+.5)+'px;'
+      +'width:'+(Math.random()*2+.5)+'px;height:'+(Math.random()*2+.5)+'px;'
       +'top:'+Math.random()*100+'%;left:'+Math.random()*100+'%;'
-      +'--lo:'+(0.04+Math.random()*.08)+';--hi:'+(0.25+Math.random()*.55)+';'
-      +'animation:twinkle '+(2.5+Math.random()*5)+'s ease-in-out infinite '+(Math.random()*5)+'s;opacity:.06;';
+      +'--lo:'+(0.04+Math.random()*.08)+';--hi:'+(0.25+Math.random()*.5)+';'
+      +'animation:tw '+(2.5+Math.random()*5)+'s ease-in-out infinite '+(Math.random()*5)+'s;opacity:.06;';
     s.appendChild(d);
   }
 })();
-
-window.selectPersona = function(p, dest){
-  _persona = p;
-  _dest = dest || 'aqueduct-platform.html';
-  document.querySelectorAll('.ps-card').forEach(c=>c.classList.remove('selected'));
-  document.getElementById('ps_'+p)?.classList.add('selected');
-  var btn = document.getElementById('enter_btn');
-  btn.classList.add('ready');
-  btn.textContent = p==='hospital'?'Enter as Health System →':
-                    p==='bank'?'Enter as Bank / CRA →':'Enter as Foundation →';
-};
-
-window.selectTier = function(t){
-  // Just visual — the CTA buttons on each rung navigate directly
-};
-
-window.enterPlatform = function(){
-  if(!_persona) return;
-  sessionStorage.setItem('aqueduct_persona', _persona);
-  window.location.href = _dest + '?persona='+_persona;
-};
 </script>
 </body>
 </html>

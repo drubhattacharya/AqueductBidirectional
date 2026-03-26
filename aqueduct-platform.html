@@ -924,7 +924,7 @@ body.persona-foundation .bank-only{display:none!important;}
         <span class="demo-brand-sub"> · <span id="hdr_orgloc"></span> · NEMT Strategic Platform</span></div>
       <p class="demo-tag" id="hdr_tagline">Your documentation already <strong>makes the case.</strong></p>
     </div>
-    <a href="aqueduct-index.html" style="color:rgba(255,255,255,.4);font-size:11px;font-weight:600;text-decoration:none;padding:4px 10px;border:1px solid rgba(255,255,255,.12);border-radius:6px;margin-right:4px;white-space:nowrap;" title="Back to home">← Home</a>
+    <a href="index.html" style="color:rgba(255,255,255,.4);font-size:11px;font-weight:600;text-decoration:none;padding:4px 10px;border:1px solid rgba(255,255,255,.12);border-radius:6px;margin-right:4px;white-space:nowrap;" title="Back to home">← Home</a>
     <div class="persona-pill" onclick="resetToLanding()" title="Switch journey">
       <span id="hdr_persona_icon">🏥</span>
       <span class="persona-pill-label" id="hdr_persona_label">Hospital</span>
@@ -4234,6 +4234,38 @@ window.resetToLanding = function() {
   var ov = document.getElementById('lm-overlay');
   ov.style.display='flex'; ov.style.opacity='1'; ov.classList.remove('lm-exit');
 };
+
+// Read persona from URL param on page load
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var p = params.get('persona');
+  if(p === 'hospital') {
+    S.persona = 'hospital';
+    S.orgName = 'Your Organization';
+  } else if(p === 'funder') {
+    // Show funder sub-type selection on landing
+    S.persona = null; // will be set after sub-type chosen
+  } else if(p === 'bank') {
+    S.persona = 'bank';
+  } else if(p === 'foundation') {
+    S.persona = 'foundation';
+  }
+  // If persona set from URL, skip landing overlay and go straight in
+  if(S.persona) {
+    var ov = document.getElementById('lm-overlay');
+    if(ov) {
+      // Pre-select the journey card
+      var jcEl = document.getElementById('jc_'+S.persona);
+      if(jcEl) selectJourney(S.persona);
+      // Auto-begin after a short delay to let DOM settle
+      setTimeout(function(){
+        var nameEl = document.getElementById('lm_orgname');
+        if(nameEl && !nameEl.value) return; // wait for user to fill in name
+        // Don't auto-begin — just pre-select and let user confirm
+      }, 100);
+    }
+  }
+})();
 
 window.applyPersona = function() {
   document.getElementById('hdr_orgname').textContent = S.orgName;
