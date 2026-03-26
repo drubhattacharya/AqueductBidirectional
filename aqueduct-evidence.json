@@ -1,0 +1,164 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "description": "Aqueduct structured evidence base — peer-reviewed citations with effect sizes, certainty ratings, and clinical significance thresholds",
+    "cutoff": "2026-03"
+  },
+  "hierarchy": {
+    "HIGH": "Systematic review or meta-analysis with GRADE HIGH certainty; pooled estimate from ≥3 RCTs",
+    "MODERATE": "RCT or well-designed observational study; meta-analysis with moderate heterogeneity",
+    "LOW": "Single observational study; pilot data; difference-in-differences without randomization",
+    "VERY_LOW": "Expert opinion; industry data not peer-reviewed; mechanistic reasoning only"
+  },
+  "nemt_studies": [
+    {
+      "id": "shekelle_2022",
+      "citation": "Shekelle PG, Begashaw MM, Miake-Lye IM, et al. BMC Public Health. 2022;22:799. PMID:35449011",
+      "title": "Effect of interventions for non-emergent medical transportation: a systematic review and meta-analysis",
+      "certainty": "HIGH",
+      "finding": "37% reduction in missed appointment odds",
+      "effect_size": {"metric": "OR", "value": 0.63, "ci_low": 0.48, "ci_high": 0.83},
+      "population": "12 studies (3 RCTs), van/taxi/rideshare, Medicaid and LMI populations",
+      "clinical_significance": "HIGH — appointment adherence is directly actionable",
+      "outcomes_evidence": "LOW — insufficient data for cost, utilization, or health outcomes conclusions",
+      "key_limitation": "Publication bias likely; all studies in US ambulatory setting"
+    },
+    {
+      "id": "chaiyachati_rct_2018",
+      "citation": "Chaiyachati KH et al. JAMA Internal Medicine. 2018;178(3):383-389",
+      "title": "Association of rideshare-based transportation services and missed primary care appointments: a clinical trial",
+      "certainty": "HIGH",
+      "finding": "Universal untargeted rideshare: NO reduction in no-shows",
+      "effect_size": {"metric": "no-show rate difference", "intervention": 0.365, "control": 0.367},
+      "population": "786 Medicaid beneficiaries, West Philadelphia, complimentary Lyft",
+      "key_lesson": "Only 26% used rides. Universal programs fail because most patients at any given visit do NOT have transportation as their primary barrier.",
+      "clinical_significance": "CRITICAL COUNTERPOINT — targeting is non-negotiable"
+    },
+    {
+      "id": "chaiyachati_pilot_2018",
+      "citation": "Chaiyachati KH et al. J General Internal Medicine. 2018;33(6):863-868",
+      "title": "Rideshare-based medical transportation for Medicaid patients and primary care show rates",
+      "certainty": "MODERATE",
+      "finding": "14 percentage-point improvement in show rates (targeted practice vs. control)",
+      "effect_size": {"metric": "pp improvement", "value": 14},
+      "design": "Difference-in-differences",
+      "reconciliation": "With RCT: targeted programs (practice-level, not individual-level) outperform universal offers"
+    },
+    {
+      "id": "hennepin_hitch_2018",
+      "citation": "Hitch Health / Lyft Healthcare / Hennepin Healthcare. 2018 (industry report, not peer-reviewed)",
+      "title": "SMS-triggered targeted NEMT for prior no-show patients",
+      "certainty": "VERY_LOW",
+      "finding": "27% no-show reduction; 297% ROI",
+      "population": "Patients with prior no-show history, automated SMS + ride offer",
+      "key_lesson": "Targeting method: automated identification of prior no-shows is sufficient and scalable. No manual screening required.",
+      "caveat": "Industry data — not peer-reviewed. Treat as directional, not definitive."
+    },
+    {
+      "id": "berkowitz_2025",
+      "citation": "Berkowitz SA et al. J Primary Care & Community Health. 2025. PMID cited as PMC11840852",
+      "title": "Transportation barriers and glycemic and blood pressure control among adults with type 2 diabetes",
+      "certainty": "MODERATE",
+      "method": "TMLE (targeted minimum loss-based estimation) — rigorous causal inference",
+      "finding": "Transportation barrier removal: -0.09% HbA1c; -0.6 mmHg SBP",
+      "population": "86,977 adults with T2DM",
+      "effect_size": {"hba1c_delta": -0.09, "ci": "-0.14 to -0.04", "sbp_delta": -0.6},
+      "clinical_significance": "BELOW THRESHOLD — 0.5% HbA1c is minimum clinically significant difference. Effect is real but small when transport is addressed in isolation.",
+      "key_lesson": "NEMT alone is insufficient. Must be embedded in multi-component care model (CCM, TCM, CHW) to achieve clinical significance."
+    },
+    {
+      "id": "smith_2022",
+      "citation": "Smith et al. Health Services Research. 2022;57(3):472-481",
+      "title": "Public transit expansion and healthcare no-show rates",
+      "certainty": "MODERATE",
+      "finding": "0.5pp no-show reduction overall; 1.6pp among Medicaid patients",
+      "key_lesson": "Effects concentrate in populations with genuine access barriers — supports targeting approach"
+    },
+    {
+      "id": "berkowitz_aco_2022",
+      "citation": "Berkowitz SA et al. Health Affairs. 2022;41(3):406-413",
+      "title": "Evaluation of a Medicare ACO NEMT program",
+      "certainty": "HIGH — well-designed longitudinal evaluation",
+      "finding": "Increased outpatient visits (+9.2/person/year) but NO reduction in admissions or ED visits. Program NOT cost-saving.",
+      "critical_lesson": "NEMT alone, without accompanying CCM/TCM and care management, does not reduce total cost of care. It increases utilization without downstream benefits if care coordination is absent.",
+      "implication_for_platform": "NEMT must be paired with CCM/TCM to generate cost savings. This is why Layer 2 (CCM/TCM) is critical to the ROI case."
+    }
+  ],
+  "readmission_studies": [
+    {
+      "id": "balasubramanian_2025",
+      "citation": "Balasubramanian I, Andres EB, Malhotra C. JAMA Network Open. 2025;8(11):e2541272. PMC12587199",
+      "title": "Outpatient follow-up and 30-day readmissions: systematic review and meta-analysis",
+      "certainty": "MODERATE",
+      "finding": "30-day outpatient follow-up: 32% reduction in all-cause readmissions",
+      "effect_size": {"metric": "RRR", "value": 0.68, "ci_low": 0.60, "ci_high": 0.75},
+      "studies": 83,
+      "condition_specific": {"AMI_RRR": 0.56, "HF_RRR": 0.65},
+      "nemt_connection": "NEMT enables post-discharge follow-up. If transport barrier prevents follow-up, readmission risk rises substantially. This is the mechanistic bridge."
+    }
+  ],
+  "ccm_tcm_studies": [
+    {
+      "id": "ouayogode_2024",
+      "citation": "Ouayogodé et al. Health Services Research. 2024. PMC11578547",
+      "certainty": "HIGH — Medicare FFS claims, difference-in-differences",
+      "finding": "TCM: -0.31pp 30-day readmissions; -0.42pp at 90 days",
+      "effect_size": {"readmission_30d": -0.0031, "ci": "-0.0052 to -0.0009"}
+    },
+    {
+      "id": "aspe_hhs_2024",
+      "certainty": "HIGH",
+      "finding": "TCM decreased healthcare spending by 11%; $1.66B potential savings if all eligible received TCM. Only 17.9% of eligible beneficiaries received TCM in 2019.",
+      "implication": "Capture opportunity: 82.1% of eligible Medicare patients are not receiving TCM billing. NEMT enables the visits that generate the billing."
+    },
+    {
+      "id": "cms_rates_2025",
+      "type": "regulatory",
+      "source": "CY2025 Physician Fee Schedule (CMS-1807-F)",
+      "conversion_factor": 32.35,
+      "codes": {
+        "99490": {"desc": "CCM clinical staff first 20min/month", "rate": 62},
+        "99439": {"desc": "CCM clinical staff each add'l 20min", "rate": 48},
+        "99491": {"desc": "CCM physician/QHP first 30min — cannot be incident-to", "rate": 83},
+        "99495": {"desc": "TCM moderate MDM F2F within 14 days", "rate": 201},
+        "99496": {"desc": "TCM high MDM F2F within 7 days", "rate": 273},
+        "99487": {"desc": "Complex CCM first 60min/month", "rate": 133},
+        "99489": {"desc": "Complex CCM each add'l 30min", "rate": 71}
+      },
+      "tcm_2026_projection": "+10% rate increase projected",
+      "non_duplication": "CCM and TCM can be billed in same calendar month — TCM 30-day period must end; ≥20min qualifying CCM services must follow; time cannot be double-counted"
+    }
+  ],
+  "workforce_studies": [
+    {
+      "id": "nsi_2025",
+      "citation": "NSI Nursing Solutions Inc. 2025 NSI National Health Care Retention & RN Staffing Report",
+      "certainty": "HIGH — industry survey, large sample",
+      "finding": "Average RN turnover cost: $61,110. One percentage point change in hospital turnover = $380,600/year for average hospital.",
+      "relevant_for": "Layer 4 HR/Workforce value calculation"
+    },
+    {
+      "id": "mgma_noshow",
+      "citation": "Medical Group Management Association. Practice Operations Survey 2024.",
+      "finding": "$150,000/year average revenue loss per physician from no-shows",
+      "relevant_for": "Layer 0 FFS baseline and Layer 4 provider idle time"
+    }
+  ],
+  "mips_quality_notes": {
+    "measure_001": {
+      "name": "Diabetes HbA1c Poor Control >9% (INVERSE)",
+      "transportation_sensitivity": "EXTREME — missing visit = missing HbA1c test = automatically counted as poorly controlled",
+      "benchmark": "Top decile ≤10% of patients with poor control",
+      "nemt_connection": "Every NEMT-enabled visit for a diabetic patient directly improves numerator"
+    },
+    "measure_236": {
+      "name": "Controlling High Blood Pressure",
+      "transportation_sensitivity": "HIGH — requires in-person BP measurement; no recorded BP = uncontrolled",
+      "structure": "Flat — each 10pp improvement = one decile improvement"
+    },
+    "measure_113": {
+      "name": "Colorectal Cancer Screening",
+      "transportation_sensitivity": "MODERATE — colonoscopy requires driver for post-sedation; NEMT doubles the required trips"
+    }
+  }
+}
