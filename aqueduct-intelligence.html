@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Aqueduct Intelligence — SDOH Project Scoring Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#001533;--navy2:#002050;--blue:#003A7A;
+  --gold:#C9A227;--gold2:#E8C84A;--gold-soft:rgba(201,162,39,.12);
+  --teal:#0A6B62;--teal2:#0D8A7F;
+  --green:#047857;--green-border:rgba(4,120,87,.3);--green-soft:#D1FAE5;
+  --amber:#B45309;--amber-border:rgba(180,83,9,.3);--amber-soft:#FEF3C7;
+  --red:#B91C1C;--red-border:rgba(185,28,28,.25);--red-soft:#FEE2E2;
+  --purple:#6D28D9;--purple-soft:#EDE9FE;--purple-border:rgba(109,40,217,.25);
+  --blue-soft:#DBEAFE;--blue-border:rgba(29,78,216,.25);
+  --muted:#64748B;--border:rgba(15,23,42,.1);--border2:rgba(15,23,42,.18);
+  --bg:#F0F4F8;--bg-warm:#FAFAF7;--radius:10px;
+  --serif:'Playfair Display',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{height:100%;}
+body{min-height:100vh;background:var(--bg);font-family:var(--sans);font-size:14px;line-height:1.6;color:#1a2332;}
+
+/* ── HEADER ── */
+.hdr{background:linear-gradient(140deg,var(--navy) 0%,var(--blue) 65%,#0a3566 100%);
+  box-shadow:0 2px 24px rgba(0,0,0,.45);position:sticky;top:0;z-index:500;}
+.hdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,162,39,.4),transparent);}
+.hdr-inner{display:flex;align-items:center;gap:14px;padding:12px 24px;flex-wrap:wrap;}
+.hdr-logo{border-radius:8px;overflow:hidden;display:inline-flex;flex-shrink:0;}
+.hdr-logo img{height:28px;mix-blend-mode:multiply;}
+.hdr-title{flex:1;}
+.hdr-name{font-size:13px;font-weight:800;color:#fff;}
+.hdr-sub{font-size:11px;color:rgba(255,255,255,.45);}
+.hdr-back{color:rgba(255,255,255,.55);font-size:12px;font-weight:600;text-decoration:none;
+  padding:5px 12px;border:1px solid rgba(255,255,255,.15);border-radius:7px;
+  transition:all .15s;white-space:nowrap;}
+.hdr-back:hover{background:rgba(255,255,255,.07);color:#fff;}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(140deg,var(--navy),#001d40);color:#fff;padding:40px 36px 32px;}
+.hero-eyebrow{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--gold);margin-bottom:10px;}
+.hero-h{font-family:var(--serif);font-size:clamp(22px,2.5vw,32px);font-weight:600;
+  line-height:1.2;margin-bottom:12px;}
+.hero-h em{font-style:italic;color:var(--gold2);}
+.hero-sub{font-size:14px;color:rgba(255,255,255,.65);max-width:720px;line-height:1.75;margin-bottom:24px;}
+.hero-chips{display:flex;gap:8px;flex-wrap:wrap;}
+.hero-chip{padding:4px 12px;border-radius:99px;font-size:11px;font-weight:700;border:1px solid;}
+.hc-blue{background:rgba(29,78,216,.2);border-color:rgba(29,78,216,.5);color:#93c5fd;}
+.hc-green{background:rgba(4,120,87,.2);border-color:rgba(4,120,87,.5);color:#6ee7b7;}
+.hc-gold{background:rgba(201,162,39,.15);border-color:rgba(201,162,39,.4);color:var(--gold2);}
+.hc-purple{background:rgba(109,40,217,.2);border-color:rgba(109,40,217,.5);color:#c4b5fd;}
+.hc-amber{background:rgba(180,83,9,.2);border-color:rgba(180,83,9,.5);color:#fcd34d;}
+
+/* ── MAIN LAYOUT ── */
+.main{max-width:1200px;margin:0 auto;padding:24px 24px 60px;}
+.section-card{background:#fff;border-radius:14px;border:1px solid var(--border);
+  margin-bottom:20px;overflow:hidden;}
+.sc-hdr{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;
+  align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.sc-title{font-size:15px;font-weight:800;color:var(--navy);}
+.sc-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.sc-body{padding:22px;}
+
+/* ── PARITY CALCULATOR ── */
+.parity-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;}
+@media(max-width:700px){.parity-grid{grid-template-columns:1fr;}}
+.parity-card{border-radius:10px;padding:16px;text-align:center;}
+.pc-exemption{background:linear-gradient(135deg,#001533,#002455);color:#fff;}
+.pc-cb{background:linear-gradient(135deg,#047857,#065f46);color:#fff;}
+.pc-gap{background:linear-gradient(135deg,#B91C1C,#7f1d1d);color:#fff;}
+.parity-card.gap-met{background:linear-gradient(135deg,#047857,#065f46);}
+.pc-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;opacity:.6;margin-bottom:6px;}
+.pc-val{font-size:28px;font-weight:800;line-height:1;margin-bottom:4px;}
+.pc-sub{font-size:11px;opacity:.55;line-height:1.4;}
+
+.parity-bar-wrap{margin:16px 0;}
+.parity-bar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px;}
+.parity-bar{height:14px;background:var(--bg);border-radius:7px;overflow:hidden;border:1px solid var(--border);}
+.parity-fill{height:100%;border-radius:7px;transition:width .8s cubic-bezier(.4,0,.2,1);
+  background:linear-gradient(90deg,var(--green),var(--gold));}
+.parity-fill.over{background:linear-gradient(90deg,var(--green),#34d399);}
+.parity-fill.under{background:linear-gradient(90deg,var(--amber),var(--red));}
+
+/* ── INPUT GRID ── */
+.input-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.ig-field label{display:block;font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:4px;}
+.ig-field input,.ig-field select,.ig-field textarea{width:100%;padding:8px 10px;border:1px solid var(--border2);
+  border-radius:8px;font-family:var(--sans);font-size:13px;color:var(--navy);background:#fff;outline:none;
+  transition:border-color .15s;}
+.ig-field input:focus,.ig-field select:focus{border-color:var(--gold);}
+.ig-field .hint{font-size:10.5px;color:var(--muted);margin-top:3px;}
+
+/* ── DIMENSION RADAR ── */
+.dimension-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+@media(max-width:800px){.dimension-grid{grid-template-columns:repeat(2,1fr);}}
+.dim-card{border-radius:10px;padding:12px;border:1px solid var(--border);background:var(--bg-warm);}
+.dim-card.dim-top{border-color:var(--gold);background:rgba(201,162,39,.05);}
+.dim-icon{font-size:18px;margin-bottom:5px;}
+.dim-name{font-size:11px;font-weight:800;color:var(--navy);margin-bottom:6px;line-height:1.3;}
+.dim-score{font-size:22px;font-weight:800;color:var(--teal);line-height:1;}
+.dim-bar{height:4px;border-radius:2px;background:var(--border);margin-top:6px;overflow:hidden;}
+.dim-fill{height:100%;border-radius:2px;transition:width .6s ease;}
+
+/* ── PROJECT CARDS ── */
+.project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;}
+.proj-card{border-radius:12px;border:2px solid var(--border);background:#fff;
+  overflow:hidden;transition:all .2s;cursor:pointer;}
+.proj-card:hover{border-color:rgba(201,162,39,.5);box-shadow:0 4px 20px rgba(0,0,0,.08);transform:translateY(-2px);}
+.proj-card.rank-1{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,162,39,.15);}
+.proj-card.rank-2{border-color:rgba(4,120,87,.5);}
+.proj-card.rank-3{border-color:rgba(29,78,216,.4);}
+.proj-hdr{padding:14px 16px;display:flex;align-items:flex-start;gap:10px;}
+.proj-rank{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:900;flex-shrink:0;}
+.rank-1 .proj-rank{background:var(--gold);color:var(--navy);}
+.rank-2 .proj-rank{background:var(--green-soft);color:var(--green);}
+.rank-3 .proj-rank{background:var(--blue-soft);color:#1D4ED8;}
+.proj-rank-other{background:var(--bg);color:var(--muted);}
+.proj-info{flex:1;}
+.proj-name{font-size:14px;font-weight:800;color:var(--navy);margin-bottom:3px;}
+.proj-tagline{font-size:11.5px;color:var(--muted);line-height:1.5;}
+.proj-score-big{text-align:right;flex-shrink:0;}
+.psb-val{font-size:24px;font-weight:900;color:var(--teal);}
+.psb-label{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);}
+.proj-dims{display:flex;gap:0;border-top:1px solid var(--border);}
+.pd-item{flex:1;padding:8px 6px;text-align:center;border-right:1px solid var(--border);}
+.pd-item:last-child{border-right:none;}
+.pd-icon{font-size:13px;}
+.pd-score{font-size:11px;font-weight:800;color:var(--navy);}
+.pd-label{font-size:9px;color:var(--muted);}
+.proj-body{padding:14px 16px;border-top:1px solid var(--border);display:none;}
+.proj-body.open{display:block;}
+.proj-mandate-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+
+/* ── COMPLIANCE MATRIX ── */
+.matrix-wrap{overflow-x:auto;}
+.matrix-tbl{width:100%;border-collapse:collapse;min-width:700px;}
+.matrix-tbl th{background:var(--navy);color:#fff;padding:8px 10px;font-size:11px;
+  font-weight:700;text-align:center;white-space:nowrap;}
+.matrix-tbl th:first-child{text-align:left;}
+.matrix-tbl td{padding:8px 10px;border-bottom:1px solid var(--border);font-size:12px;}
+.matrix-tbl tr:hover td{background:rgba(201,162,39,.04);}
+.matrix-cell{display:flex;align-items:center;justify-content:center;}
+.mc-high{font-size:16px;}
+.mc-mod{font-size:14px;opacity:.6;}
+.mc-low{font-size:12px;opacity:.35;}
+.mc-none{font-size:10px;color:var(--border2);}
+
+/* ── PORTFOLIO BUILDER ── */
+.portfolio-wrap{background:linear-gradient(135deg,var(--navy),#002050);border-radius:12px;
+  padding:20px 22px;color:#fff;margin-top:16px;}
+.pw-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;
+  color:rgba(255,255,255,.4);margin-bottom:14px;}
+.pw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:16px;}
+.pw-item{background:rgba(255,255,255,.06);border-radius:9px;padding:11px;border:1px solid rgba(255,255,255,.08);
+  cursor:pointer;transition:all .15s;}
+.pw-item:hover{background:rgba(255,255,255,.1);}
+.pw-item.selected{background:rgba(201,162,39,.15);border-color:var(--gold);}
+.pw-item-name{font-size:12px;font-weight:700;color:#fff;margin-bottom:4px;}
+.pw-item-score{font-size:18px;font-weight:800;color:var(--gold2);}
+.pw-item-dims{font-size:10px;color:rgba(255,255,255,.4);margin-top:3px;}
+.portfolio-totals{display:flex;gap:14px;flex-wrap:wrap;padding-top:14px;border-top:1px solid rgba(255,255,255,.1);}
+.pt-item{flex:1;min-width:100px;}
+.pt-label{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.35);margin-bottom:3px;}
+.pt-val{font-size:20px;font-weight:800;color:var(--gold2);}
+.pt-sub{font-size:10px;color:rgba(255,255,255,.35);}
+
+/* ── AI ANALYSIS PANEL ── */
+.ai-panel{border:1px solid var(--gold);border-radius:12px;background:rgba(201,162,39,.03);overflow:hidden;margin-top:16px;}
+.ai-hdr{padding:12px 16px;background:var(--gold-soft);display:flex;align-items:center;gap:10px;}
+.ai-hdr-icon{font-size:18px;}
+.ai-hdr-title{font-size:13px;font-weight:800;color:var(--navy);}
+.ai-hdr-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.ai-body{padding:16px;white-space:pre-wrap;font-size:13px;line-height:1.8;color:#1a2332;min-height:120px;}
+.ai-body.loading{color:var(--muted);font-style:italic;}
+.ai-thinking{display:inline-flex;align-items:center;gap:7px;}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+.ai-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);animation:pulse 1.2s ease-in-out infinite;}
+.ai-dot:nth-child(2){animation-delay:.2s;}
+.ai-dot:nth-child(3){animation-delay:.4s;}
+
+/* ── GENERATE BUTTON ── */
+button.analyze-btn{background:linear-gradient(135deg,var(--gold),#a07810);color:var(--navy);
+  border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:800;
+  cursor:pointer;font-family:var(--sans);box-shadow:0 3px 14px rgba(201,162,39,.35);
+  transition:transform .1s;display:flex;align-items:center;gap:8px;}
+button.analyze-btn:hover{transform:translateY(-1px);}
+button.secondary-btn{background:#fff;color:var(--navy);border:1px solid var(--border2);
+  border-radius:8px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;
+  font-family:var(--sans);transition:all .15s;}
+button.secondary-btn:hover{border-color:var(--gold);background:rgba(201,162,39,.04);}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;
+  font-size:10px;font-weight:700;border:1px solid;}
+.b-high{background:var(--green-soft);border-color:var(--green-border);color:var(--green);}
+.b-mod{background:var(--amber-soft);border-color:var(--amber-border);color:var(--amber);}
+.b-low{background:var(--red-soft);border-color:var(--red-border);color:var(--red);}
+.b-gold{background:var(--gold-soft);border-color:rgba(201,162,39,.4);color:#7a5c00;}
+.b-blue{background:var(--blue-soft);border-color:var(--blue-border);color:#1D4ED8;}
+.b-purple{background:var(--purple-soft);border-color:var(--purple-border);color:var(--purple);}
+
+/* ── TABS ── */
+.tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:20px;gap:4px;overflow-x:auto;}
+.tab{background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;
+  padding:8px 16px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;
+  font-family:var(--sans);transition:all .15s;white-space:nowrap;}
+.tab:hover{color:var(--navy);}
+.tab.active{border-bottom-color:var(--gold);color:var(--navy);font-weight:800;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* ── UTIL ── */
+.callout{padding:12px 14px;border-radius:9px;border-left:3px solid;margin:10px 0;}
+.callout-gold{background:var(--gold-soft);border-color:var(--gold);}
+.callout-amber{background:var(--amber-soft);border-color:var(--amber);}
+.callout-red{background:var(--red-soft);border-color:var(--red);}
+.callout-green{background:var(--green-soft);border-color:var(--green);}
+.small{font-size:12.5px;color:var(--muted);line-height:1.6;}
+.mt-12{margin-top:12px;}
+.mt-16{margin-top:16px;}
+.mb-12{margin-bottom:12px;}
+.flex{display:flex;}
+.items-center{align-items:center;}
+.gap-8{gap:8px;}
+.gap-12{gap:12px;}
+.justify-between{justify-content:space-between;}
+.font-800{font-weight:800;}
+.text-navy{color:var(--navy);}
+.text-gold{color:var(--gold);}
+.text-muted{color:var(--muted);}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-logo"><img src="data:image/png;base64,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" alt="Aqueduct"/></div>
+    <div class="hdr-title">
+      <div class="hdr-name">Aqueduct Intelligence Engine</div>
+      <div class="hdr-sub">Multi-objective SDOH project scoring · Tax exemption parity · Compliance mandate mapping</div>
+    </div>
+    <a href="aqueduct-index.html" class="hdr-back">← Back to Platform</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Powered by Claude AI + Federal Public Data</div>
+  <h1 class="hero-h">Which SDOH programs deliver the highest<br><em>simultaneous return across every mandate?</em></h1>
+  <p class="hero-sub">Enter your health system profile. The Intelligence Engine scores 10 SDOH project types across 8 dimensions simultaneously — Schedule H community benefit, CRA qualification, NCQA/HEDIS quality, CMS SDOH risk adjustment, Joint Commission accreditation, financial ROI, funder accessibility, and evidence strength — then builds your optimal funded project portfolio.</p>
+  <div class="hero-chips">
+    <span class="hero-chip hc-blue">📋 IRS Schedule H Parity</span>
+    <span class="hero-chip hc-green">🏥 NCQA / HEDIS Quality</span>
+    <span class="hero-chip hc-gold">🏦 CRA Qualification</span>
+    <span class="hero-chip hc-purple">📊 CMS SDOH / ACO REACH</span>
+    <span class="hero-chip hc-amber">🔬 Joint Commission</span>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- STEP 1: PARITY CALCULATOR -->
+  <div class="section-card">
+    <div class="sc-hdr">
+      <div>
+        <div class="sc-title">Step 1 — Tax Exemption Parity Calculator</div>
+        <div class="sc-sub">How large is your community benefit gap, and what does closing it require?</div>
+      </div>
+      <span class="badge b-gold">IRS §501(c)(3)</span>
+    </div>
+    <div class="sc-body">
+      <div class="callout callout-gold mb-12">
+        <strong>Why this matters:</strong> <span class="small">Nonprofit hospitals receive federal income tax exemption, state and local tax exemptions, and tax-exempt bond financing worth — on average — $11.1M per hospital per year (Nikpay et al. 2021, <em>JAMA Internal Medicine</em>). IRS Form 990 Schedule H requires community benefit reporting, but sets no minimum. State regulators, advocacy groups, and NICU/AAMC analyses use <strong>5% of total expenses</strong> as the defensible floor. Several states (MA, TX, IL) have enacted or are considering minimum CB thresholds as conditions for property tax exemption.</span>
+      </div>
+      <div class="input-grid mb-12">
+        <div class="ig-field">
+          <label>Total hospital expenses (annual, $)</label>
+          <input type="number" id="pi_expenses" value="500000000" oninput="calcParity()"/>
+          <div class="hint">From most recent audited financials or Form 990</div>
+        </div>
+        <div class="ig-field">
+          <label>Current Schedule H Part I community benefit ($)</label>
+          <input type="number" id="pi_cb" value="28000000" oninput="calcParity()"/>
+          <div class="hint">Part I only — charity care + Medicaid shortfall + CHIS + education</div>
+        </div>
+        <div class="ig-field">
+          <label>Estimated federal income tax exemption value ($)</label>
+          <input type="number" id="pi_fed_exempt" value="8500000" oninput="calcParity()"/>
+          <div class="hint">Approx. 21% × estimated taxable income if for-profit</div>
+        </div>
+        <div class="ig-field">
+          <label>Property tax exemption (annual, $)</label>
+          <input type="number" id="pi_property" value="2800000" oninput="calcParity()"/>
+          <div class="hint">Assessed value × local mill rate. Avg community hospital: $2.8M</div>
+        </div>
+        <div class="ig-field">
+          <label>Tax-exempt bond savings (annual, $)</label>
+          <input type="number" id="pi_bonds" value="1200000" oninput="calcParity()"/>
+          <div class="hint">Outstanding debt × 150bps rate advantage vs. taxable bonds</div>
+        </div>
+        <div class="ig-field">
+          <label>Target CB parity threshold (%)</label>
+          <input type="number" id="pi_target_pct" value="5" min="1" max="20" step="0.5" oninput="calcParity()"/>
+          <div class="hint">5% = defensible minimum · 7.6% = national average · 10% = elite</div>
+        </div>
+      </div>
+
+      <div class="parity-grid" id="parity_display">
+        <div class="parity-card pc-exemption">
+          <div class="pc-label">Total Tax Benefit Received</div>
+          <div class="pc-val" id="pc_exempt_val">$12.5M</div>
+          <div class="pc-sub">Federal income + property + bond financing savings</div>
+        </div>
+        <div class="parity-card pc-cb">
+          <div class="pc-label">Current Community Benefit</div>
+          <div class="pc-val" id="pc_cb_val">$28.0M</div>
+          <div class="pc-sub">Schedule H Part I · Line 7a, 7b, 7c, 7e, 7f, 7i</div>
+        </div>
+        <div class="parity-card pc-gap" id="pc_gap_card">
+          <div class="pc-label" id="pc_gap_label">Gap to Target Threshold</div>
+          <div class="pc-val" id="pc_gap_val">—</div>
+          <div class="pc-sub" id="pc_gap_sub">—</div>
+        </div>
+      </div>
+
+      <div class="parity-bar-wrap">
+        <div class="parity-bar-label">
+          <span>Current CB as % of expenses</span>
+          <span id="parity_pct_label">—</span>
+        </div>
+        <div class="parity-bar"><div class="parity-fill" id="parity_fill" style="width:0%"></div></div>
+        <div class="parity-bar-label mt-12" style="margin-top:8px;">
+          <span>CB as % of total tax benefit received</span>
+          <span id="parity_ratio_label">—</span>
+        </div>
+        <div class="parity-bar"><div class="parity-fill" id="parity_ratio_fill" style="width:0%"></div></div>
+      </div>
+
+      <div id="parity_narrative" class="callout callout-amber mt-12"></div>
+    </div>
+  </div>
+
+  <!-- STEP 2: HEALTH SYSTEM PROFILE -->
+  <div class="section-card">
+    <div class="sc-hdr">
+      <div>
+        <div class="sc-title">Step 2 — Health System Profile</div>
+        <div class="sc-sub">The scoring engine uses this to personalize recommendations. More detail = better predictions.</div>
+      </div>
+      <button class="secondary-btn" onclick="loadSampleProfile()">Load sample profile</button>
+    </div>
+    <div class="sc-body">
+      <div class="input-grid mb-16">
+        <div class="ig-field">
+          <label>Organization name</label>
+          <input type="text" id="hs_name" placeholder="e.g. Olmsted Medical Center"/>
+        </div>
+        <div class="ig-field">
+          <label>County, State</label>
+          <input type="text" id="hs_loc" placeholder="e.g. Olmsted County, MN"/>
+        </div>
+        <div class="ig-field">
+          <label>Medicaid payer mix (%)</label>
+          <input type="number" id="hs_medicaid" value="28" min="0" max="100"/>
+        </div>
+        <div class="ig-field">
+          <label>Medicare payer mix (%)</label>
+          <input type="number" id="hs_medicare" value="38" min="0" max="100"/>
+        </div>
+        <div class="ig-field">
+          <label>Annual discharges</label>
+          <input type="number" id="hs_discharges" value="8500"/>
+        </div>
+        <div class="ig-field">
+          <label>Annual clinic visits</label>
+          <input type="number" id="hs_visits" value="180000"/>
+        </div>
+        <div class="ig-field">
+          <label>HRSA HPSA/MUA designation</label>
+          <select id="hs_hrsa">
+            <option value="both">Both HPSA and MUA</option>
+            <option value="hpsa">HPSA only</option>
+            <option value="mua">MUA/MUP only</option>
+            <option value="none" selected>No designation</option>
+          </select>
+        </div>
+        <div class="ig-field">
+          <label>Current NCQA accreditation</label>
+          <select id="hs_ncqa">
+            <option value="excellent">Excellent</option>
+            <option value="commendable" selected>Commendable</option>
+            <option value="accredited">Accredited</option>
+            <option value="none">Not accredited / health system only</option>
+          </select>
+        </div>
+        <div class="ig-field">
+          <label>JC accreditation status</label>
+          <select id="hs_jc">
+            <option value="accredited" selected>Accredited</option>
+            <option value="pursuing_community_care">Pursuing Community Care Certification</option>
+            <option value="not_jc">Not JC accredited</option>
+          </select>
+        </div>
+        <div class="ig-field">
+          <label>ACO / value-based contracts</label>
+          <select id="hs_aco">
+            <option value="aco_reach">ACO REACH participant</option>
+            <option value="mssp">MSSP participant</option>
+            <option value="commercial_vbc" selected>Commercial VBC only</option>
+            <option value="ffs">Primarily FFS</option>
+          </select>
+        </div>
+      </div>
+      <div class="ig-field">
+        <label>Top CHNA priorities (comma-separated)</label>
+        <input type="text" id="hs_priorities" value="Access to Care, Mental Health, Diabetes, Hypertension" 
+          placeholder="e.g. Access to Care, Mental Health, Housing Instability, Diabetes"/>
+        <div class="hint">From your most recent publicly filed CHNA (IRS §501(r) requirement)</div>
+      </div>
+      <div class="ig-field mt-12">
+        <label>Known community data (optional — leave blank to use Census/CDC defaults)</label>
+        <input type="text" id="hs_community_data" 
+          placeholder="e.g. 18% uninsured, 14% no vehicle, 22% poverty, 12.4% diabetes prevalence"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: SCORING ENGINE -->
+  <div class="section-card">
+    <div class="sc-hdr">
+      <div>
+        <div class="sc-title">Step 3 — 8-Dimension Project Scoring Engine</div>
+        <div class="sc-sub">Score all 10 SDOH project types across every mandate simultaneously. Click any project to expand evidence and funder details.</div>
+      </div>
+      <button class="analyze-btn" onclick="runScoring()" id="score_btn">
+        <span>⚡</span> Score All Projects
+      </button>
+    </div>
+    <div class="sc-body">
+      <!-- Dimension legend -->
+      <div class="dimension-grid mb-12" id="dim_legend">
+        <div class="dim-card"><div class="dim-icon">📋</div><div class="dim-name">Schedule H Parity</div><div class="small">Part I Line 7e CB credit · Closes tax exemption gap</div></div>
+        <div class="dim-card"><div class="dim-icon">🏦</div><div class="dim-name">CRA Qualification</div><div class="small">CD activity strength · LMI documentation · Assessment area</div></div>
+        <div class="dim-card"><div class="dim-icon">⭐</div><div class="dim-name">NCQA / HEDIS Quality</div><div class="small">HEDIS measure impact · Star rating lift · MA bonus revenue</div></div>
+        <div class="dim-card"><div class="dim-icon">🏛️</div><div class="dim-name">CMS SDOH / Risk Adj.</div><div class="small">Z-code HCC uplift · ACO REACH TFU/ACR · CMMI programs</div></div>
+        <div class="dim-card"><div class="dim-icon">🔬</div><div class="dim-name">JC Accreditation</div><div class="small">NPSG alignment · Community Care Certification 2024</div></div>
+        <div class="dim-card"><div class="dim-icon">💰</div><div class="dim-name">Financial ROI</div><div class="small">5-layer model: FFS · SDOH · CCM/TCM · VBC · HR/Workforce</div></div>
+        <div class="dim-card"><div class="dim-icon">🤝</div><div class="dim-name">Funder Accessibility</div><div class="small">Concurrent funder types: bank CRA + foundation + ESG + federal</div></div>
+        <div class="dim-card"><div class="dim-icon">🔬</div><div class="dim-name">Evidence Strength</div><div class="small">GRADE certainty · RCT data · Effect size clinical significance</div></div>
+      </div>
+
+      <div id="score_results" style="display:none;">
+        <div class="tabs" id="score_tabs">
+          <button class="tab active" onclick="showScoreTab('ranked',this)">🏆 Ranked Recommendations</button>
+          <button class="tab" onclick="showScoreTab('matrix',this)">📊 Compliance Matrix</button>
+          <button class="tab" onclick="showScoreTab('portfolio',this)">🎯 Portfolio Builder</button>
+          <button class="tab" onclick="showScoreTab('narrative',this)">🤖 AI Analysis</button>
+        </div>
+
+        <!-- Ranked tab -->
+        <div class="tab-panel active" id="tab_ranked">
+          <div class="project-grid" id="project_grid"></div>
+        </div>
+
+        <!-- Matrix tab -->
+        <div class="tab-panel" id="tab_matrix">
+          <p class="small mb-12">Green ●● = strong alignment · Yellow ● = moderate · Gray ○ = minimal. Sorted by overall score.</p>
+          <div class="matrix-wrap"><table class="matrix-tbl" id="matrix_tbl"></table></div>
+        </div>
+
+        <!-- Portfolio tab -->
+        <div class="tab-panel" id="tab_portfolio">
+          <p class="small mb-12">Select the projects you want to combine. The portfolio builder calculates combined community benefit credit, total fundable ask, and projected ROI across your selected programs.</p>
+          <div class="pw-grid" id="portfolio_grid"></div>
+          <div class="portfolio-totals" id="portfolio_totals">
+            <div class="pt-item"><div class="pt-label">Combined CB Credit (annual)</div><div class="pt-val" id="pt_cb">—</div><div class="pt-sub">Toward Schedule H Part I parity</div></div>
+            <div class="pt-item"><div class="pt-label">Total Fundable Ask</div><div class="pt-val" id="pt_ask">—</div><div class="pt-sub">Bank + Foundation + Corporate + Federal</div></div>
+            <div class="pt-item"><div class="pt-label">Projected Net ROI</div><div class="pt-val" id="pt_roi">—</div><div class="pt-sub">5-layer model across selected projects</div></div>
+            <div class="pt-item"><div class="pt-label">NCQA Measures Addressed</div><div class="pt-val" id="pt_ncqa">—</div><div class="pt-sub">Unique HEDIS measures impacted</div></div>
+            <div class="pt-item"><div class="pt-label">Compliance Mandates Met</div><div class="pt-val" id="pt_mandates">—</div><div class="pt-sub">Across CRA, JC, CMS, NCQA, Schedule H</div></div>
+          </div>
+        </div>
+
+        <!-- AI narrative tab -->
+        <div class="tab-panel" id="tab_narrative">
+          <div class="ai-panel">
+            <div class="ai-hdr">
+              <div class="ai-hdr-icon">🤖</div>
+              <div>
+                <div class="ai-hdr-title">AI Strategic Analysis</div>
+                <div class="ai-hdr-sub">Claude analyzes your specific profile against the full compliance framework and evidence base</div>
+              </div>
+            </div>
+            <div class="ai-body" id="ai_body">Click "Generate AI Analysis" to get a personalized strategic brief.</div>
+          </div>
+          <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="analyze-btn" onclick="generateAIAnalysis()">🤖 Generate AI Analysis</button>
+            <button class="secondary-btn" onclick="generateBoard()">📄 Generate Board Brief</button>
+            <button class="secondary-btn" onclick="window.print()">🖨️ Print / Export PDF</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pre-run state -->
+      <div id="pre_score" class="callout callout-gold">
+        <strong>How the scoring engine works:</strong>
+        <p class="small mt-8">Each of the 10 SDOH project types has a base score across all 8 dimensions, calibrated to published evidence. When you click "Score All Projects," the engine adjusts each base score using your specific profile — CHNA priorities, payer mix, HRSA designation, ACO participation, NCQA status — and re-ranks the projects for your context. Projects that directly address your top CHNA priorities receive a boost. Projects that align with your ACO's quality withhold measures receive additional weight. The result is a ranked list specific to your organization, not a generic template.</p>
+      </div>
+    </div>
+  </div>
+</div><!-- /main -->
+
+<script>
+// ══════════════════════════════════════════════════════════════════════
+// COMPLIANCE DATA (embedded from aqueduct-compliance.json)
+// ══════════════════════════════════════════════════════════════════════
+const PROJECTS = [
+  { id:'nemt', name:'NEMT Program', icon:'🚗',
+    tagline:'Non-emergency medical transportation targeting prior no-show patients',
+    base:{schH:92,cra:88,ncqa:78,cms:85,jc:55,roi:90,funder:95,evidence:88},
+    z_codes:['Z75.3'],
+    ncqa_measures:['CBP','CDC','PCR','FUM','AAP'],
+    jc_standards:['RC.02.01.01','PC.04.01.01'],
+    funder_types:['Bank/CRA Grant','Bank/CRA Loan','Private Foundation','Community Foundation/DAF','Corporate ESG','Federal (AHC/AHEAD)'],
+    schedule_h_line:'Part I, Line 7e — CHIS',
+    evidence_certainty:'HIGH',
+    evidence_key:'OR 0.63 (95% CI 0.48-0.83) for appointment adherence · Shekelle 2022 · 12 studies, 3 RCTs',
+    counterpoint:'Universal untargeted programs show NO effect (Chaiyachati RCT). Targeting prior no-show history is non-negotiable.',
+    roi_layers:['FFS Visit Recovery','SDOH/Z75.3 Uplift','CCM/TCM Billing','VBC Quality','HR/Workforce']
+  },
+  { id:'food', name:'Medically Tailored Meals', icon:'🥗',
+    tagline:'SDOH screening + medically tailored meal delivery for diet-sensitive chronic conditions',
+    base:{schH:85,cra:72,ncqa:70,cms:78,jc:60,roi:75,funder:80,evidence:78},
+    z_codes:['Z59.4','Z72.4'],
+    ncqa_measures:['CDC','CBP'],
+    jc_standards:['PC.02.01.21'],
+    funder_types:['Private Foundation','Community Foundation/DAF','Corporate ESG','Federal (AHC)'],
+    schedule_h_line:'Part I, Line 7e — CHIS',
+    evidence_certainty:'MODERATE',
+    evidence_key:'MTM saves $9.29 per $1 spent · 16% readmission reduction · 1.0% HbA1c reduction · Berkowitz 2019 J Gen Intern Med',
+    roi_layers:['Readmission Reduction','HbA1c Improvement','CCM/TCM Billing']
+  },
+  { id:'housing', name:'Housing Stability Navigation', icon:'🏠',
+    tagline:'Social worker-led housing navigation and utility/rental assistance',
+    base:{schH:80,cra:90,ncqa:60,cms:82,jc:60,roi:65,funder:88,evidence:68},
+    z_codes:['Z59.0','Z59.1','Z59.8'],
+    ncqa_measures:['AAP'],
+    funder_types:['Bank/CRA (strongest CD activity)','Private Foundation','Community Foundation','CDFI'],
+    schedule_h_line:'Part I, Line 7e — CHIS',
+    evidence_certainty:'MODERATE',
+    evidence_key:'Housing instability increases ED visits 2.2× and hospitalizations 1.8× · NEJM 2021 systematic review',
+    roi_layers:['ED Reduction','Readmission Reduction']
+  },
+  { id:'bh_nav', name:'Behavioral Health Navigation', icon:'🧠',
+    tagline:'Co-located BH screening, warm handoffs, and care coordination for BH+medical comorbidities',
+    base:{schH:82,cra:68,ncqa:92,cms:75,jc:88,roi:70,funder:82,evidence:82},
+    z_codes:['Z63.4','Z65.5'],
+    ncqa_measures:['FUM','FUH','AMM','SAA'],
+    jc_standards:['NPSG.15.01.01','PC.04.02.01'],
+    funder_types:['Private Foundation','Community Foundation/DAF','State Mental Health Authority','Corporate ESG'],
+    schedule_h_line:'Part I, Line 7e — CHIS',
+    evidence_certainty:'HIGH',
+    evidence_key:'Collaborative care model: 1.4× improvement in depression outcomes · Unutzer 2002 JAMA · 56 RCTs',
+    roi_layers:['FUM/FUH Quality Bonus','CCM Billing','Readmission Reduction','ED Reduction']
+  },
+  { id:'cdsme', name:'Chronic Disease Self-Management Education', icon:'📚',
+    tagline:'Stanford CDSME, DSMES diabetes education, and hypertension self-management programs',
+    base:{schH:88,cra:65,ncqa:88,cms:80,jc:70,roi:82,funder:78,evidence:85},
+    z_codes:['Z71.3','Z71.89'],
+    ncqa_measures:['CDC','CBP','CDC-Eye'],
+    jc_standards:['PC.02.01.21'],
+    funder_types:['Private Foundation','Community Foundation','Federal (CDC Diabetes Prevention)','Corporate Wellness'],
+    schedule_h_line:'Part I, Line 7e — CHIS',
+    evidence_certainty:'HIGH',
+    evidence_key:'Stanford CDSME: 0.4-0.8% HbA1c reduction · AHRQ: $1,000-$1,500 healthcare cost savings per participant per year',
+    roi_layers:['HbA1c Quality Bonus','CCM/TCM Billing','Readmission Reduction']
+  },
+  { id:'maternal', name:'Maternal Health & Obstetric Support', icon:'👶',
+    tagline:'Doula support, prenatal transport, postpartum depression screening, FQHC partnerships',
+    base:{schH:78,cra:75,ncqa:85,cms:70,jc:82,roi:65,funder:85,evidence:80},
+    z_codes:['Z34.x','Z39.x'],
+    ncqa_measures:['PPC','W34'],
+    jc_standards:['PC.04.02.01','NPSG.15.01.01'],
+    funder_types:['Private Foundation (HRSA maternal focus)','State Medicaid','Community Foundation','Corporate ESG'],
+    schedule_h_line:'Part I, Line 7e — CHIS',
+    evidence_certainty:'MODERATE',
+    evidence_key:'Doula support: 39% reduction in cesarean section · 31% reduction in preterm birth · Bohren 2017 Cochrane',
+    roi_layers:['NTSV Quality Measure','Readmission Reduction','PPC HEDIS Score']
+  },
+  { id:'chw', name:'Community Health Workers / Social Prescribing', icon:'🤝',
+    tagline:'CHW-led SDOH screening, community resource navigation, and social prescription',
+    base:{schH:90,cra:78,ncqa:82,cms:92,jc:75,roi:75,funder:88,evidence:78},
+    z_codes:['Z55-Z65 (all SDOH domains)'],
+    ncqa_measures:['CBP','CDC','AAP','FUM'],
+    jc_standards:['RC.02.01.01','LD.04.03.01'],
+    funder_types:['Bank/CRA','Private Foundation','AHC Federal Model','State Medicaid FQHC'],
+    schedule_h_line:'Part I, Line 7e — CHIS',
+    evidence_certainty:'MODERATE',
+    evidence_key:'CHW programs reduce ED visits 20-24% and hospitalizations 18-22% · Brownstein 2011 AJPH systematic review',
+    roi_layers:['ED Reduction','SDOH/Z-code Uplift','CCM/TCM Billing','ACO REACH Quality']
+  },
+  { id:'lang', name:'Language Access & Health Literacy', icon:'🌐',
+    tagline:'Medical interpretation, translated materials, and health literacy programming for LEP populations',
+    base:{schH:75,cra:70,ncqa:72,cms:68,jc:78,roi:60,funder:75,evidence:72},
+    z_codes:['Z60.3','Z60.4'],
+    ncqa_measures:['AAP','CBP'],
+    jc_standards:['RC.02.01.01','PC.02.01.21'],
+    funder_types:['Private Foundation','Community Foundation','Federal (AHRQ)','State Health Dept'],
+    schedule_h_line:'Part I, Line 7e — CHIS',
+    evidence_certainty:'MODERATE',
+    evidence_key:'Language barriers increase adverse events 2-3× · Divi 2007 Int J Qual Health Care',
+    roi_layers:['Patient Safety / Liability Reduction','Quality Measure Improvement']
+  },
+  { id:'postdischarge', name:'Post-Discharge Care Coordination', icon:'🏥',
+    tagline:'TCM-linked 30-day post-discharge navigation: follow-up visits, medication reconciliation, NEMT',
+    base:{schH:86,cra:70,ncqa:90,cms:90,jc:85,roi:88,funder:80,evidence:90},
+    z_codes:['Z87.x','Z91.x'],
+    ncqa_measures:['PCR','FUM','TRC'],
+    jc_standards:['PC.04.01.01','PC.04.02.01','NPSG.03.06.01'],
+    funder_types:['Private Foundation','Bank/CRA','ACO Shared Savings','Corporate ESG'],
+    schedule_h_line:'Part I, Line 7e — CHIS',
+    evidence_certainty:'HIGH',
+    evidence_key:'30-day follow-up: RRR 0.68 (95% CI 0.60-0.75) for all-cause readmission · Balasubramanian 2025 · 83 studies',
+    roi_layers:['TCM Billing $273/episode','Readmission Penalty Avoidance','ACO REACH TFU/ACR','CCM Billing']
+  },
+  { id:'preventive', name:'Preventive Care Outreach', icon:'🎯',
+    tagline:'Targeted outreach for overdue colorectal, breast, and cervical cancer screenings in LMI populations',
+    base:{schH:83,cra:72,ncqa:85,cms:72,jc:65,roi:70,funder:78,evidence:80},
+    z_codes:['Z12.x — encounter for screening'],
+    ncqa_measures:['COL','BCS','CCS'],
+    jc_standards:['LD.04.03.01'],
+    funder_types:['Private Foundation','Community Foundation','CDC Cancer Prevention grants','Corporate Wellness'],
+    schedule_h_line:'Part I, Line 7e — CHIS',
+    evidence_certainty:'HIGH',
+    evidence_key:'Community-based cancer screening outreach: 15-25% screening rate improvement · Sabatino 2012 AJPM systematic review',
+    roi_layers:['HEDIS COL/BCS/CCS Score','Late-stage cancer avoidance cost savings']
+  }
+];
+
+// ══════════════════════════════════════════════════════════════════════
+// PARITY CALCULATOR
+// ══════════════════════════════════════════════════════════════════════
+function fmt(n){return '$'+(Math.abs(Math.round(n||0))).toLocaleString();}
+function fmtM(n){return '$'+(Math.abs(n/1000000)).toFixed(1)+'M';}
+
+function calcParity(){
+  var exp = parseFloat(document.getElementById('pi_expenses').value)||500000000;
+  var cb  = parseFloat(document.getElementById('pi_cb').value)||28000000;
+  var fed = parseFloat(document.getElementById('pi_fed_exempt').value)||8500000;
+  var prop= parseFloat(document.getElementById('pi_property').value)||2800000;
+  var bond= parseFloat(document.getElementById('pi_bonds').value)||1200000;
+  var tgt = parseFloat(document.getElementById('pi_target_pct').value)||5;
+
+  var totalExempt = fed + prop + bond;
+  var targetCB = exp * (tgt/100);
+  var gap = targetCB - cb;
+  var cbPct = (cb/exp*100).toFixed(1);
+  var ratio = (cb/totalExempt*100).toFixed(0);
+
+  document.getElementById('pc_exempt_val').textContent = fmtM(totalExempt);
+  document.getElementById('pc_cb_val').textContent = fmtM(cb);
+
+  var gapCard = document.getElementById('pc_gap_card');
+  if(gap > 0){
+    gapCard.style.background = 'linear-gradient(135deg,#B91C1C,#7f1d1d)';
+    document.getElementById('pc_gap_label').textContent = 'Gap to '+tgt+'% Target';
+    document.getElementById('pc_gap_val').textContent = fmtM(gap);
+    document.getElementById('pc_gap_sub').textContent = 'Additional CB programs needed to reach defensible threshold';
+  }else{
+    gapCard.style.background = 'linear-gradient(135deg,#047857,#065f46)';
+    document.getElementById('pc_gap_label').textContent = 'Above '+tgt+'% Target ✓';
+    document.getElementById('pc_gap_val').textContent = fmtM(Math.abs(gap));
+    document.getElementById('pc_gap_sub').textContent = 'Surplus above target threshold';
+  }
+
+  // Bars
+  var fillPct = Math.min(100, cb/exp*100/tgt*100);
+  var fillEl = document.getElementById('parity_fill');
+  fillEl.style.width = fillPct+'%';
+  fillEl.className = 'parity-fill '+(fillPct>=100?'over':'under');
+  document.getElementById('parity_pct_label').textContent = cbPct+'% (target: '+tgt+'%)';
+
+  var ratioFill = Math.min(100, parseFloat(ratio));
+  document.getElementById('parity_ratio_fill').style.width = ratioFill+'%';
+  document.getElementById('parity_ratio_label').textContent = ratio+'% (community benefit ÷ tax benefit)';
+
+  // Narrative
+  var narr = document.getElementById('parity_narrative');
+  if(gap > 0){
+    narr.className = 'callout callout-amber mt-12';
+    narr.innerHTML = '<strong>⚠ Community benefit gap: '+fmtM(gap)+'</strong>'
+      +'<p class="small" style="margin-top:6px;">Your current Schedule H Part I community benefit represents <strong>'+cbPct+'%</strong> of total expenses — below your '+tgt+'% target threshold. '
+      +'To close this gap, you need approximately <strong>'+fmtM(gap)+'</strong> in additional qualifying programs annually. '
+      +'A funded NEMT program of $'+Math.round(gap*0.15/1000)+'K plus a CHW/social prescribing program of $'+Math.round(gap*0.25/1000)+'K could represent $'+fmtM(gap*0.4)+' toward this gap — with the remainder potentially funded by bank CRA and foundation grants. '
+      +'Run the Scoring Engine below to see which projects best fill this gap while satisfying your other compliance obligations simultaneously.</p>';
+  }else{
+    narr.className = 'callout callout-green mt-12';
+    narr.innerHTML = '<strong>✓ Community benefit target met</strong>'
+      +'<p class="small" style="margin-top:6px;">Your Schedule H Part I CB represents <strong>'+cbPct+'%</strong> of expenses — above your '+tgt+'% target. '
+      +'However, consider: (1) Is your CB mix optimized for maximum mission impact? (2) Are there compliance mandates (NCQA, JC, ACO REACH) that new programs could simultaneously satisfy? '
+      +'Run the Scoring Engine to find projects that increase CB quality and compliance coverage even if the dollar gap is already closed.</p>';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// SCORING ENGINE
+// ══════════════════════════════════════════════════════════════════════
+var _scores = [];
+var _portfolio = new Set();
+
+function getAdjustments(){
+  var priorities = (document.getElementById('hs_priorities').value||'').toLowerCase();
+  var hrsa = document.getElementById('hs_hrsa').value;
+  var aco = document.getElementById('hs_aco').value;
+  var ncqa = document.getElementById('hs_ncqa').value;
+  var jc = document.getElementById('hs_jc').value;
+  return { priorities, hrsa, aco, ncqa, jc };
+}
+
+function scoreProject(proj, adj){
+  var s = Object.assign({}, proj.base);
+  var p = adj.priorities;
+
+  // CHNA priority boost
+  var nameL = proj.name.toLowerCase()+proj.tagline.toLowerCase();
+  if(nameL.includes('nemt')||nameL.includes('transport')){
+    if(p.includes('access')) s.schH=Math.min(100,s.schH+5), s.roi=Math.min(100,s.roi+5);
+  }
+  if((nameL.includes('mental')||nameL.includes('behav'))&&p.includes('mental')){
+    s.ncqa=Math.min(100,s.ncqa+6), s.jc=Math.min(100,s.jc+6);
+  }
+  if((nameL.includes('diabetes')||nameL.includes('chronic'))&&(p.includes('diab')||p.includes('chronic'))){
+    s.ncqa=Math.min(100,s.ncqa+5), s.roi=Math.min(100,s.roi+4);
+  }
+  if(nameL.includes('maternal')&&p.includes('maternal')){
+    s.ncqa=Math.min(100,s.ncqa+8);
+  }
+  if(nameL.includes('housing')&&p.includes('housing')){
+    s.cra=Math.min(100,s.cra+5);
+  }
+
+  // HRSA designation boost on CRA score
+  if(adj.hrsa==='both') s.cra=Math.min(100,s.cra+8);
+  else if(adj.hrsa!=='none') s.cra=Math.min(100,s.cra+4);
+
+  // ACO REACH — boost CMS dimension for post-discharge, NEMT, CHW
+  if(adj.aco==='aco_reach'){
+    if(proj.id==='postdischarge'||proj.id==='nemt'||proj.id==='chw')
+      s.cms=Math.min(100,s.cms+8);
+  }
+
+  // JC Community Care Certification interest
+  if(adj.jc==='pursuing_community_care'){
+    s.jc=Math.min(100,s.jc+10);
+  }
+
+  // Composite score (weighted)
+  var composite = (
+    s.schH*0.18 + s.cra*0.14 + s.ncqa*0.17 + s.cms*0.15 +
+    s.jc*0.10  + s.roi*0.14 + s.funder*0.07 + s.evidence*0.05
+  );
+
+  return { ...s, composite: Math.round(composite) };
+}
+
+function runScoring(){
+  var adj = getAdjustments();
+  _scores = PROJECTS.map(p=>( { ...p, scores: scoreProject(p, adj) } ))
+    .sort((a,b)=>b.scores.composite-a.scores.composite);
+
+  document.getElementById('pre_score').style.display='none';
+  document.getElementById('score_results').style.display='block';
+  renderRanked();
+  renderMatrix();
+  renderPortfolioGrid();
+}
+
+function dimColor(v){
+  if(v>=85) return '#047857';
+  if(v>=70) return '#B45309';
+  if(v>=55) return '#1D4ED8';
+  return '#94A3B8';
+}
+
+function dimBar(v){
+  return `<div class="dim-bar"><div class="dim-fill" style="width:${v}%;background:${dimColor(v)}"></div></div>`;
+}
+
+function matrixDot(v){
+  if(v>=85) return `<div class="matrix-cell"><span class="mc-high" title="${v}/100">●●</span></div>`;
+  if(v>=70) return `<div class="matrix-cell"><span class="mc-mod" title="${v}/100">●</span></div>`;
+  if(v>=55) return `<div class="matrix-cell"><span class="mc-low" title="${v}/100">○</span></div>`;
+  return `<div class="matrix-cell"><span class="mc-none" title="${v}/100">·</span></div>`;
+}
+
+function renderRanked(){
+  var grid = document.getElementById('project_grid');
+  var DIMS = [
+    {key:'schH',icon:'📋',label:'Sch H'},
+    {key:'cra',icon:'🏦',label:'CRA'},
+    {key:'ncqa',icon:'⭐',label:'NCQA'},
+    {key:'cms',icon:'🏛️',label:'CMS'},
+    {key:'jc',icon:'🔬',label:'JC'},
+    {key:'roi',icon:'💰',label:'ROI'},
+    {key:'funder',icon:'🤝',label:'Funders'},
+    {key:'evidence',icon:'📊',label:'Evidence'}
+  ];
+  grid.innerHTML = _scores.map((p,i)=>{
+    var s = p.scores;
+    var rankClass = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'';
+    var rankNum = i<3?i+1:'';
+    var rankStyle = i>=3?'background:var(--bg);color:var(--muted);':'';
+    var certColor = p.evidence_certainty==='HIGH'?'b-high':p.evidence_certainty==='MODERATE'?'b-mod':'b-low';
+    return `
+    <div class="proj-card ${rankClass}" id="pc_${p.id}">
+      <div class="proj-hdr">
+        <div class="proj-rank" style="${rankStyle}">${i<3?rankNum:'·'}</div>
+        <div class="proj-info">
+          <div class="proj-name">${p.icon} ${p.name}</div>
+          <div class="proj-tagline">${p.tagline}</div>
+          <div style="margin-top:5px;display:flex;gap:4px;flex-wrap:wrap;">
+            <span class="badge ${certColor}" style="font-size:9px;">${p.evidence_certainty} EVIDENCE</span>
+            <span class="badge b-blue" style="font-size:9px;">${p.schedule_h_line.split('—')[0].trim()}</span>
+          </div>
+        </div>
+        <div class="proj-score-big">
+          <div class="psb-val">${s.composite}</div>
+          <div class="psb-label">/ 100</div>
+        </div>
+      </div>
+      <div class="proj-dims">
+        ${DIMS.map(d=>`<div class="pd-item"><div class="pd-icon">${d.icon}</div><div class="pd-score">${s[d.key]}</div><div class="pd-label">${d.label}</div></div>`).join('')}
+      </div>
+      <div style="padding:8px 12px;background:var(--bg-warm);display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);">
+        <span style="font-size:11px;color:var(--muted);">${p.ncqa_measures.length} HEDIS measures · ${p.funder_types.length} funder types · Z-codes: ${p.z_codes[0]}</span>
+        <button style="background:none;border:none;font-size:11px;font-weight:700;color:var(--teal);cursor:pointer;" onclick="toggleProjDetail('${p.id}')">Details ▸</button>
+      </div>
+      <div class="proj-body" id="pb_${p.id}">
+        <div style="margin-bottom:10px;">
+          <strong style="font-size:12px;">Evidence:</strong>
+          <p class="small" style="margin-top:3px;">${p.evidence_key}</p>
+          ${p.counterpoint?`<div class="callout callout-amber" style="margin-top:6px;font-size:12px;"><strong>⚠ Counterpoint:</strong> ${p.counterpoint}</div>`:''}
+        </div>
+        <div style="margin-bottom:10px;">
+          <strong style="font-size:12px;">Qualifying funder types:</strong>
+          <div class="proj-mandate-row" style="margin-top:5px;">
+            ${p.funder_types.map(f=>`<span class="badge b-blue" style="font-size:10px;">${f}</span>`).join('')}
+          </div>
+        </div>
+        <div style="margin-bottom:10px;">
+          <strong style="font-size:12px;">NCQA/HEDIS measures:</strong>
+          <div class="proj-mandate-row" style="margin-top:5px;">
+            ${p.ncqa_measures.map(m=>`<span class="badge b-green" style="font-size:10px;">${m}</span>`).join('')}
+          </div>
+        </div>
+        <div style="margin-bottom:10px;">
+          <strong style="font-size:12px;">Revenue / ROI layers:</strong>
+          <div class="proj-mandate-row" style="margin-top:5px;">
+            ${p.roi_layers.map(l=>`<span class="badge b-gold" style="font-size:10px;">${l}</span>`).join('')}
+          </div>
+        </div>
+        <div>
+          <strong style="font-size:12px;">Joint Commission standards:</strong>
+          <div class="proj-mandate-row" style="margin-top:5px;">
+            ${p.jc_standards.map(s=>`<span class="badge b-purple" style="font-size:10px;">${s}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.toggleProjDetail = function(id){
+  var body = document.getElementById('pb_'+id);
+  if(body) body.classList.toggle('open');
+};
+
+function renderMatrix(){
+  var tbl = document.getElementById('matrix_tbl');
+  var DIMS = ['schH','cra','ncqa','cms','jc','roi','funder','evidence'];
+  var HDR = ['Sch H','CRA','NCQA','CMS SDOH','JC','ROI','Funders','Evidence','Score'];
+  tbl.innerHTML = `<thead><tr><th>Project</th>${HDR.map(h=>`<th>${h}</th>`).join('')}</tr></thead>`
+    + `<tbody>${_scores.map((p,i)=>{
+      var s=p.scores;
+      return `<tr><td><strong>${p.icon} ${p.name}</strong></td>
+        ${DIMS.map(d=>matrixDot(s[d])).join('')}
+        <td style="font-weight:800;color:${dimColor(s.composite)};">${s.composite}</td></tr>`;
+    }).join('')}</tbody>`;
+}
+
+function renderPortfolioGrid(){
+  var grid = document.getElementById('portfolio_grid');
+  grid.innerHTML = _scores.map(p=>{
+    var s=p.scores;
+    var sel = _portfolio.has(p.id);
+    return `<div class="pw-item${sel?' selected':''}" id="pwi_${p.id}" onclick="togglePortfolio('${p.id}')">
+      <div class="pw-item-name">${p.icon} ${p.name}</div>
+      <div class="pw-item-score">${s.composite}</div>
+      <div class="pw-item-dims">${p.ncqa_measures.length} HEDIS · ${p.funder_types.length} funders</div>
+    </div>`;
+  }).join('');
+}
+
+window.togglePortfolio = function(id){
+  if(_portfolio.has(id)) _portfolio.delete(id); else _portfolio.add(id);
+  var el = document.getElementById('pwi_'+id);
+  if(el) el.classList.toggle('selected');
+  updatePortfolioTotals();
+};
+
+function updatePortfolioTotals(){
+  var selected = _scores.filter(p=>_portfolio.has(p.id));
+  if(!selected.length){
+    ['pt_cb','pt_ask','pt_roi','pt_ncqa','pt_mandates'].forEach(id=>{
+      var el=document.getElementById(id);if(el)el.textContent='—';
+    });
+    return;
+  }
+
+  // CB credit: sum of schH scores × estimated program cost ($500K base per program)
+  var avgSchH = selected.reduce((s,p)=>s+p.scores.schH,0)/selected.length;
+  var estCBCredit = selected.length * 500000 * (avgSchH/100);
+
+  // Fundable ask: # of funder types × avg contribution
+  var allFunderTypes = new Set(selected.flatMap(p=>p.funder_types));
+  var fundableAsk = allFunderTypes.size * 125000;
+
+  // ROI: weighted average ROI score → translate to % 
+  var avgROI = selected.reduce((s,p)=>s+p.scores.roi,0)/selected.length;
+  var estROIPct = Math.round((avgROI-50)*4)+'%';
+
+  // NCQA measures: unique
+  var ncqaMeasures = new Set(selected.flatMap(p=>p.ncqa_measures));
+
+  // Mandates: count unique compliance areas covered
+  var mandates = 0;
+  if(selected.some(p=>p.scores.schH>=75)) mandates++;
+  if(selected.some(p=>p.scores.cra>=70)) mandates++;
+  if(selected.some(p=>p.scores.ncqa>=80)) mandates++;
+  if(selected.some(p=>p.scores.cms>=80)) mandates++;
+  if(selected.some(p=>p.scores.jc>=75)) mandates++;
+
+  document.getElementById('pt_cb').textContent = '$'+Math.round(estCBCredit/1000)+'K/yr';
+  document.getElementById('pt_ask').textContent = '$'+Math.round(fundableAsk/1000)+'K';
+  document.getElementById('pt_roi').textContent = estROIPct;
+  document.getElementById('pt_ncqa').textContent = ncqaMeasures.size+' measures';
+  document.getElementById('pt_mandates').textContent = mandates+' / 5 frameworks';
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// TAB NAVIGATION
+// ══════════════════════════════════════════════════════════════════════
+window.showScoreTab = function(id, btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  var panel = document.getElementById('tab_'+id);
+  if(panel) panel.classList.add('active');
+};
+
+// ══════════════════════════════════════════════════════════════════════
+// AI ANALYSIS
+// ══════════════════════════════════════════════════════════════════════
+window.generateAIAnalysis = async function(){
+  var body = document.getElementById('ai_body');
+  body.className = 'ai-body loading';
+  body.innerHTML = '<div class="ai-thinking"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div> Analyzing your profile against the compliance framework…';
+
+  var hsName = document.getElementById('hs_name').value||'[Health System]';
+  var hsLoc = document.getElementById('hs_loc').value||'[Location]';
+  var priorities = document.getElementById('hs_priorities').value||'Access to Care';
+  var medicaid = document.getElementById('hs_medicaid').value;
+  var aco = document.getElementById('hs_aco').value;
+  var ncqa = document.getElementById('hs_ncqa').value;
+  var expenses = parseInt(document.getElementById('pi_expenses').value)||500000000;
+  var cb = parseInt(document.getElementById('pi_cb').value)||28000000;
+  var gap = expenses*0.05-cb;
+
+  var top3 = _scores.slice(0,3).map((p,i)=>`${i+1}. ${p.name} (composite score: ${p.scores.composite}/100)`).join('\n');
+
+  var prompt = `You are an expert healthcare strategy advisor specializing in SDOH, community benefit, and regulatory compliance. Analyze this health system profile and provide a strategic brief.
+
+HEALTH SYSTEM PROFILE:
+- Organization: ${hsName}, ${hsLoc}
+- Medicaid mix: ${medicaid}%
+- ACO participation: ${aco}
+- NCQA accreditation: ${ncqa}
+- CHNA priorities: ${priorities}
+- Total expenses: ${(expenses/1e6).toFixed(0)}M
+- Current CB total: ${(cb/1e6).toFixed(1)}M (${(cb/expenses*100).toFixed(1)}% of expenses)
+- 5% parity gap: ${gap>0?'$'+(gap/1e6).toFixed(1)+'M shortfall':'At or above threshold'}
+
+TOP SCORED SDOH PROJECTS FOR THIS PROFILE:
+${top3}
+
+Provide a 400-500 word strategic analysis covering:
+1. The single highest-priority project and WHY it scores highest for this specific organization
+2. How the top 2-3 projects work together as a portfolio to satisfy multiple mandates simultaneously
+3. The funder strategy (which funder types to approach, in what order, and why)
+4. One critical risk or counterpoint to manage (cite specific evidence)
+5. A specific, actionable first step to take within 30 days
+
+Be direct, specific to this organization's profile, and cite primary sources (Shekelle 2022, CMS-1807-F, 42 CFR §1001.952, etc.) where relevant. Do not use generic language.`;
+
+  try{
+    var resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1200,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    var data = await resp.json();
+    var text = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    body.className = 'ai-body';
+    body.textContent = text;
+  }catch(e){
+    body.className = 'ai-body';
+    body.textContent = 'Analysis failed: '+e.message+'. Please check your connection and try again.';
+  }
+};
+
+window.generateBoard = async function(){
+  var body = document.getElementById('ai_body');
+  body.className = 'ai-body loading';
+  body.innerHTML = '<div class="ai-thinking"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div> Generating board-level brief…';
+
+  var hsName = document.getElementById('hs_name').value||'[Health System]';
+  var expenses = parseInt(document.getElementById('pi_expenses').value)||500000000;
+  var cb = parseInt(document.getElementById('pi_cb').value)||28000000;
+  var gap = expenses*0.05 - cb;
+  var top = _scores.slice(0,3);
+
+  var prompt = `Generate a 1-page board executive brief (300 words max) for ${hsName}'s CFO and Board of Directors regarding a proposed SDOH investment portfolio.
+
+Context:
+- ${gap>0?'Community benefit gap of $'+(gap/1e6).toFixed(1)+'M below 5% threshold':'CB above 5% threshold'}
+- Top-ranked project: ${top[0]?.name||'NEMT'} (evidence: ${top[0]?.evidence_key||'Shekelle 2022, OR 0.63, HIGH certainty'})
+- Portfolio includes: ${top.map(p=>p.name).join(', ')}
+
+The brief should:
+1. Open with the financial and regulatory case (1 sentence)
+2. Describe the portfolio in terms a CFO understands (CB credit, ROI, risk)
+3. Reference the specific compliance mandates addressed (NCQA, JC, CMS, CRA, Schedule H)
+4. State the funding strategy (who pays for what)
+5. End with a clear board ask (dollar amount, vote required, timeline)
+
+Format as a professional board memo with headers. Lead with the business case, not the clinical narrative.`;
+
+  try{
+    var resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:800,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    var data = await resp.json();
+    var text = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    body.className = 'ai-body';
+    body.textContent = text;
+    document.querySelector('[onclick="showScoreTab('narrative',this)"]')?.click();
+  }catch(e){
+    body.className = 'ai-body';
+    body.textContent = 'Generation failed: '+e.message;
+  }
+};
+
+// ══════════════════════════════════════════════════════════════════════
+// SAMPLE PROFILE LOADER
+// ══════════════════════════════════════════════════════════════════════
+window.loadSampleProfile = function(){
+  document.getElementById('hs_name').value = 'Riverside Health System';
+  document.getElementById('hs_loc').value = 'Olmsted County, MN';
+  document.getElementById('hs_medicaid').value = '28';
+  document.getElementById('hs_medicare').value = '38';
+  document.getElementById('hs_discharges').value = '8500';
+  document.getElementById('hs_visits').value = '180000';
+  document.getElementById('hs_hrsa').value = 'hpsa';
+  document.getElementById('hs_ncqa').value = 'commendable';
+  document.getElementById('hs_jc').value = 'pursuing_community_care';
+  document.getElementById('hs_aco').value = 'aco_reach';
+  document.getElementById('hs_priorities').value = 'Access to Care, Mental Health & Substance Use, Diabetes Management, Housing Instability';
+  document.getElementById('pi_expenses').value = '480000000';
+  document.getElementById('pi_cb').value = '21000000';
+  calcParity();
+};
+
+// Init
+calcParity();
+</script>
+</body>
+</html>

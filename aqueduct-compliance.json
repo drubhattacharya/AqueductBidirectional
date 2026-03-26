@@ -1,0 +1,333 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "description": "Aqueduct compliance framework mapping — SDOH projects cross-referenced against regulatory, accreditation, and financial mandates",
+    "last_updated": "2026-03",
+    "frameworks": ["Schedule H", "CRA", "NCQA/HEDIS", "JC NPSG", "CMS SDOH", "NCQA HE", "IRS 501r", "ACO REACH"]
+  },
+  "tax_exemption": {
+    "description": "IRC §501(c)(3) nonprofit hospital tax exemption vs. community benefit obligation",
+    "schedule_h_parts": {
+      "part_i_counts": ["7a Financial Assistance", "7b Medicaid shortfall", "7c Medicare shortfall", "7e CHIS", "7f Health Professions Education", "7g Subsidized Health Services", "7i Cash Contributions"],
+      "part_ii_does_not_count": ["Community Building Activities — unless evidence-based outcomes documented"],
+      "key_principle": "Transportation programs flow to Part I Line 7e (CHIS) when Z75.3 documentation and health outcome evidence exists. Without evidence, defaults to Part II and does not count."
+    },
+    "parity_benchmark": {
+      "description": "AHA estimates average nonprofit hospital tax exemption is 5.9% of total expenses. Community benefit expenditure averages 7.6% — but distribution varies widely.",
+      "minimum_defensible_cb_pct": 5.0,
+      "elite_cb_pct": 10.0,
+      "source": "AHA 2024 Community Benefit Report; IRS Statistics of Income"
+    }
+  },
+  "sdoh_projects": [
+    {
+      "id": "nemt",
+      "name": "Non-Emergency Medical Transportation (NEMT)",
+      "description": "Scheduled transport for LMI patients to medical appointments, post-discharge follow-up, and chronic disease management visits",
+      "z_codes": ["Z75.3 — transportation barrier to care", "Z59.0 — homelessness", "Z59.1 — inadequate housing"],
+      "icd10_sdoh": "Z75.3",
+      "dimensions": {
+        "schedule_h_parity": 92,
+        "cra_qualification": 88,
+        "ncqa_hedis_impact": 78,
+        "cms_sdoh_risk_adj": 85,
+        "jc_accreditation": 55,
+        "financial_roi": 90,
+        "funder_accessibility": 95,
+        "evidence_strength": 88
+      },
+      "schedule_h": {
+        "primary_line": "Part I, Line 7e — Community Health Improvement Services",
+        "secondary_line": "Part I, Line 7i — Cash/In-Kind Contributions to NEMT operators",
+        "part_ii_risk": "Transportation advocacy without outcomes documentation",
+        "key_requirement": "Document Z75.3 + show rate improvement + CCM enrollment changes to qualify for Part I"
+      },
+      "cra": {
+        "activity_type": "Community Development Grant or CD Loan",
+        "lmi_requirement": "≤80% AMI — verify via Medicaid enrollment, SNAP, income attestation",
+        "qualification_basis": "Community services targeted to LMI individuals (12 CFR §25.12(g))",
+        "enumeration_gap": "Healthcare transportation NOT on OCC Illustrative List — use HRSA designation + CHNA citation",
+        "dollar_weighted_option": "CD Loan for vehicle fleet or technology platform"
+      },
+      "ncqa_hedis": {
+        "measures_directly_impacted": [
+          {"id": "AAP", "name": "Adults' Access to Preventive/Ambulatory Health Services", "impact": "HIGH"},
+          {"id": "PCR", "name": "Plan All-Cause Readmissions", "impact": "HIGH"},
+          {"id": "CBP", "name": "Controlling High Blood Pressure", "impact": "HIGH — requires in-person BP"},
+          {"id": "CDC-HbA1c", "name": "Comprehensive Diabetes Care — HbA1c control", "impact": "HIGH — each missed visit = poor control"},
+          {"id": "COA", "name": "Care for Older Adults", "impact": "MODERATE"},
+          {"id": "FUM", "name": "Follow-Up After Mental Health Hospitalization", "impact": "HIGH — post-discharge transport"},
+          {"id": "TRC", "name": "Transition Record w/ Specified Elements", "impact": "MODERATE"}
+        ],
+        "star_rating_impact": "Moving CBP and CDC-HbA1c from 3★ to 4★ worth est. $1.8M-$3.2M in MA bonus revenue for a 10,000-member plan",
+        "ncqa_health_equity": "NCQA HE Accreditation requires SDOH screening and referral documentation — NEMT programs provide the referral pathway"
+      },
+      "cms_sdoh": {
+        "zcodes_for_risk_adj": ["Z75.3", "Z59.x", "Z60.x"],
+        "hcc_uplift": "Z55-Z65 documentation improves HCC capture; estimated $180-$220 risk score uplift per properly documented patient",
+        "aco_reach": {
+          "py2026_withhold": "5% of benchmark",
+          "sensitive_measures": ["TFU — Timely Follow-Up after acute exacerbation (direct NEMT sensitivity)", "ACR — All-Condition Readmission", "UAMCC — Unplanned Admissions for MCC"]
+        },
+        "cms_innovation": "CMS AHEAD model and accountable health communities grant programs explicitly fund NEMT as SDOH intervention"
+      },
+      "joint_commission": {
+        "standards_addressed": [
+          {"id": "RC.02.01.01", "name": "Medical Record contains SDOH screening results", "relevance": "MODERATE — Z75.3 documentation"},
+          {"id": "LD.04.03.01", "name": "Leaders create and maintain a culture of safety and quality", "relevance": "LOW"},
+          {"id": "NPSG.15.01.01", "name": "Identify patients at risk for suicide (transitions of care)", "relevance": "MODERATE — post-discharge transport"}
+        ],
+        "community_care": "JC Community Care Certification launched 2024 — NEMT programs directly support care coordination and transitions standards"
+      },
+      "aks_safe_harbor": {
+        "regulation": "42 CFR §1001.952(bb)",
+        "conditions": 8,
+        "distance_limits": "≤25mi urban / ≤75mi rural; NO limit for discharge-to-home (2020 exception)",
+        "patient_engagement_safe_harbor": "42 CFR §1001.952(hh) — $500/patient/year cap for VBE participants"
+      },
+      "evidence": {
+        "appointment_adherence": {"or": 0.63, "ci": "0.48-0.83", "certainty": "HIGH", "source": "Shekelle 2022 BMC Public Health"},
+        "readmission_reduction": {"rrr": 0.68, "ci": "0.60-0.75", "certainty": "MODERATE", "source": "Balasubramanian 2025 JAMA Network Open"},
+        "hba1c_impact": {"delta": -0.09, "certainty": "LOW", "note": "Statistically significant but below 0.5% clinical threshold", "source": "Berkowitz 2025 J Primary Care"},
+        "roi": {"hitch_health": "297% (Hennepin/Lyft targeted model)", "certainty": "MODERATE — industry data not peer-reviewed"},
+        "critical_counterpoint": "Chaiyachati RCT 2018: Universal untargeted programs show NO reduction. Targeting prior no-show history is ESSENTIAL."
+      }
+    },
+    {
+      "id": "food_insecurity",
+      "name": "Food Insecurity / Medically Tailored Meals",
+      "description": "SDOH screening + medically tailored meal delivery for food-insecure patients with diet-sensitive chronic conditions",
+      "z_codes": ["Z59.4 — lack of adequate food", "Z72.4 — inappropriate diet and eating habits"],
+      "dimensions": {
+        "schedule_h_parity": 85,
+        "cra_qualification": 72,
+        "ncqa_hedis_impact": 70,
+        "cms_sdoh_risk_adj": 78,
+        "jc_accreditation": 65,
+        "financial_roi": 72,
+        "funder_accessibility": 80,
+        "evidence_strength": 75
+      },
+      "ncqa_hedis": {
+        "measures_directly_impacted": [
+          {"id": "CDC-HbA1c", "name": "Comprehensive Diabetes Care — HbA1c control", "impact": "HIGH"},
+          {"id": "CBP", "name": "Controlling High Blood Pressure", "impact": "MODERATE"}
+        ]
+      },
+      "evidence": {
+        "hospital_readmissions": "Medically tailored meals reduce 30-day readmissions by 16% (RR 0.84) — Berkowitz 2019 J Gen Intern Med",
+        "hba1c": "MTM associated with 1.0% HbA1c reduction vs. standard care — Berkowitz 2019",
+        "cost": "MTM saves $9.29 in healthcare costs per $1 spent — Berkowitz 2019"
+      }
+    },
+    {
+      "id": "housing_stability",
+      "name": "Housing Stability Navigation",
+      "description": "Social worker-led housing navigation and rental/utility assistance for housing-unstable patients",
+      "z_codes": ["Z59.0 — homelessness", "Z59.1 — inadequate housing", "Z59.8 — other problems related to housing and economic circumstances"],
+      "dimensions": {
+        "schedule_h_parity": 80,
+        "cra_qualification": 90,
+        "ncqa_hedis_impact": 60,
+        "cms_sdoh_risk_adj": 82,
+        "jc_accreditation": 60,
+        "financial_roi": 65,
+        "funder_accessibility": 88,
+        "evidence_strength": 68
+      }
+    },
+    {
+      "id": "behavioral_health_nav",
+      "name": "Behavioral Health Navigation & Warm Handoffs",
+      "description": "Co-located BH screening, warm handoffs to community mental health, and care coordination for BH+medical comorbidities",
+      "z_codes": ["Z63.4 — disappearance of family member", "Z65.5 — exposure to disaster/war/other hostilities"],
+      "dimensions": {
+        "schedule_h_parity": 82,
+        "cra_qualification": 68,
+        "ncqa_hedis_impact": 92,
+        "cms_sdoh_risk_adj": 75,
+        "jc_accreditation": 88,
+        "financial_roi": 70,
+        "funder_accessibility": 82,
+        "evidence_strength": 82
+      },
+      "ncqa_hedis": {
+        "measures_directly_impacted": [
+          {"id": "FUM", "name": "Follow-Up After Mental Health Hospitalization — 7-day & 30-day", "impact": "HIGH"},
+          {"id": "FUH", "name": "Follow-Up After Hospitalization for Mental Illness", "impact": "HIGH"},
+          {"id": "AMM", "name": "Antidepressant Medication Management", "impact": "MODERATE"},
+          {"id": "SAA", "name": "Adherence to Antipsychotic Medications for Schizophrenia", "impact": "MODERATE"}
+        ]
+      },
+      "joint_commission": {
+        "standards_addressed": [
+          {"id": "NPSG.15.01.01", "name": "Suicide Risk Reduction", "relevance": "HIGH"},
+          {"id": "PC.04.02.01", "name": "Discharge Planning", "relevance": "HIGH"}
+        ]
+      }
+    },
+    {
+      "id": "chronic_disease_mgmt",
+      "name": "Chronic Disease Self-Management Education (CDSME)",
+      "description": "Evidence-based Stanford CDSME programs, diabetes education (DSMES), and hypertension self-management",
+      "z_codes": ["Z71.3 — dietary counseling and surveillance", "Z71.89 — other specified counseling"],
+      "dimensions": {
+        "schedule_h_parity": 88,
+        "cra_qualification": 65,
+        "ncqa_hedis_impact": 88,
+        "cms_sdoh_risk_adj": 80,
+        "jc_accreditation": 70,
+        "financial_roi": 82,
+        "funder_accessibility": 78,
+        "evidence_strength": 85
+      },
+      "ncqa_hedis": {
+        "measures_directly_impacted": [
+          {"id": "CDC-HbA1c", "name": "Comprehensive Diabetes Care — HbA1c control", "impact": "HIGH"},
+          {"id": "CBP", "name": "Controlling High Blood Pressure", "impact": "HIGH"},
+          {"id": "CDC-Eye", "name": "Comprehensive Diabetes Care — Eye Exam", "impact": "MODERATE"}
+        ]
+      }
+    },
+    {
+      "id": "maternal_health",
+      "name": "Maternal Health & Obstetric Support",
+      "description": "Doula support, prenatal transportation, postpartum depression screening, and FQHC partnerships for LMI obstetric patients",
+      "z_codes": ["Z34.x — encounter for supervision of normal pregnancy", "Z39.x — encounter for maternal postpartum care"],
+      "dimensions": {
+        "schedule_h_parity": 78,
+        "cra_qualification": 75,
+        "ncqa_hedis_impact": 85,
+        "cms_sdoh_risk_adj": 70,
+        "jc_accreditation": 82,
+        "financial_roi": 65,
+        "funder_accessibility": 85,
+        "evidence_strength": 80
+      },
+      "ncqa_hedis": {
+        "measures_directly_impacted": [
+          {"id": "PPC", "name": "Prenatal and Postpartum Care", "impact": "HIGH"},
+          {"id": "ABA", "name": "Avoidance of Antibiotic Treatment for Acute Bronchitis/Bronchiolitis", "impact": "LOW"},
+          {"id": "W34", "name": "Well-Child Visits — 15 months", "impact": "MODERATE"}
+        ]
+      }
+    },
+    {
+      "id": "chw_social_prescribing",
+      "name": "Community Health Workers / Social Prescribing",
+      "description": "CHW-led SDOH screening, community resource navigation, and social prescription for LMI patients with complex social needs",
+      "z_codes": ["Z55-Z65 — SDOH codes across all domains"],
+      "dimensions": {
+        "schedule_h_parity": 90,
+        "cra_qualification": 78,
+        "ncqa_hedis_impact": 82,
+        "cms_sdoh_risk_adj": 92,
+        "jc_accreditation": 75,
+        "financial_roi": 75,
+        "funder_accessibility": 88,
+        "evidence_strength": 78
+      },
+      "cms_sdoh": {
+        "relevant_programs": ["Accountable Health Communities (AHC) Model", "CMS AHEAD Model", "CMMI Comprehensive Primary Care+"]
+      }
+    },
+    {
+      "id": "language_access",
+      "name": "Language Access & Health Literacy",
+      "description": "Medical interpretation, translated materials, and health literacy programming for LEP populations",
+      "z_codes": ["Z60.3 — acculturation difficulty", "Z60.4 — social exclusion and rejection"],
+      "dimensions": {
+        "schedule_h_parity": 75,
+        "cra_qualification": 70,
+        "ncqa_hedis_impact": 72,
+        "cms_sdoh_risk_adj": 68,
+        "jc_accreditation": 78,
+        "financial_roi": 60,
+        "funder_accessibility": 75,
+        "evidence_strength": 72
+      },
+      "joint_commission": {
+        "standards_addressed": [
+          {"id": "RC.02.01.01", "name": "Patient language documented in medical record", "relevance": "HIGH"},
+          {"id": "PC.02.01.21", "name": "Safe Communication — language services", "relevance": "HIGH"}
+        ]
+      }
+    }
+  ],
+  "compliance_frameworks": {
+    "ncqa_accreditation": {
+      "description": "NCQA Health Plan Accreditation evaluates 60+ HEDIS measures. Star ratings directly impact MA revenue. NCQA Health Equity Accreditation launched 2023.",
+      "key_measures_sdoh_sensitive": {
+        "CBP": {"name": "Controlling High Blood Pressure", "sdoh_link": "Requires in-person visit — NEMT/CHW critical"},
+        "CDC": {"name": "Comprehensive Diabetes Care", "sdoh_link": "HbA1c testing requires visit; NEMT enables"},
+        "PCR": {"name": "Plan All-Cause Readmissions", "sdoh_link": "Post-discharge transport directly reduces"},
+        "FUM": {"name": "Follow-Up After Mental Illness Hospitalization", "sdoh_link": "7-day follow-up — NEMT + BH nav critical"},
+        "AAP": {"name": "Adults' Access to Preventive/Ambulatory Care", "sdoh_link": "Transport barrier is #1 access barrier"}
+      },
+      "health_equity_accreditation": {
+        "launched": "2023",
+        "requirements": ["SDOH data collection", "Stratified quality measurement", "Disparities identification", "Improvement plans"],
+        "nemt_relevance": "NEMT programs with Z75.3 documentation directly satisfy SDOH data collection and disparities reduction requirements"
+      }
+    },
+    "joint_commission": {
+      "description": "JC accreditation required for Medicare/Medicaid participation. Community Care Certification launched 2024 specifically for SDOH coordination.",
+      "community_care_certification": {
+        "launched": "2024",
+        "focus": "Organizations providing SDOH navigation, care coordination, and community-clinical linkages",
+        "nemt_relevance": "NEMT programs with care coordination components directly qualify for Community Care Certification"
+      },
+      "key_standards": {
+        "LD.04.03.01": "Leaders support improvement of safety and quality — SDOH programs demonstrate community commitment",
+        "PC.04.01.01": "Discharge planning — NEMT directly ensures post-discharge follow-up execution",
+        "NPSG.15.01.01": "Suicide risk reduction — BH navigation + NEMT addresses access barriers to mental health follow-up"
+      }
+    },
+    "cms_sdoh": {
+      "description": "CMS has progressively embedded SDOH requirements across programs. ACO REACH 2026 5% quality withhold. IRA provisions expand SDOH coverage.",
+      "programs": {
+        "aco_reach": {
+          "py2026_withhold": "5% of benchmark — $200K-$500K at stake for median ACO",
+          "sdoh_sensitive_measures": ["TFU", "ACR", "UAMCC", "DAH"],
+          "nemt_direct_impact": "TFU (Timely Follow-Up) is most directly NEMT-sensitive — measures outpatient visit within condition-specific window after acute discharge"
+        },
+        "ahead_model": {
+          "description": "CMS States Advancing All-Payer Health Equity Approaches and Development Model",
+          "sdoh_grants": "Up to $12M per state for SDOH community investments including transportation"
+        },
+        "ahc_model": {
+          "description": "Accountable Health Communities — bridging clinical and community",
+          "track_c": "Aligned — includes navigation for transportation, food, and housing for high-need beneficiaries"
+        }
+      }
+    },
+    "cra_2023": {
+      "description": "CRA final rule effective 2026 strengthens community development evaluation. Healthcare transportation as community service for LMI populations.",
+      "qualification_pathways": [
+        "Community Development Grant to nonprofit health system NEMT fund",
+        "Community Development Loan for vehicle fleet or technology platform (dollar-weighted)",
+        "Community Development Service — staff hours for program governance or financial counseling"
+      ],
+      "enumeration_status": "NOT explicitly listed on OCC Illustrative List — examiner discretion. Mitigate with HRSA shortage designation + CHNA citation + LMI income documentation chain.",
+      "assessment_area": "Activity must benefit the bank's defined assessment area. Confirm health system service area overlap before structuring."
+    }
+  },
+  "parity_model": {
+    "description": "The tax exemption parity model: nonprofit hospitals receive tax benefits worth X but must document Y in community benefit. The parity gap is X-Y.",
+    "tax_exemption_components": {
+      "federal_income_tax": "Avoided at 21% of taxable income",
+      "state_income_tax": "Varies by state — typically 5-8% of taxable income",
+      "property_tax": "Major — avg $2.8M/yr for community hospital",
+      "sales_tax": "Varies by state",
+      "tax_exempt_bond_financing": "Lower interest rates — avg 150bps savings"
+    },
+    "community_benefit_minimum_defensible": {
+      "pct_of_expenses": 5.0,
+      "note": "IRS has not set a minimum, but academic literature and state advocacy groups use 5% as floor. Several states mandate minimum CB as condition of property tax exemption."
+    },
+    "what_counts": {
+      "part_i_lines": ["7a Financial Assistance (charity care)", "7b Medicaid shortfall", "7c Medicare shortfall", "7e CHIS — transportation is here", "7f Health Professions Education", "7g Subsidized Health Services", "7i Cash contributions to CB organizations"],
+      "does_not_count": ["Bad debt", "Part II community building without evidence-based outcomes", "Medicare and Medicaid unreimbursed costs (some states differ)"]
+    }
+  }
+}
