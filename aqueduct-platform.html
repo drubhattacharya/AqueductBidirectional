@@ -4,11 +4,10 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Aqueduct — NEMT Strategic Platform</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
 <style>
+
 
 :root{
   --navy:#001533;--navy2:#002050;--blue:#003A7A;
@@ -894,6 +893,7 @@ body.persona-foundation .bank-only{display:none!important;}
 .lm-data-note-icon{font-size:15px;flex-shrink:0;margin-top:1px;}
 .lm-data-note-text{font-size:11.5px;color:rgba(255,255,255,.6);line-height:1.6;}
 .lm-data-note-text strong{color:var(--gold2);}
+
 </style>
 </head>
 <body>
@@ -914,30 +914,68 @@ body.persona-foundation .bank-only{display:none!important;}
   </div>
 </div>
 
-<div id="lm-overlay">
-  <div id="lm-stars"></div>
-  <div class="lm-inner">
-    <div class="lm-logo-row">
-      <div class="lm-logo" style="padding:5px;"><img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAA5AJwDASIAAhEBAxEB/8QAHAAAAgIDAQEAAAAAAAAAAAAAAAcBBgQFCAID/8QANhAAAQMDAwIEAwgCAQUAAAAAAQIDBAAFEQYHIRIxCBNBYRQiURUWIzJxgZGhQlIkY3KiseH/xAAZAQACAwEAAAAAAAAAAAAAAAAAAQIDBQT/xAAhEQACAgEFAAMBAAAAAAAAAAAAAQIRAwQSEyExBUFhof/aAAwDAQACEQMRAD8A6dNFFBwOcitIxzW6lvULT1il3m4KKY8VsrUE8qUfQD3J4FZkCWxOgsTYriXWH20uNrSchSSMg/wa5r8QmvBqC8fd62PBVsgOZcWlXD7w4J9wnsPfJ+lWDw2a6CR9zrm6OSVW9as+vKmv/ZH7j6V3S0Mlg5Pslt6sfY5oqDRXCRJyKiiigAoqDUUUBJqKKKYie9RRn3ooAnNRRRQFBRRUelIZNRRRQB6zSr8QGvvu7Z/sK1vdN0nI/EUhXzR2vU8dlHsP3NM6ZIaiQn5TyglpltTiyfRKRkn+q4n1ZfJeo9RzrxNWVOSnSsD0Qn/FI9gMCu/4/T8s7fiJRVs1wSpSgkAqV2HHetva7ZcW3mpTLvwrrawttYUUqSRyCMdjTC2R21OpWJF6ukr7PtcYfivkDOcZwnPrjkn0yOOaY0TRG2l6kC12m9XNiaoENOOgFLh/QpH8cGtPNr8WOTg03XvQss5eRosm1+qfvLYUiWtsXOMAmSlPZX0WPY/0c+1W00l4tuTtxqRy4XCe7GjxEq+MUcFCmsZJ4GT9R65GKrkHdvdzX0qZJ2z0VBFljOlCJU9Q6nsemVLQnPqUpz05GTWJqYwjO4eMp0+TlT/DorIoNJnZveG46k1ZM0PrSyJsWp4wJQ0nIQ+E8qACiSFY+YYJBGSDxWbtRuXe9Xbm6x0tcIMBiLYnloYcYCw4sB1SPmyojsM8AVRZ0bGNipIpT7t7mXnR+4mjNOwIMB6JfZAakOPpWVoHmIR8uFAdl+oNY26e7d5t2t2dv9vbC1ftSqT1yC6T5MYEZAVgjnBBJKgBkd88Fi2NjgoJxSBc3a3J0HebazuvpW3s2ee75YuFuOfKPvhagcd+k4JGSM4q3777sx9vIcCHbIAvF9unMKKkko6c4Cz08nJOAByr9qA2MYl1fcj2yU+0cLbZWpJIzyEkilZ4W9e6h1/o653PUr8d6VHuBYbLTKWx0eWhXYe6jVUvOu99rDp6RetW6EtjlkW2RITEXh+MhQPzEBxRAA75HHriqJsXrO46C8O+pdR2yNFkymb602lEgKKCFobB/KQf7p+E1B7WdiUCtDt/eZOodDWO/S2mmpFwgMyXENZCEqWgKIGSTjn60t9nd5JWpLBq696tYt9uhaedwXIyVjqbwonIUo5V8oAAxknFJlaixzHNfGXIjxIr0uU82xHYQpx1xxQSlCEjJUSeAABnNc9WfdPenX5k3Tb3RduasbLpQ05MUOp7Hp1LWkE/XpHGcZrIv+tN1NUbM6hKtBIt0+P58O5mSS2j4UsL81xpK1pPUnj/AGBzxnkAJ8bsedjvFpvsAXCy3KLcYhUUB6O4FoJHcZHGazs1zP4Pp+4CLBb4Mex29ejVypCnp6nQJCF9PYJ6+3UE/wCPqea6W5oRGcdro1WvIz0vRF8ixwS87b30IA9SW1cVx7ZrWt1YfkNkNDkBQ/N/8rtwjIwaTeqNBItV4dlxkdcR1ZW0VHIbzz049vT2rU+NzxxtxZzanM8OO0b7b+O/P2MnWyAn/mIkFbjY/MR1JVnHflI/qsDSdrkKvMSPFQv4jzUkr6cFABzn2xio0vLmWCQZEF4pcVjzAR8qgPQirLL1xdnmFNstRoy1D5nG0Hq/bPaq8iyRlNQ7UjInq8OZxlOTTj/Su+MC0yH9D3R6KhRccgAkp7kIcClf+JNfHwn3Kyz9l7NDt7jKZEBK2pbAUOtDnmElRHf5sg59/ar5YpU+8wI6bsw2tiMcturTlbnGMe4+v1pXaj8NGjbjenbjZrpdLAl4kuRoqkqa579ORlIP0yQPQY4rPdxSi/o28Eo5FKUek+ynbhXS2TPGXpE2l9p5yL5EaW40oEBZLmUkj1CVAH+K2Gwshm2eJXci2T3UMSZUh1bDbh6VOAPFXyg9/lUDx6c1Wb9oqw7feJbb+xafS/5RSw888+51OPOFxwFSvQcAcAAcU5d19lNLbg3JF3kvTLXd0pCVS4ahl1I4HWkjBIHqMH3oro6W66Yv/ETIjXHxCbaWqE6h+XElNuPtoOSgKeQRnHbhCj+lUdFo1AnxR6rtEXWX3QuE551xiU40F/EoWpK0NpyQOU4I/wC3HenvtTshpTQN2N7afl3e74IblTCPwgQQehIHBIJGTk/TGTW03X2m0luMhpy8NPxrgwnoanRVBLqU8npOQQoZJOCOMnBFIaml0KzX21GqLnbotq1tvbHVEfkJ8hqbFSjzHcHATlYycE/zWl3Eba0L4g9t5GpZIk2uFa48T4xxHSgLR1t+Yc5x0qUhZ+mRV5034a9I2+8s3O93e7aiMfBaYmLAb47dQHJA+mQPqDTI3G0Np7X1hNn1FEL7SVFbLqFdLrC8fmQr0P8AR9QaEhb0mfTXt/sdr0HdLtcpkX7P+CdGfMSUvZQQEJ/2Ks4AHfNcmacstwT4PNSTTHcDT18aebPT+ZtBaQpf6BWRn2NNW3eFrSbM1pc/UV8nQm19QiKWhAIz2KgOx9cYNO6LYLPH00NNNW5hFn+HMb4Pp/D8ojBTj3yc+vOadEVJR8Kjspe7WdktNT1To6Y8S0tNyHC4AGlNoCVhX0wUmuZ9CQJ108PW6MqAy6ttyew6OlJ+ZDawtf8ACSCfam9cfC3o9+4uuQ9QXyFAdX1GGhaFpH0AUoZx+uTTg0jpOwaU0wzpyzQENW5sEKbV8xdKvzKWT+Yn1J/TtQwUlHsofhevlmm7M2OPAlR/NgsliWyFgKacC1ElQ7jOerPvVr1deLXfdudWfZFxi3DyrbMZcMd1LnS4GVgpOOxpban8MWirjdXZtoud0saHjlcZhSVtD6hIUMgexJFX3bDbDTG3tmft9kZddXKAEuRJX1uP98A4AASMngAfvTE6Tuyn+DV9hzZlppDrZcbuMgOIB+ZJ+U9v0Oac1KnRmxWk9I7gp1fZZtyZUguFuCpaVMI60lJA46sAHjJ/emtSoU2m7R9a8OoQ4hTbiQtChhQUMg169aimuiDVo0krS9reV1IQ4wf+mrj+69w9OWuMpKi0p9Q7F05/rtW4oNWcs6qznWlwp3tQJ4AAwAOAPSgfrQKBVZeUDVe19s1BuhZNfSLlNZmWlDaW47aUltwIUpQySM/5HtV/qD3qTQSbbCiiigQUUUUAGKB2ooHagQUUVBoFYUUCigCDUVJqKBn/2Q==" alt="Aqueduct" style="height:26px;mix-blend-mode:multiply;"/></div>
+<!-- ════════ ENTRY MODAL ════════ -->
+<div id="entry-modal" style="position:fixed;inset:0;z-index:8000;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#000f26 0%,#001533 55%,#001a40 100%);padding:24px;">
+  <div id="em-stars" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;"></div>
+  <div style="position:relative;z-index:1;max-width:520px;width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:28px 28px 24px;">
+
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="border-radius:10px;overflow:hidden;display:inline-flex;margin-bottom:12px;">
+        <img src="data:image/png;base64,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" alt="Aqueduct" style="height:36px;mix-blend-mode:multiply;"/>
+      </div>
+      <div id="em-heading" style="font-family:'Playfair Display',serif;font-size:clamp(17px,2vw,22px);color:#fff;line-height:1.3;margin-bottom:6px;">Your community's health data already<br><em style='color:#E8C84A;'>makes the case.</em></div>
+      <div id="em-sub" style="font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.6;">Enter your organization and location to fetch real community data and begin.</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+      <div>
+        <label style="display:block;font-size:11.5px;font-weight:700;color:rgba(255,255,255,.5);margin-bottom:4px;" id="em-name-label">Organization name</label>
+        <input id="em_name" type="text" placeholder="e.g. Olmsted Medical Center" oninput="emCheck()"
+          style="width:100%;padding:10px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:8px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"/>
+      </div>
+      <div id="em-loc-wrap">
+        <label style="display:block;font-size:11.5px;font-weight:700;color:rgba(255,255,255,.5);margin-bottom:4px;" id="em-loc-label">County &amp; State (or ZIP)</label>
+        <input id="em_loc" type="text" placeholder="e.g. Olmsted County, MN" oninput="emCheck()"
+          style="width:100%;padding:10px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:8px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"/>
+      </div>
+    </div>
+
+    <button id="em-btn" onclick="emBegin()"
+      style="width:100%;padding:13px;border-radius:9px;font-size:15px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;background:linear-gradient(135deg,#C9A227,#a07810);color:#001533;box-shadow:0 3px 14px rgba(201,162,39,.35);opacity:.4;pointer-events:none;transition:opacity .2s;">
+      Continue →
+    </button>
+
+    <div style="text-align:center;margin-top:10px;">
+      <a href="index.html" style="font-size:11px;color:rgba(255,255,255,.3);text-decoration:none;">← Back to home</a>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ HEADER ════════ -->
+<header class="demo-hdr" id="main-header" style="display:none;">
+  <div class="demo-hdr-top">
+    <div style="border-radius:7px;overflow:hidden;flex-shrink:0;display:inline-flex;">
+      <img src="data:image/png;base64,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" alt="Aqueduct" style="height:26px;mix-blend-mode:multiply;"/>
+    </div>
     <div class="demo-brand-block">
       <div class="demo-brand"><span id="hdr_orgname">Your Organization</span>
-        <span class="demo-brand-sub"> · <span id="hdr_orgloc"></span> · NEMT Strategic Platform</span></div>
-      <p class="demo-tag" id="hdr_tagline">Your documentation already <strong>makes the case.</strong></p>
+        <span class="demo-brand-sub"> · <span id="hdr_orgloc"></span> · NEMT Strategic Platform</span>
+      </div>
+      <p class="demo-tag" id="hdr_tagline">Your community's health data already <strong>makes the case.</strong></p>
     </div>
-    <a href="index.html" style="color:rgba(255,255,255,.4);font-size:11px;font-weight:600;text-decoration:none;padding:4px 10px;border:1px solid rgba(255,255,255,.12);border-radius:6px;margin-right:4px;white-space:nowrap;" title="Back to home">← Home</a>
-    <div class="persona-pill" onclick="resetToLanding()" title="Switch journey">
+    <a href="index.html" style="color:rgba(255,255,255,.45);font-size:11px;font-weight:600;text-decoration:none;padding:4px 10px;border:1px solid rgba(255,255,255,.12);border-radius:6px;white-space:nowrap;flex-shrink:0;">← Home</a>
+    <div class="persona-pill" onclick="resetToLanding()" title="Switch role" style="flex-shrink:0;">
       <span id="hdr_persona_icon">🏥</span>
       <span class="persona-pill-label" id="hdr_persona_label">Hospital</span>
       <span style="color:rgba(255,255,255,.3);font-size:10px;margin-left:4px;">↺</span>
     </div>
   </div>
-  <!-- Dynamic step rail — populated by JS -->
   <div class="persona-rail" id="persona_rail"></div>
 </header>
 
-
 <!-- ════════ MAIN CONTENT ════════ -->
-<main id="wg-content">
+<main id="wg-content" style="display:none;">
+
 
 <!-- ═══════════════════ HOSPITAL STEP 1: COMMUNITY NEED ═══════════════════ -->
 <section id="hs_need" class="step" data-persona="hospital" style="display:none;">
@@ -2010,6 +2048,7 @@ body.persona-foundation .bank-only{display:none!important;}
   </div>
 </section>
 
+
 </main>
 
 <!-- ════════ DOCUMENT PREVIEW MODAL ════════ -->
@@ -2033,9 +2072,7 @@ body.persona-foundation .bank-only{display:none!important;}
 </div>
 
 <script>
-// ─── Preserved v3.2 JS (full) ────────────────────────────────────────────────
-
-// ─── Core state ──────────────────────────────────────────────────────────────
+// ── Core state ────────────────────────────────────────────────────────────────
 var S = {
   persona: null,
   orgName: '',
@@ -2043,10 +2080,10 @@ var S = {
   roi: {}
 };
 var D = {
-  census: {}, cdc: {}, hrsa: {}, chr: {}, chna: {},
-  status: {geo:'wait', census:'wait', cdc:'wait', ai:'wait'},
-  fips: {state:'', county:'', full:''},
-  county: '', state: ''
+  census:{}, cdc:{}, hrsa:{}, chr:{}, chna:{},
+  status:{geo:'wait', census:'wait', cdc:'wait', ai:'wait'},
+  fips:{state:'', county:'', full:''},
+  county:'', state:''
 };
 var LAYER_STATE = {l1:true, l2:true, l3:false, l4:true};
 var DOCS = [];
@@ -2055,6 +2092,104 @@ var _curPathway = 'cra';
 var _dpmType = '';
 var _dpmText = '';
 var _selectedVehicle = null;
+
+// ── Read persona from URL ─────────────────────────────────────────────────────
+(function() {
+  var p = new URLSearchParams(window.location.search).get('persona');
+  if (p === 'hospital') {
+    S.persona = 'hospital';
+    document.getElementById('em-heading').innerHTML = 'Build your NEMT funding case.<br><em style="color:#E8C84A;">Start with your community data.</em>';
+    document.getElementById('em-name-label').textContent = 'Health system name';
+    document.getElementById('em_name').placeholder = 'e.g. Olmsted Medical Center';
+    document.getElementById('em-loc-label').textContent = 'County & State (or ZIP)';
+    document.getElementById('em-sub').textContent = 'Aqueduct fetches real Census, CDC, HRSA, and CHNA data for your community.';
+  } else if (p === 'funder' || p === 'bank') {
+    S.persona = 'bank';
+    document.getElementById('em-heading').innerHTML = 'Find qualifying NEMT programs<br><em style="color:#E8C84A;">in your assessment area.</em>';
+    document.getElementById('em-name-label').textContent = 'Institution name';
+    document.getElementById('em_name').placeholder = 'e.g. First National Bank';
+    document.getElementById('em-loc-label').textContent = 'Assessment area (county, state or MSA)';
+    document.getElementById('em_loc').placeholder = 'e.g. Olmsted County, MN';
+    document.getElementById('em-sub').textContent = 'Aqueduct maps your assessment area and finds health systems with qualifying NEMT programs.';
+  } else if (p === 'foundation') {
+    S.persona = 'foundation';
+    document.getElementById('em-heading').innerHTML = 'Evaluate your NEMT investment.<br><em style="color:#E8C84A;">Evidence-grounded due diligence.</em>';
+    document.getElementById('em-name-label').textContent = 'Foundation / organization name';
+    document.getElementById('em_name').placeholder = 'e.g. Kresge Foundation';
+    document.getElementById('em-loc-label').textContent = 'Geography of interest (optional)';
+    document.getElementById('em_loc').placeholder = 'e.g. National  or  Midwest';
+    document.getElementById('em-sub').textContent = 'Select your funding vehicle, track your 5% payout obligation, and validate community need.';
+  } else {
+    S.persona = 'hospital';
+  }
+
+  // Stars animation
+  var starsEl = document.getElementById('em-stars');
+  if (starsEl) {
+    for (var i = 0; i < 60; i++) {
+      var d = document.createElement('div');
+      d.style.cssText = 'position:absolute;border-radius:50%;background:#fff;'
+        + 'width:' + (Math.random()*2+.5) + 'px;height:' + (Math.random()*2+.5) + 'px;'
+        + 'top:' + Math.random()*100 + '%;left:' + Math.random()*100 + '%;'
+        + 'opacity:' + (0.05 + Math.random()*0.15) + ';';
+      starsEl.appendChild(d);
+    }
+  }
+})();
+
+function emCheck() {
+  var name = (document.getElementById('em_name').value || '').trim();
+  var btn = document.getElementById('em-btn');
+  var ready = name.length > 1;
+  btn.style.opacity = ready ? '1' : '.4';
+  btn.style.pointerEvents = ready ? 'auto' : 'none';
+}
+
+async function emBegin() {
+  var name = document.getElementById('em_name').value.trim() || 'Your Organization';
+  var loc  = document.getElementById('em_loc').value.trim() || '';
+  S.orgName = name;
+  S.orgLoc  = loc;
+
+  // Hide entry modal, show header and main
+  document.getElementById('entry-modal').style.display = 'none';
+  document.getElementById('main-header').style.display = 'block';
+  document.getElementById('wg-content').style.display = 'block';
+
+  // Apply persona to header
+  applyPersona();
+
+  // Route to first step
+  if (S.persona === 'hospital') {
+    showLoading();
+    await fetchAllData();
+    hideLoading();
+    renderFunderMatch && renderFunderMatch();
+    calcScheduleH && calcScheduleH();
+    goStep('hs', 'need');
+  } else if (S.persona === 'bank') {
+    var bankName = document.getElementById('bank_name');
+    var bankArea = document.getElementById('bank_area');
+    if (bankName) bankName.value = name;
+    if (bankArea) bankArea.value = loc;
+    goStep('bs', 'profile');
+  } else {
+    goStep('fs', 'strategy');
+  }
+}
+
+window.resetToLanding = function() {
+  document.getElementById('main-header').style.display = 'none';
+  document.getElementById('wg-content').style.display = 'none';
+  document.getElementById('entry-modal').style.display = 'flex';
+};
+
+// ── All preserved platform JS ─────────────────────────────────────────────────
+
+// ─── Preserved v3.2 JS (full) ────────────────────────────────────────────────
+
+// ─── Core state ──────────────────────────────────────────────────────────────
+// (state declared above)
 
 
 const ORDER = ['about','need','roi','funders','legal','docs'];
@@ -4625,6 +4760,7 @@ window.renderFunderMatch = function() {
 
 // ── Stars on landing ─────────────────────────────────────────────────────────
 // Stars init handled by v4 section below
+
 
 </script>
 </body>
